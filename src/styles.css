@@ -116,3 +116,6 @@ button { font: inherit; cursor: pointer; touch-action: manipulation; }
 .cell.ghost { opacity: .25; filter: grayscale(1); }
 .quick-choice.tried { opacity: .35; }
 .number-pick { margin-top: auto; }
+.back-btn { white-space: nowrap; flex-shrink: 0; border: none; background: #fff; border-radius: 40px; min-height: 56px; padding: 0 20px; font-size: 22px; font-weight: 800; color: var(--ink); box-shadow: 0 4px 0 #0001; }
+.back-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #0001; }
+@media (max-width: 480px) { .progress { gap: 5px; } .dot { width: 11px; height: 11px; } .back-btn { font-size: 18px; padding: 0 14px; } }

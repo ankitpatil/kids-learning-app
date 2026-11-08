@@ -8,6 +8,7 @@ interface Props {
   subject: Subject;
   /** Highest passed checkpoint index (-1 = none). */
   onDone: (best: number) => void;
+  /** Leave the quiz (back to the starting-point screen). Progress in the quiz is discarded. */
   onExit: () => void;
 }
 
@@ -24,7 +25,7 @@ export function StartPoint({ subject, onPick, onCheck, onExit }: { subject: Subj
   return (
     <div className="screen startpoint">
       <div className="topbar" style={{ width: "100%" }}>
-        <button className="icon-btn" onClick={onExit} aria-label="Home">🏠</button>
+        <button className="back-btn" onClick={onExit} aria-label="Back">⬅️ Back</button>
       </div>
       <button className="btn primary huge check" onClick={onCheck} aria-label="Quick check">🎯</button>
       <p className="parent-note">Grown-ups: tap 🎯 for a 2-minute check, or pick a starting point.</p>
@@ -84,7 +85,16 @@ export function Placement({ subject, onDone, onExit }: Props) {
   return (
     <div className="screen game placement">
       <div className="topbar">
-        <button className="icon-btn" onClick={onExit} aria-label="Home">🏠</button>
+        <button
+          className="back-btn"
+          onClick={() => {
+            window.speechSynthesis?.cancel();
+            onExit();
+          }}
+          aria-label="Back, quit the quick check"
+        >
+          ⬅️ Back
+        </button>
         <div className="progress" aria-label="Quick check">
           {Array.from({ length: 8 }, (_, i) => (
             <span key={i} className={i < Math.min(state.asked, 8) ? 'dot done' : 'dot'} />

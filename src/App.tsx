@@ -72,7 +72,7 @@ export default function App() {
 
   if (screen.name === 'placement') {
     const subject = screen.subject;
-    return <Placement subject={subject} onDone={(best) => applyStart(subject, best)} onExit={() => setScreen({ name: 'home' })} />;
+    return <Placement subject={subject} onDone={(best) => applyStart(subject, best)} onExit={() => setScreen({ name: 'startpoint', subject })} />;
   }
 
   if (screen.name === 'count' || screen.name === 'missing') {
