@@ -40,3 +40,17 @@ describe('tracks', () => {
     expect(() => getTrack('nope')).toThrow();
   });
 });
+
+import { pickTrack } from './tracks';
+describe('pickTrack', () => {
+  it('starts with counting, moves to missing number once counting is mastered', () => {
+    expect(pickTrack('math', {})).toBe('count');
+    expect(pickTrack('math', { count: { level: 3, mastery: 0.9 } })).toBe('count');
+    expect(pickTrack('math', { count: { level: 5, mastery: 0.7 } })).toBe('count');
+    expect(pickTrack('math', { count: { level: 5, mastery: 0.95 } })).toBe('missing');
+  });
+  it('falls back to the last playable track when all are mastered', () => {
+    expect(pickTrack('math', { count: { level: 5, mastery: 0.95 }, missing: { level: 2, mastery: 0.95 } })).toBe('missing');
+    expect(pickTrack('reading', { phonics: { level: 6, mastery: 0.95 } })).toBe('phonics');
+  });
+});

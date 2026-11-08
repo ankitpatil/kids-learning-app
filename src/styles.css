@@ -104,3 +104,15 @@ button { font: inherit; cursor: pointer; touch-action: manipulation; }
 .quick-choices.words .quick-choice { font-size: 40px; font-family: 'Andika', 'Comic Sans MS', ui-rounded, sans-serif; }
 .quick-choice:active { transform: translateY(3px); box-shadow: 0 3px 0 #0002; }
 .quick-choice.picked { background: var(--soft); }
+
+/* Missing number */
+.equation { font-size: 56px; font-weight: 900; color: var(--primary); display: flex; gap: 14px; align-items: center; }
+.equation .blank { min-width: 72px; text-align: center; border-bottom: 6px dashed var(--primary); color: var(--ink); }
+.equation .blank.filled { border-bottom-style: solid; color: var(--math); }
+.frames { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; background: #fff6; border-radius: 24px; padding: 10px; }
+.frame { display: grid; grid-template-columns: repeat(5, 40px); grid-template-rows: repeat(2, 40px); gap: 4px; background: #fff; border-radius: 10px; padding: 6px; }
+.cell { display: flex; align-items: center; justify-content: center; font-size: 30px; border-radius: 8px; background: #f1f2f6; }
+.cell.fed { animation: pop .3s ease; }
+.cell.ghost { opacity: .25; filter: grayscale(1); }
+.quick-choice.tried { opacity: .35; }
+.number-pick { margin-top: auto; }

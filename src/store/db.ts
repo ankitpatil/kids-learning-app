@@ -124,8 +124,11 @@ export async function requestPersistence(): Promise<boolean> {
 }
 
 /** Set starting levels for many tracks at once (placement / parent preset). Resets mastery for those tracks. */
-export function setTrackLevels(profileId: string, levels: Record<string, number>, d: AppDB = db): Promise<void> {
-  const states = Object.entries(levels).map(([skillId, level]) => newSkillState(profileId, skillId, level));
+export function setTrackLevels(profileId: string, levels: Record<string, number>, mastered: string[] = [], d: AppDB = db): Promise<void> {
+  const states = Object.entries(levels).map(([skillId, level]) => ({
+    ...newSkillState(profileId, skillId, level),
+    ...(mastered.includes(skillId) ? { mastery: 0.95 } : {}),
+  }));
   states.forEach((st) => mem.states.set(`${profileId}|${st.skillId}`, st));
   return safe(async () => void (await d.skillStates.bulkPut(states)), () => undefined);
 }
@@ -144,5 +147,13 @@ export function setPlaced(profileId: string, subject: Subject, placed: boolean, 
       mem.profiles.set(next.id, next);
       return next;
     },
+  );
+}
+
+export function getSkillStates(profileId: string, d: AppDB = db): Promise<Record<string, SkillState>> {
+  const toMap = (arr: SkillState[]) => Object.fromEntries(arr.map((s) => [s.skillId, s]));
+  return safe(
+    async () => toMap(await d.skillStates.where('profileId').equals(profileId).toArray()),
+    () => toMap([...mem.states.values()].filter((s) => s.profileId === profileId)),
   );
 }

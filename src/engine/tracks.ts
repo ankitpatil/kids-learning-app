@@ -48,7 +48,7 @@ export const TRACKS: TrackDef[] = [
     levels: [L('within 5, pictures', 5, 'pictorial', 'far', true), L('within 10, pictures', 10, 'pictorial', 'near', true), L('within 10, numbers', 10, 'abstract', 'near', false)],
   },
   {
-    id: 'missing', subject: 'math', name: 'Missing number', emoji: '❓', playable: false,
+    id: 'missing', subject: 'math', name: 'Missing number', emoji: '❓', playable: true,
     levels: [L('a + __ = c to 10, pictures', 10, 'pictorial', 'far', true), L('a + __ = c to 10', 10, 'abstract', 'near', false), L('a + __ = c to 20', 20, 'abstract', 'near', false)],
   },
   {
@@ -109,4 +109,21 @@ export function getLevel(id: string, level: number): LevelConfig {
 
 export function tracksFor(subject: Subject): TrackDef[] {
   return TRACKS.filter((t) => t.subject === subject);
+}
+
+export const MASTERED = 0.85;
+
+/**
+ * Which track a subject's game should play next: the first playable track (in curriculum order)
+ * that isn't mastered yet. A track counts as mastered at its top level with mastery > MASTERED.
+ * Falls back to the last playable track when everything is mastered.
+ */
+export function pickTrack(subject: Subject, states: Record<string, { level: number; mastery: number } | undefined>): string {
+  const playable = tracksFor(subject).filter((t) => t.playable);
+  for (const t of playable) {
+    const s = states[t.id];
+    if (!s) return t.id;
+    if (s.level < t.levels.length - 1 || s.mastery <= MASTERED) return t.id;
+  }
+  return playable[playable.length - 1].id;
 }

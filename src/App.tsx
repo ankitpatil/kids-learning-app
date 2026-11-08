@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import { FeedMonster } from './games/feedMonster/FeedMonster';
 import { PhonicsPop } from './games/phonicsPop/PhonicsPop';
-import { ensureProfile, addStars, requestPersistence, setTrackLevels, setPlaced, type Profile } from './store/db';
+import { ensureProfile, addStars, requestPersistence, setTrackLevels, setPlaced, getSkillStates, type Profile } from './store/db';
+import { levelsFromCheckpoint, masteredFromCheckpoint } from './engine/placement';
+import { pickTrack } from './engine/tracks';
 import { Placement, StartPoint } from './screens/Placement';
 import type { Subject } from './engine/tracks';
 import { say, isMuted, setMuted } from './audio/speech';
 
-type Game = 'count' | 'phonics';
+type Game = 'count' | 'missing' | 'phonics';
 type Screen =
   | { name: 'home' }
   | { name: Game }
@@ -14,7 +16,7 @@ type Screen =
   | { name: 'startpoint'; subject: Subject }
   | { name: 'placement'; subject: Subject };
 
-const GAME_FOR: Record<Subject, Game> = { math: 'count', reading: 'phonics' };
+const SUBJECT_OF: Record<Game, Subject> = { count: 'math', missing: 'math', phonics: 'reading' };
 
 export default function App() {
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -36,10 +38,16 @@ export default function App() {
     say(r.leveledUp ? `Amazing! You earned ${stars} stars and unlocked a harder level!` : `Great job! You earned ${stars} stars!`);
   }
 
-  async function applyStart(subject: Subject, levels: Record<string, number>) {
-    await setTrackLevels(profile!.id, levels);
+  async function launch(subject: Subject) {
+    const game = pickTrack(subject, await getSkillStates(profile!.id)) as Game;
+    say(game === 'phonics' ? 'Phonics pop!' : 'Feed the monster!');
+    setScreen({ name: game });
+  }
+
+  async function applyStart(subject: Subject, best: number) {
+    await setTrackLevels(profile!.id, levelsFromCheckpoint(subject, best), masteredFromCheckpoint(subject, best));
     setProfile(await setPlaced(profile!.id, subject, true));
-    setScreen({ name: GAME_FOR[subject] });
+    await launch(subject);
   }
 
   function openSubject(subject: Subject) {
@@ -47,8 +55,7 @@ export default function App() {
       setScreen({ name: 'startpoint', subject });
       return;
     }
-    say(subject === 'math' ? 'Feed the monster!' : 'Phonics pop!');
-    setScreen({ name: GAME_FOR[subject] });
+    launch(subject);
   }
 
   if (screen.name === 'startpoint') {
@@ -57,7 +64,7 @@ export default function App() {
       <StartPoint
         subject={subject}
         onCheck={() => setScreen({ name: 'placement', subject })}
-        onPick={(levels) => applyStart(subject, levels)}
+        onPick={(best) => applyStart(subject, best)}
         onExit={() => setScreen({ name: 'home' })}
       />
     );
@@ -65,11 +72,12 @@ export default function App() {
 
   if (screen.name === 'placement') {
     const subject = screen.subject;
-    return <Placement subject={subject} onDone={(levels) => applyStart(subject, levels)} onExit={() => setScreen({ name: 'home' })} />;
+    return <Placement subject={subject} onDone={(best) => applyStart(subject, best)} onExit={() => setScreen({ name: 'home' })} />;
   }
 
-  if (screen.name === 'count') {
-    return <FeedMonster profileId={profile.id} onDone={(r) => finishRound('count', r)} onExit={() => setScreen({ name: 'home' })} />;
+  if (screen.name === 'count' || screen.name === 'missing') {
+    const track = screen.name;
+    return <FeedMonster key={track} profileId={profile.id} trackId={track} onDone={(r) => finishRound(track, r)} onExit={() => setScreen({ name: 'home' })} />;
   }
 
   if (screen.name === 'phonics') {
@@ -81,7 +89,7 @@ export default function App() {
       <div className="screen center reward">
         <div className="burst">{'⭐'.repeat(screen.stars)}</div>
         {screen.leveledUp && <div className="unlock">🔓</div>}
-        <button className="btn primary huge" onClick={() => setScreen({ name: screen.game })} aria-label="Play again">▶️</button>
+        <button className="btn primary huge" onClick={() => launch(SUBJECT_OF[screen.game])} aria-label="Play again">▶️</button>
         <button className="btn secondary" onClick={() => setScreen({ name: 'home' })} aria-label="Home">🏠</button>
       </div>
     );

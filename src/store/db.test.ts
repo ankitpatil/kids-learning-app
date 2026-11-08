@@ -29,12 +29,14 @@ describe('db', () => {
   });
 });
 
-import { setTrackLevels, setPlaced } from './db';
+import { setTrackLevels, setPlaced, getSkillStates } from './db';
 describe('placement storage', () => {
   it('sets many track levels and the placed flag', async () => {
     const d = new AppDB('t4');
     const p = await ensureProfile(d);
-    await setTrackLevels(p.id, { count: 5, add10: 2 }, d);
+    await setTrackLevels(p.id, { count: 5, add10: 2 }, ['count'], d);
+    expect((await getSkillState(p.id, 'count', d)).mastery).toBeGreaterThan(0.85);
+    expect(Object.keys(await getSkillStates(p.id, d)).sort()).toEqual(['add10', 'count']);
     expect((await getSkillState(p.id, 'count', d)).level).toBe(5);
     expect((await getSkillState(p.id, 'add10', d)).level).toBe(2);
     const updated = await setPlaced(p.id, 'math', true, d);

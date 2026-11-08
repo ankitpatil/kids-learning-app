@@ -95,6 +95,17 @@ export function levelsFromCheckpoint(subject: Subject, best: number): Record<str
   return out;
 }
 
+/** Tracks whose every checkpoint was passed (start them as mastered, so the app moves past them). */
+export function masteredFromCheckpoint(subject: Subject, best: number): string[] {
+  const cps = CHECKPOINTS[subject];
+  return tracksFor(subject)
+    .map((t) => t.id)
+    .filter((id) => {
+      const own = cps.map((c, i) => ({ c, i })).filter(({ c }) => c.trackId === id);
+      return own.length > 0 && own.every(({ i }) => i <= best);
+    });
+}
+
 export type StartingPoint = 'beginner' | 'basics' | 'reader';
 
 /** Parent shortcut presets, expressed as "highest passed checkpoint". */

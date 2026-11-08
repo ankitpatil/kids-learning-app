@@ -109,3 +109,12 @@ describe('quick items for every checkpoint', () => {
     }
   });
 });
+
+import { masteredFromCheckpoint } from './placement';
+describe('masteredFromCheckpoint', () => {
+  it('marks fully passed tracks only', () => {
+    expect(masteredFromCheckpoint('math', -1)).toEqual([]);
+    expect(masteredFromCheckpoint('math', 1)).toEqual(['count']);
+    expect(masteredFromCheckpoint('math', PRESETS.reader.math).sort()).toEqual(['add10', 'count', 'sub10']);
+  });
+});

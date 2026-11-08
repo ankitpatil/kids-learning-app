@@ -1,17 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
-import { startPlacement, answer, isDone, currentCheckpoint, levelsFromCheckpoint, PRESETS, type StartingPoint } from '../engine/placement';
+import { startPlacement, answer, isDone, currentCheckpoint, PRESETS, type StartingPoint } from '../engine/placement';
 import { makeQuickItem, type QuickItem } from '../engine/quickItems';
 import type { Subject } from '../engine/tracks';
 import { say } from '../audio/speech';
 
 interface Props {
   subject: Subject;
-  onDone: (levels: Record<string, number>) => void;
+  /** Highest passed checkpoint index (-1 = none). */
+  onDone: (best: number) => void;
   onExit: () => void;
 }
 
 /** Parent-facing choice: quick check (child plays) or a preset. */
-export function StartPoint({ subject, onPick, onCheck, onExit }: { subject: Subject; onPick: (levels: Record<string, number>) => void; onCheck: () => void; onExit: () => void }) {
+export function StartPoint({ subject, onPick, onCheck, onExit }: { subject: Subject; onPick: (best: number) => void; onCheck: () => void; onExit: () => void }) {
   const presets: { id: StartingPoint; emoji: string; label: string }[] = [
     { id: 'beginner', emoji: '🌱', label: subject === 'math' ? 'Just starting to count' : 'Just starting letters' },
     { id: 'basics', emoji: subject === 'math' ? '🔢' : '🔤', label: subject === 'math' ? 'Counts to 20' : 'Knows letter sounds' },
@@ -29,7 +30,7 @@ export function StartPoint({ subject, onPick, onCheck, onExit }: { subject: Subj
       <p className="parent-note">Grown-ups: tap 🎯 for a 2-minute check, or pick a starting point.</p>
       <div className="presets">
         {presets.map((p) => (
-          <button key={p.id} className="preset" onClick={() => onPick(levelsFromCheckpoint(subject, PRESETS[p.id][subject]))}>
+          <button key={p.id} className="preset" onClick={() => onPick(PRESETS[p.id][subject])}>
             <span className="preset-emoji">{p.emoji}</span>
             <span>{p.label}</span>
           </button>
@@ -48,7 +49,7 @@ export function Placement({ subject, onDone, onExit }: Props) {
   useEffect(() => {
     if (isDone(state)) {
       say('All done! Great job. Let\'s play!');
-      const t = setTimeout(() => onDone(levelsFromCheckpoint(subject, state.best)), 1500);
+      const t = setTimeout(() => onDone(state.best), 1500);
       return () => clearTimeout(t);
     }
     const cp = currentCheckpoint(state);
