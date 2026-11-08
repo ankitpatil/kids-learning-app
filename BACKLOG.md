@@ -19,11 +19,11 @@ Reprioritised 2026-11-08 for the actual learner: knows basic words and +/- (≈ 
 - [x] 9. **Placement test** per subject: ~10 items, binary search across the track sequence (skip-ahead), sets starting level for each track; also a parent "starting point" picker (Beginner / Knows letters & counting / Reads words & adds). Tests for the search logic
 - [x] 10. **Feed the Monster: add-on & missing-number modes**: "I have 3, feed me up to 8" (3 + __ = 8), within 10 then 20; ten-frame pictorial mode, then abstract equation mode (CPA). Tests
 - [ ] 11. Game: **Number Line Hop**: + / − within 20; levels: visible line & counting hops → make-10 strategy (8 + 5 = 8 + 2 + 3) → equation only. Tests
-- [ ] 12. Game: **Word Pop**: picture + spoken word, pop the matching written word; tracks CVC → digraphs (sh, ch, th, ck) → blends (st, fl, tr…); near distractors are minimal pairs (ship/chip/shop). Word lists as data. Tests
+- [x] 12. Game: **Word Detective** (replaces Word Pop): alternates 🔍 Read it (written word, no audio → tap picture) and 🧩 Build it (picture + spoken word → grapheme tiles with decoys); tracks CVC → digraphs (sh, ch, th, ck) → blends (st, fl, tr…); near distractors are minimal pairs (ship/chip/shop). Word lists as data. Tests
 - [ ] 13. Profile picker / create profile (nickname + avatar emoji), multi-child on one device; each profile has its own track levels
 - [ ] 14. Round mix: 70/20/10 current/review/stretch across the tracks of a subject + tests
 - [ ] 15. **Tens & ones**: Feed the Monster with boxes of 10 + loose cookies (numbers to 100), then compare two-digit numbers (bigger/smaller). Tests
-- [ ] 16. Word Pop: silent-e (cap → cape, kit → kite) and vowel teams (ee, ai, oa); then "pop the word that finishes the sentence". Tests
+- [ ] 16. Word Detective: silent-e (cap → cape, kit → kite) and vowel teams (ee, ai, oa); then "pop the word that finishes the sentence". Tests
 - [ ] 17. Game: **Sight-Word Catch** with tricky/irregular words (said, was, the, of, they…; Dolch primer + first grade lists)
 - [ ] 18. Game: **Word Builder** for endings: drag -s / -ed / -ing onto a base word to match a picture/sentence (jump → jumped / jumping)
 - [ ] 19. **Story Choose**: short decodable stories (only unlocked patterns), read-along highlighting, 1–2 comprehension questions

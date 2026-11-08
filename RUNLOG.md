@@ -6,3 +6,4 @@
 2026-11-08 16:05 PT — item #9 — placement quick check + parent starting-point presets, quick items for 13 tracks, word lists; 36 tests pass — done (interactive session)
 2026-11-08 16:30 PT — item #10 — missing-number track in Feed the Monster (ten-frames → equation), auto track selection; 43 tests pass — done (interactive session)
 2026-11-08 15:50 PT — request — Back button to quit the quick check; no content under top bars — done (interactive session)
+2026-11-08 16:10 PT — item #12 — Word Detective (read-it / build-it) for 5 reading tracks, replaces Word Pop; 51 tests pass — done (interactive session)

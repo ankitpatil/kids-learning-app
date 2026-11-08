@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { FeedMonster } from './games/feedMonster/FeedMonster';
 import { PhonicsPop } from './games/phonicsPop/PhonicsPop';
+import { WordDetective } from './games/wordDetective/WordDetective';
+import { WORD_TRACKS, type WordTrack } from './games/wordDetective/generator';
 import { ensureProfile, addStars, requestPersistence, setTrackLevels, setPlaced, getSkillStates, type Profile } from './store/db';
 import { levelsFromCheckpoint, masteredFromCheckpoint } from './engine/placement';
 import { pickTrack } from './engine/tracks';
@@ -8,7 +10,7 @@ import { Placement, StartPoint } from './screens/Placement';
 import type { Subject } from './engine/tracks';
 import { say, isMuted, setMuted } from './audio/speech';
 
-type Game = 'count' | 'missing' | 'phonics';
+type Game = 'count' | 'missing' | 'phonics' | WordTrack;
 type Screen =
   | { name: 'home' }
   | { name: Game }
@@ -16,7 +18,8 @@ type Screen =
   | { name: 'startpoint'; subject: Subject }
   | { name: 'placement'; subject: Subject };
 
-const SUBJECT_OF: Record<Game, Subject> = { count: 'math', missing: 'math', phonics: 'reading' };
+const SUBJECT_OF = (g: Game): Subject => (g === 'count' || g === 'missing' ? 'math' : 'reading');
+const isWordTrack = (g: string): g is WordTrack => (WORD_TRACKS as readonly string[]).includes(g);
 
 export default function App() {
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -40,7 +43,7 @@ export default function App() {
 
   async function launch(subject: Subject) {
     const game = pickTrack(subject, await getSkillStates(profile!.id)) as Game;
-    say(game === 'phonics' ? 'Phonics pop!' : 'Feed the monster!');
+    say(game === 'phonics' ? 'Phonics pop!' : isWordTrack(game) ? 'Word detective!' : 'Feed the monster!');
     setScreen({ name: game });
   }
 
@@ -80,6 +83,11 @@ export default function App() {
     return <FeedMonster key={track} profileId={profile.id} trackId={track} onDone={(r) => finishRound(track, r)} onExit={() => setScreen({ name: 'home' })} />;
   }
 
+  if (isWordTrack(screen.name)) {
+    const track = screen.name;
+    return <WordDetective key={track} profileId={profile.id} trackId={track} onDone={(r) => finishRound(track, r)} onExit={() => setScreen({ name: 'home' })} />;
+  }
+
   if (screen.name === 'phonics') {
     return <PhonicsPop profileId={profile.id} onDone={(r) => finishRound('phonics', r)} onExit={() => setScreen({ name: 'home' })} />;
   }
@@ -89,7 +97,7 @@ export default function App() {
       <div className="screen center reward">
         <div className="burst">{'⭐'.repeat(screen.stars)}</div>
         {screen.leveledUp && <div className="unlock">🔓</div>}
-        <button className="btn primary huge" onClick={() => launch(SUBJECT_OF[screen.game])} aria-label="Play again">▶️</button>
+        <button className="btn primary huge" onClick={() => launch(SUBJECT_OF(screen.game))} aria-label="Play again">▶️</button>
         <button className="btn secondary" onClick={() => setScreen({ name: 'home' })} aria-label="Home">🏠</button>
       </div>
     );
@@ -124,7 +132,7 @@ export default function App() {
         <button
           className="subject reading"
           onClick={() => openSubject('reading')}
-          aria-label="Reading: Phonics Pop"
+          aria-label="Reading games"
         >
           <span className="big-emoji">🎈🔤</span>
           <span className="label">a b c</span>

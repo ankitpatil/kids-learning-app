@@ -51,6 +51,11 @@ describe('pickTrack', () => {
   });
   it('falls back to the last playable track when all are mastered', () => {
     expect(pickTrack('math', { count: { level: 5, mastery: 0.95 }, missing: { level: 2, mastery: 0.95 } })).toBe('missing');
-    expect(pickTrack('reading', { phonics: { level: 6, mastery: 0.95 } })).toBe('phonics');
+    expect(pickTrack('reading', { phonics: { level: 6, mastery: 0.95 } })).toBe('cvc');
+    const allRead = Object.fromEntries(['phonics', 'cvc', 'digraphs', 'blends', 'silentE', 'vowelTeams'].map((id) => [id, { level: 9, mastery: 0.95 }]));
+    expect(pickTrack('reading', allRead)).toBe('vowelTeams');
+  });
+  it('a reader who mastered letters and short words goes to sh/ch/th words, not letter popping', () => {
+    expect(pickTrack('reading', { phonics: { level: 6, mastery: 0.95 }, cvc: { level: 1, mastery: 0.95 } })).toBe('digraphs');
   });
 });
