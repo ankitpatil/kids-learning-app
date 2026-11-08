@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { FeedMonster } from './games/feedMonster/FeedMonster';
+import { PhonicsPop } from './games/phonicsPop/PhonicsPop';
 import { ensureProfile, addStars, requestPersistence, type Profile } from './store/db';
 import { say, isMuted, setMuted } from './audio/speech';
 
-type Screen = { name: 'home' } | { name: 'count' } | { name: 'reward'; stars: number; leveledUp: boolean };
+type Game = 'count' | 'phonics';
+type Screen = { name: 'home' } | { name: Game } | { name: 'reward'; game: Game; stars: number; leveledUp: boolean };
 
 export default function App() {
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -17,16 +19,20 @@ export default function App() {
 
   if (!profile) return <div className="screen center">…</div>;
 
-  async function finishRound(r: { correct: number; total: number; leveledUp: boolean }) {
+  async function finishRound(game: Game, r: { correct: number; total: number; leveledUp: boolean }) {
     const stars = Math.max(1, Math.round((r.correct / r.total) * 3)) + (r.leveledUp ? 1 : 0);
     const total = await addStars(profile!.id, stars);
     setProfile({ ...profile!, stars: total });
-    setScreen({ name: 'reward', stars, leveledUp: r.leveledUp });
+    setScreen({ name: 'reward', game, stars, leveledUp: r.leveledUp });
     say(r.leveledUp ? `Amazing! You earned ${stars} stars and unlocked a harder level!` : `Great job! You earned ${stars} stars!`);
   }
 
   if (screen.name === 'count') {
-    return <FeedMonster profileId={profile.id} onDone={finishRound} onExit={() => setScreen({ name: 'home' })} />;
+    return <FeedMonster profileId={profile.id} onDone={(r) => finishRound('count', r)} onExit={() => setScreen({ name: 'home' })} />;
+  }
+
+  if (screen.name === 'phonics') {
+    return <PhonicsPop profileId={profile.id} onDone={(r) => finishRound('phonics', r)} onExit={() => setScreen({ name: 'home' })} />;
   }
 
   if (screen.name === 'reward') {
@@ -34,7 +40,7 @@ export default function App() {
       <div className="screen center reward">
         <div className="burst">{'⭐'.repeat(screen.stars)}</div>
         {screen.leveledUp && <div className="unlock">🔓</div>}
-        <button className="btn primary huge" onClick={() => setScreen({ name: 'count' })} aria-label="Play again">▶️</button>
+        <button className="btn primary huge" onClick={() => setScreen({ name: screen.game })} aria-label="Play again">▶️</button>
         <button className="btn secondary" onClick={() => setScreen({ name: 'home' })} aria-label="Home">🏠</button>
       </div>
     );
@@ -69,10 +75,16 @@ export default function App() {
           <span className="big-emoji">👾🍪</span>
           <span className="label">1 2 3</span>
         </button>
-        <button className="subject reading locked" onClick={() => say('Reading games are coming soon!')} aria-label="Reading, coming soon">
+        <button
+          className="subject reading"
+          onClick={() => {
+            say('Phonics pop!');
+            setScreen({ name: 'phonics' });
+          }}
+          aria-label="Reading: Phonics Pop"
+        >
           <span className="big-emoji">🎈🔤</span>
-          <span className="label">A B C</span>
-          <span className="lock">🔒</span>
+          <span className="label">a b c</span>
         </button>
       </div>
     </div>

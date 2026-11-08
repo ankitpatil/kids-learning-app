@@ -10,9 +10,9 @@ Keep each item shippable on its own. If an item is too big, split it into sub-it
 - [x] 4. Speech helper (Web Speech API wrapper, mute toggle)
 - [x] 5. Game: **Feed the Monster** (counting 1–20, levels by max number) wired to engine
 - [x] 6. Home screen with subject picker, star counter, round-end reward screen
+- [x] 7. Game: **Phonics Pop** (hear a letter sound, pop the matching letter balloon). Levels: 5 letters → all 26; separate b/d, p/q confusables at higher level
 
 ## Next
-- [ ] 7. Game: **Phonics Pop** (hear a letter sound, pop the matching letter balloon). Levels: 5 letters → all 26; separate b/d, p/q confusables at higher level
 - [ ] 8. Profile picker / create profile (nickname + avatar emoji), multi-child on one device
 - [ ] 9. Round mix: 70/20/10 current/review/stretch selection in engine + tests
 - [ ] 10. World map screen: island per skill, locked/unlocked via prereqs, mastery bloom

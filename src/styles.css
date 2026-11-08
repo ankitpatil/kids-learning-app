@@ -69,3 +69,20 @@ button { font: inherit; cursor: pointer; touch-action: manipulation; }
 @keyframes wiggle { 0%,100% { transform: rotate(0); } 25% { transform: rotate(-4deg); } 75% { transform: rotate(4deg); } }
 @keyframes pop { from { transform: scale(.3); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+/* Phonics Pop */
+.phonics { background: linear-gradient(#bde6ff, var(--bg)); }
+.picture-card { border: none; background: #fff; border-radius: 32px; width: 180px; height: 180px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 0 #0002; }
+.picture { font-size: 120px; line-height: 1; }
+.balloons { flex: 1; width: 100%; max-width: 640px; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 20px 24px; }
+.balloon { position: relative; border: none; width: 104px; height: 128px; border-radius: 50% 50% 48% 48%; background: radial-gradient(circle at 35% 30%, #fff8, transparent 40%), var(--c); box-shadow: inset -8px -10px 0 #0001; animation: float 3s ease-in-out infinite; transition: transform .15s, opacity .3s; }
+.balloon:active { transform: scale(.92); }
+.balloon-letter { font-size: 64px; font-weight: 900; color: #fff; text-shadow: 0 3px 0 #0003; font-family: 'Andika', 'Comic Sans MS', ui-rounded, sans-serif; }
+.balloon .string { position: absolute; left: 50%; bottom: -34px; width: 2px; height: 34px; background: #0003; }
+.balloon.tried { opacity: .35; }
+.balloon.wiggle { animation: wiggle .4s ease 2; }
+.balloon.popped { animation: popout .6s ease forwards; }
+@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@keyframes popout { 0% { transform: scale(1); } 40% { transform: scale(1.3); } 100% { transform: scale(0); opacity: 0; } }
+.game .topbar { width: 100%; }
+@media (min-width: 600px) { .balloon { width: 128px; height: 156px; } .balloon-letter { font-size: 80px; } }

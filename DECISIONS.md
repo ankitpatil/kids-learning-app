@@ -2,6 +2,13 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-08 — Phonics Pop (#7)
+- Prompt is "Pop the letter that <picture word> starts with" plus an emoji picture, instead of speaking an isolated sound: browser TTS pronounces letter names, not phonemes. Revisit with recorded audio (#26).
+- Letter order follows a common synthetic-phonics sequence: s a t p → i n → m d g o → c k e u r → h b f l j → v w y z q → look-alike drill (b/d, p/q, m/n).
+- 'x' is excluded (no common picture word starts with its /ks/ sound).
+- From level 4 the look-alike partner always appears as a distractor; ease mode removes it.
+- A wrong tap greys out that balloon and the child retries; only first-try answers count toward round stars.
+
 ## 2026-11-08 — Initial setup (with Ankit in chat)
 - Local-first, no backend for MVP (IndexedDB/Dexie). Backend (Supabase) only later for sync.
 - React + TS + Vite PWA. Vitest for tests.

@@ -1,2 +1,3 @@
 # Run log
 2026-11-08 14:48 PT — items #1–6 — scaffold, Dexie store, adaptive engine, speech, Feed the Monster, home/reward screens; 13 tests pass — done (interactive session)
+2026-11-08 15:25 PT — item #7 — Phonics Pop reading game (7 levels, look-alike drill), wired to home screen; 20 tests pass — done (interactive session)
