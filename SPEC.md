@@ -39,7 +39,25 @@ Phonemic awareness → phonics → fluency → vocabulary → comprehension.
 Track mastery per sound/word (e.g. b/d confusion surfaces across games).
 Decodable stories only use unlocked sounds. Read-along word highlighting. Spaced review (1, 3, 7 days).
 
-## Math skill graph
+## Target learner (updated 2026-11-08)
+Primary user already reads basic words and adds/subtracts (≈ US Grade 1 / CBSE Class 1–2). Family is moving to Pune, India: align with both US Common Core Grade 1–2 and NCERT *Joyful Mathematics* (Class 1–2). Use ₹ and Indian names/objects by default, with US variants available. Earlier levels stay for younger siblings.
+
+## Skill tracks and difficulty knobs
+Each game = a **mechanic** + one or more **skill tracks**. A track is an ordered list of levels; each level is a config of knobs:
+- `range`: number size / word pattern (within 10 → 20 → 100; CVC → digraphs → blends …)
+- `representation`: concrete (drag objects) → pictorial (ten-frames, dots, number line) → abstract (symbols only)  — CPA progression
+- `distractors`: far (clearly different) → near (look-alikes, minimal pairs, off-by-one)
+- `scaffold`: hints/number line shown → none
+- later: `format` (pick → build/type), `speed` (untimed → quick-recall bonus)
+Mastery is tracked **per track per profile**, so siblings share games at different settings.
+
+### Math tracks
+count → add within 10 → subtract within 10 → missing number (a + __ = c) → make 10 / add within 20 → subtract within 20 → tens & ones to 100 → compare 2-digit → word problems → money (₹/$) → time → grouping (×/÷)
+
+### Reading tracks
+letter sounds → CVC words → digraphs (sh ch th ck) → blends → silent e → vowel teams (ee ai oa) → endings (-s -ed -ing) → tricky sight words → sentences → short stories + comprehension
+
+## Math skill graph (original, superseded by tracks above)
 count to 5 → count to 10 → count to 20 → compare numbers → add within 5 → add within 10 → subtract within 10 → add within 20 → shapes, money.
 
 ## Reading skill graph
