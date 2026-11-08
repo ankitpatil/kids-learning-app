@@ -1,5 +1,6 @@
 import Dexie, { type Table } from 'dexie';
 import { newSkillState, type SkillState } from '../engine/adaptive';
+import type { Subject } from '../engine/tracks';
 
 export interface Profile {
   id: string;
@@ -7,6 +8,8 @@ export interface Profile {
   avatar: string;
   stars: number;
   createdAt: number;
+  /** Subjects whose placement / starting point has been set. */
+  placed?: Partial<Record<Subject, boolean>>;
 }
 
 export interface Attempt {
@@ -118,4 +121,28 @@ export async function requestPersistence(): Promise<boolean> {
     /* ignore */
   }
   return false;
+}
+
+/** Set starting levels for many tracks at once (placement / parent preset). Resets mastery for those tracks. */
+export function setTrackLevels(profileId: string, levels: Record<string, number>, d: AppDB = db): Promise<void> {
+  const states = Object.entries(levels).map(([skillId, level]) => newSkillState(profileId, skillId, level));
+  states.forEach((st) => mem.states.set(`${profileId}|${st.skillId}`, st));
+  return safe(async () => void (await d.skillStates.bulkPut(states)), () => undefined);
+}
+
+export function setPlaced(profileId: string, subject: Subject, placed: boolean, d: AppDB = db): Promise<Profile> {
+  const apply = (p: Profile): Profile => ({ ...p, placed: { ...(p.placed ?? {}), [subject]: placed } });
+  return safe(
+    async () => {
+      const p = (await d.profiles.get(profileId)) ?? (await ensureProfileDb(d));
+      const next = apply(p);
+      await d.profiles.put(next);
+      return next;
+    },
+    () => {
+      const next = apply(memProfile());
+      mem.profiles.set(next.id, next);
+      return next;
+    },
+  );
 }

@@ -1,11 +1,20 @@
 import { useEffect, useState } from 'react';
 import { FeedMonster } from './games/feedMonster/FeedMonster';
 import { PhonicsPop } from './games/phonicsPop/PhonicsPop';
-import { ensureProfile, addStars, requestPersistence, type Profile } from './store/db';
+import { ensureProfile, addStars, requestPersistence, setTrackLevels, setPlaced, type Profile } from './store/db';
+import { Placement, StartPoint } from './screens/Placement';
+import type { Subject } from './engine/tracks';
 import { say, isMuted, setMuted } from './audio/speech';
 
 type Game = 'count' | 'phonics';
-type Screen = { name: 'home' } | { name: Game } | { name: 'reward'; game: Game; stars: number; leveledUp: boolean };
+type Screen =
+  | { name: 'home' }
+  | { name: Game }
+  | { name: 'reward'; game: Game; stars: number; leveledUp: boolean }
+  | { name: 'startpoint'; subject: Subject }
+  | { name: 'placement'; subject: Subject };
+
+const GAME_FOR: Record<Subject, Game> = { math: 'count', reading: 'phonics' };
 
 export default function App() {
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -25,6 +34,38 @@ export default function App() {
     setProfile({ ...profile!, stars: total });
     setScreen({ name: 'reward', game, stars, leveledUp: r.leveledUp });
     say(r.leveledUp ? `Amazing! You earned ${stars} stars and unlocked a harder level!` : `Great job! You earned ${stars} stars!`);
+  }
+
+  async function applyStart(subject: Subject, levels: Record<string, number>) {
+    await setTrackLevels(profile!.id, levels);
+    setProfile(await setPlaced(profile!.id, subject, true));
+    setScreen({ name: GAME_FOR[subject] });
+  }
+
+  function openSubject(subject: Subject) {
+    if (!profile!.placed?.[subject]) {
+      setScreen({ name: 'startpoint', subject });
+      return;
+    }
+    say(subject === 'math' ? 'Feed the monster!' : 'Phonics pop!');
+    setScreen({ name: GAME_FOR[subject] });
+  }
+
+  if (screen.name === 'startpoint') {
+    const subject = screen.subject;
+    return (
+      <StartPoint
+        subject={subject}
+        onCheck={() => setScreen({ name: 'placement', subject })}
+        onPick={(levels) => applyStart(subject, levels)}
+        onExit={() => setScreen({ name: 'home' })}
+      />
+    );
+  }
+
+  if (screen.name === 'placement') {
+    const subject = screen.subject;
+    return <Placement subject={subject} onDone={(levels) => applyStart(subject, levels)} onExit={() => setScreen({ name: 'home' })} />;
   }
 
   if (screen.name === 'count') {
@@ -66,10 +107,7 @@ export default function App() {
       <div className="subjects">
         <button
           className="subject math"
-          onClick={() => {
-            say('Feed the monster!');
-            setScreen({ name: 'count' });
-          }}
+          onClick={() => openSubject('math')}
           aria-label="Math: Feed the Monster"
         >
           <span className="big-emoji">👾🍪</span>
@@ -77,15 +115,16 @@ export default function App() {
         </button>
         <button
           className="subject reading"
-          onClick={() => {
-            say('Phonics pop!');
-            setScreen({ name: 'phonics' });
-          }}
+          onClick={() => openSubject('reading')}
           aria-label="Reading: Phonics Pop"
         >
           <span className="big-emoji">🎈🔤</span>
           <span className="label">a b c</span>
         </button>
+      </div>
+      <div className="parent-links">
+        <button className="link-btn" onClick={() => setScreen({ name: 'startpoint', subject: 'math' })}>🎯 Math level</button>
+        <button className="link-btn" onClick={() => setScreen({ name: 'startpoint', subject: 'reading' })}>🎯 Reading level</button>
       </div>
     </div>
   );

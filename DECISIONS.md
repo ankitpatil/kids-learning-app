@@ -2,6 +2,14 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-08 — Placement test (#9)
+- First tap on a subject opens a grown-up "starting point" screen: 🎯 quick check (child plays ~8–12 tap questions) or one of 3 presets. Small "🎯 Math level / Reading level" links on home reopen it.
+- Binary search over 12 math / 13 reading checkpoints; each probe passes on 2 right, fails on 2 wrong, tie-breaker on a split; hard cap 12 items.
+- Passing a checkpoint starts that track one level above it; tracks whose checkpoints are all passed start at max level.
+- Placement gives neutral praise ("Okay!", "Got it!") for every answer — it shouldn't feel like a test.
+- Placement also sets levels for tracks that have no game yet (add10, missing, digraphs…), so future games start at the right level.
+- Word lists for cvc / digraphs / blends / silent e / vowel teams added in src/content/words.ts (reused by Word Pop, #12).
+
 ## 2026-11-08 — Skill tracks (#8)
 - Track ids `count` and `phonics` kept identical to old skill ids so saved progress carries over; `skills.ts` is now a shim.
 - Tracks without a game yet are defined with `playable: false` so placement can already set their levels.
