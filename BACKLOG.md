@@ -15,7 +15,7 @@ Keep each item shippable on its own. If an item is too big, split it into sub-it
 ## Next
 Reprioritised 2026-11-08 for the actual learner: knows basic words and +/- (≈ US Grade 1 / CBSE Class 1–2). See SPEC.md "Skill tracks". One item per run.
 
-- [ ] 8. **Skill tracks + difficulty knobs refactor**: replace flat `levels` with per-level config `{range, representation: 'concrete'|'pictorial'|'abstract', distractors: 'far'|'near', scaffold: boolean}`; define the math and reading track lists from SPEC (ids only + configs for existing games). Keep existing Feed the Monster / Phonics Pop behaviour and saved progress working; tests for config lookup
+- [x] 8. **Skill tracks + difficulty knobs refactor**: replace flat `levels` with per-level config `{range, representation: 'concrete'|'pictorial'|'abstract', distractors: 'far'|'near', scaffold: boolean}`; define the math and reading track lists from SPEC (ids only + configs for existing games). Keep existing Feed the Monster / Phonics Pop behaviour and saved progress working; tests for config lookup
 - [ ] 9. **Placement test** per subject: ~10 items, binary search across the track sequence (skip-ahead), sets starting level for each track; also a parent "starting point" picker (Beginner / Knows letters & counting / Reads words & adds). Tests for the search logic
 - [ ] 10. **Feed the Monster: add-on & missing-number modes**: "I have 3, feed me up to 8" (3 + __ = 8), within 10 then 20; ten-frame pictorial mode, then abstract equation mode (CPA). Tests
 - [ ] 11. Game: **Number Line Hop**: + / − within 20; levels: visible line & counting hops → make-10 strategy (8 + 5 = 8 + 2 + 3) → equation only. Tests

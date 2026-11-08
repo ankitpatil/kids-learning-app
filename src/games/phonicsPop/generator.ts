@@ -1,5 +1,6 @@
 import { CONFUSABLES, LETTERS, PHONICS_LEVEL_NEW, lettersUpTo } from './letters';
 import type { Rng } from '../feedMonster/generator';
+import { getLevel } from '../../engine/tracks';
 
 export interface PhonicsItem {
   id: string;
@@ -53,8 +54,8 @@ export function makePhonicsItem(level: number, rng: Rng = Math.random, ease = fa
   const n = Math.min(choiceCount(lvl, ease), pool.length);
   const choices = new Set<string>([target]);
   const partner = CONFUSABLES[target];
-  // From level 4 up (once b/d are both known), include the look-alike partner as a distractor.
-  if (!ease && lvl >= 4 && partner && pool.includes(partner)) choices.add(partner);
+  // 'near' distractor levels (once b/d are both known) include the look-alike partner.
+  if (!ease && getLevel('phonics', lvl).distractors === 'near' && partner && pool.includes(partner)) choices.add(partner);
   const rest = shuffle(pool.filter((l) => !choices.has(l)), rng);
   // In ease mode, avoid look-alikes so the choice is clearly easier.
   const filtered = ease ? rest.filter((l) => l !== partner) : rest;
