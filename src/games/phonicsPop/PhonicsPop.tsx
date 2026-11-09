@@ -4,6 +4,8 @@ import { LETTERS } from './letters';
 import { updateSkill, type SkillState } from '../../engine/adaptive';
 import { getSkillState, saveSkillState, logAttempt } from '../../store/db';
 import { say } from '../../audio/speech';
+import { fresh } from '../../engine/recent';
+import { feedback } from '../../components/Feedback';
 
 const ROUND_LENGTH = 8;
 const SKILL = 'phonics';
@@ -41,7 +43,8 @@ export function PhonicsPop({ profileId, onDone, onExit }: Props) {
   }, [profileId]);
 
   function next(level: number, prevTarget: string | undefined) {
-    const it = makePhonicsItem(level, Math.random, ease.current, prevTarget);
+    const easy = ease.current;
+    const it = fresh(SKILL, () => makePhonicsItem(level, Math.random, easy, prevTarget), (x) => x.target);
     ease.current = false;
     setItem(it);
     setTried([]);
@@ -65,6 +68,7 @@ export function PhonicsPop({ profileId, onDone, onExit }: Props) {
     if (out.change === 'up') leveledUp.current = true;
     if (out.ease) ease.current = true;
 
+    feedback(correct ? (out.change === 'up' ? 'levelup' : 'correct') : 'wrong');
     if (correct) {
       setPopped(letter);
       if (!hintUsed) correctCount.current += 1;
@@ -96,7 +100,7 @@ export function PhonicsPop({ profileId, onDone, onExit }: Props) {
   return (
     <div className="screen game phonics">
       <div className="topbar">
-        <button className="icon-btn" onClick={onExit} aria-label="Home">🏠</button>
+        <button className="back-btn" onClick={onExit} aria-label="Back to levels">⬅️ Levels</button>
         <div className="progress" aria-label={`Question ${index + 1} of ${ROUND_LENGTH}`}>
           {Array.from({ length: ROUND_LENGTH }, (_, i) => (
             <span key={i} className={i < index ? 'dot done' : i === index ? 'dot now' : 'dot'} />

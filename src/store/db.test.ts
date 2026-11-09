@@ -45,3 +45,15 @@ describe('placement storage', () => {
     expect((await setPlaced(p.id, 'reading', true, d)).placed).toEqual({ math: true, reading: true });
   });
 });
+
+import { addSticker } from './db';
+describe('stickers storage', () => {
+  it('counts stickers per profile', async () => {
+    const d = new AppDB('t5');
+    const p = await ensureProfile(d);
+    await addSticker(p.id, 'animals-puppy', d);
+    const after = await addSticker(p.id, 'animals-puppy', d);
+    expect(after.stickers).toEqual({ 'animals-puppy': 2 });
+    expect((await d.profiles.get(p.id))?.stickers?.['animals-puppy']).toBe(2);
+  });
+});

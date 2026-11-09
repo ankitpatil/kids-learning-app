@@ -10,6 +10,8 @@ export interface Profile {
   createdAt: number;
   /** Subjects whose placement / starting point has been set. */
   placed?: Partial<Record<Subject, boolean>>;
+  /** Sticker id → how many collected. */
+  stickers?: Record<string, number>;
 }
 
 export interface Attempt {
@@ -155,5 +157,22 @@ export function getSkillStates(profileId: string, d: AppDB = db): Promise<Record
   return safe(
     async () => toMap(await d.skillStates.where('profileId').equals(profileId).toArray()),
     () => toMap([...mem.states.values()].filter((s) => s.profileId === profileId)),
+  );
+}
+
+export function addSticker(profileId: string, stickerId: string, d: AppDB = db): Promise<Profile> {
+  const apply = (p: Profile): Profile => ({ ...p, stickers: { ...(p.stickers ?? {}), [stickerId]: (p.stickers?.[stickerId] ?? 0) + 1 } });
+  return safe(
+    async () => {
+      const p = (await d.profiles.get(profileId)) ?? (await ensureProfileDb(d));
+      const next = apply(p);
+      await d.profiles.put(next);
+      return next;
+    },
+    () => {
+      const next = apply(memProfile());
+      mem.profiles.set(next.id, next);
+      return next;
+    },
   );
 }

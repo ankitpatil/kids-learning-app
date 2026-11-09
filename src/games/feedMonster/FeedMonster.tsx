@@ -4,6 +4,8 @@ import { updateSkill, type SkillState } from '../../engine/adaptive';
 import { maxLevel } from '../../engine/tracks';
 import { getSkillState, saveSkillState, logAttempt } from '../../store/db';
 import { say } from '../../audio/speech';
+import { fresh } from '../../engine/recent';
+import { feedback } from '../../components/Feedback';
 
 const ROUND_LENGTH = 8;
 const NUMBER_WORDS = ['zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen','twenty','twenty one','twenty two','twenty three','twenty four'];
@@ -66,7 +68,8 @@ export function FeedMonster({ profileId, trackId, onDone, onExit }: Props) {
   }, [profileId, trackId]);
 
   function next(level: number, prevNeed: number | undefined) {
-    const it = makeFeedItem(trackId, level, Math.random, ease.current, prevNeed);
+    const easy = ease.current;
+    const it = fresh(trackId, () => makeFeedItem(trackId, level, Math.random, easy, prevNeed), (x) => x.id);
     setHintUsed(ease.current);
     ease.current = false;
     setItem(it);
@@ -103,6 +106,7 @@ export function FeedMonster({ profileId, trackId, onDone, onExit }: Props) {
     if (out.change === 'up') leveledUp.current = true;
     if (out.ease) ease.current = true;
 
+    feedback(correct ? (out.change === 'up' ? 'levelup' : 'correct') : 'wrong');
     if (correct) {
       setMood('yum');
       if (item.mode === 'feed') setFed(given);
@@ -150,7 +154,7 @@ export function FeedMonster({ profileId, trackId, onDone, onExit }: Props) {
   return (
     <div className="screen game">
       <div className="topbar">
-        <button className="icon-btn" onClick={onExit} aria-label="Home">🏠</button>
+        <button className="back-btn" onClick={onExit} aria-label="Back to levels">⬅️ Levels</button>
         <div className="progress" aria-label={`Question ${index + 1} of ${ROUND_LENGTH}`}>
           {Array.from({ length: ROUND_LENGTH }, (_, i) => (
             <span key={i} className={i < index ? 'dot done' : i === index ? 'dot now' : 'dot'} />

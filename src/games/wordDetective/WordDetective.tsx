@@ -4,6 +4,8 @@ import { updateSkill, type SkillState } from '../../engine/adaptive';
 import { maxLevel } from '../../engine/tracks';
 import { getSkillState, saveSkillState, logAttempt } from '../../store/db';
 import { say } from '../../audio/speech';
+import { fresh } from '../../engine/recent';
+import { feedback } from '../../components/Feedback';
 
 const ROUND_LENGTH = 8;
 
@@ -43,7 +45,8 @@ export function WordDetective({ profileId, trackId, onDone, onExit }: Props) {
   }, [profileId, trackId]);
 
   function next(level: number, i: number, prevWord: string | undefined) {
-    const it = makeWordItem(trackId, level, i, Math.random, ease.current, prevWord);
+    const easy = ease.current;
+    const it = fresh(trackId, () => makeWordItem(trackId, level, i, Math.random, easy, prevWord), (x) => x.word);
     hinted.current = ease.current;
     ease.current = false;
     setItem(it);
@@ -89,6 +92,7 @@ export function WordDetective({ profileId, trackId, onDone, onExit }: Props) {
 
   async function success() {
     const out = await record(true);
+    feedback(out.change === 'up' ? 'levelup' : 'correct');
     if (!hinted.current) correctCount.current += 1;
     setMood('yay');
     say(out.change === 'up' ? `Yes, ${item!.word}! You're a word detective — new words unlocked!` : `Yes! ${item!.word}!`);
@@ -100,6 +104,7 @@ export function WordDetective({ profileId, trackId, onDone, onExit }: Props) {
     busy.current = true;
     if (emoji === item.answer) return success();
     await record(false);
+    feedback('wrong');
     hinted.current = true;
     setTried((t) => [...t, emoji]);
     setMood('oops');
@@ -142,6 +147,7 @@ export function WordDetective({ profileId, trackId, onDone, onExit }: Props) {
     const wrong = wrongSlots(it, p);
     if (!wrong.length) return success();
     await record(false);
+    feedback('wrong');
     hinted.current = true;
     setBad(wrong);
     setMood('oops');
@@ -161,7 +167,7 @@ export function WordDetective({ profileId, trackId, onDone, onExit }: Props) {
   return (
     <div className="screen game words">
       <div className="topbar">
-        <button className="icon-btn" onClick={onExit} aria-label="Home">🏠</button>
+        <button className="back-btn" onClick={onExit} aria-label="Back to levels">⬅️ Levels</button>
         <div className="progress" aria-label={`Question ${index + 1} of ${ROUND_LENGTH}`}>
           {Array.from({ length: ROUND_LENGTH }, (_, i) => (
             <span key={i} className={i < index ? 'dot done' : i === index ? 'dot now' : 'dot'} />

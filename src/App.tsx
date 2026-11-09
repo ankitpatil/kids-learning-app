@@ -3,7 +3,12 @@ import { FeedMonster } from './games/feedMonster/FeedMonster';
 import { PhonicsPop } from './games/phonicsPop/PhonicsPop';
 import { WordDetective } from './games/wordDetective/WordDetective';
 import { WORD_TRACKS, type WordTrack } from './games/wordDetective/generator';
-import { ensureProfile, addStars, requestPersistence, setTrackLevels, setPlaced, getSkillStates, type Profile } from './store/db';
+import { ensureProfile, addStars, addSticker, requestPersistence, setTrackLevels, setPlaced, getSkillStates, getSkillState, type Profile } from './store/db';
+import { LevelSelect } from './screens/LevelSelect';
+import { StickerVault } from './screens/StickerVault';
+import { pickSticker } from './engine/stickers';
+import type { Sticker } from './content/stickers';
+import { playSparkle } from './audio/sfx';
 import { levelsFromCheckpoint, masteredFromCheckpoint } from './engine/placement';
 import { pickTrack } from './engine/tracks';
 import { Placement, StartPoint } from './screens/Placement';
@@ -14,7 +19,9 @@ type Game = 'count' | 'missing' | 'phonics' | WordTrack;
 type Screen =
   | { name: 'home' }
   | { name: Game }
-  | { name: 'reward'; game: Game; stars: number; leveledUp: boolean }
+  | { name: 'reward'; game: Game; stars: number; leveledUp: boolean; sticker: Sticker; isNew: boolean }
+  | { name: 'levels'; subject: Subject }
+  | { name: 'vault'; from?: Screen }
   | { name: 'startpoint'; subject: Subject }
   | { name: 'placement'; subject: Subject };
 
@@ -36,9 +43,15 @@ export default function App() {
   async function finishRound(game: Game, r: { correct: number; total: number; leveledUp: boolean }) {
     const stars = Math.max(1, Math.round((r.correct / r.total) * 3)) + (r.leveledUp ? 1 : 0);
     const total = await addStars(profile!.id, stars);
-    setProfile({ ...profile!, stars: total });
-    setScreen({ name: 'reward', game, stars, leveledUp: r.leveledUp });
-    say(r.leveledUp ? `Amazing! You earned ${stars} stars and unlocked a harder level!` : `Great job! You earned ${stars} stars!`);
+    // One sticker per round; a level-up or a perfect round earns a rare one.
+    const owned = profile!.stickers ?? {};
+    const sticker = pickSticker(owned, r.leveledUp || r.correct === r.total);
+    const isNew = !owned[sticker.id];
+    const updated = await addSticker(profile!.id, sticker.id);
+    setProfile({ ...updated, stars: total });
+    setScreen({ name: 'reward', game, stars, leveledUp: r.leveledUp, sticker, isNew });
+    setTimeout(playSparkle, 600);
+    say(`${r.leveledUp ? 'Amazing! A harder level is unlocked!' : 'Great job!'} You got a ${sticker.name} sticker!`);
   }
 
   async function launch(subject: Subject) {
@@ -61,6 +74,37 @@ export default function App() {
     launch(subject);
   }
 
+  const toLevels = (subject: Subject) => {
+    window.speechSynthesis?.cancel();
+    setScreen({ name: 'levels', subject });
+  };
+
+  async function playTrack(trackId: string, level?: number) {
+    if (level !== undefined) {
+      const cur = await getSkillState(profile!.id, trackId);
+      if (cur.level !== level) await setTrackLevels(profile!.id, { [trackId]: level });
+    }
+    setScreen({ name: trackId as Game });
+  }
+
+  if (screen.name === 'levels') {
+    const subject = screen.subject;
+    return (
+      <LevelSelect
+        profileId={profile.id}
+        subject={subject}
+        onPlay={playTrack}
+        onCheck={() => setScreen({ name: 'startpoint', subject })}
+        onBack={() => setScreen({ name: 'home' })}
+      />
+    );
+  }
+
+  if (screen.name === 'vault') {
+    const from = screen.from;
+    return <StickerVault owned={profile.stickers ?? {}} onBack={() => setScreen(from ?? { name: 'home' })} />;
+  }
+
   if (screen.name === 'startpoint') {
     const subject = screen.subject;
     return (
@@ -80,16 +124,16 @@ export default function App() {
 
   if (screen.name === 'count' || screen.name === 'missing') {
     const track = screen.name;
-    return <FeedMonster key={track} profileId={profile.id} trackId={track} onDone={(r) => finishRound(track, r)} onExit={() => setScreen({ name: 'home' })} />;
+    return <FeedMonster key={track} profileId={profile.id} trackId={track} onDone={(r) => finishRound(track, r)} onExit={() => toLevels('math')} />;
   }
 
   if (isWordTrack(screen.name)) {
     const track = screen.name;
-    return <WordDetective key={track} profileId={profile.id} trackId={track} onDone={(r) => finishRound(track, r)} onExit={() => setScreen({ name: 'home' })} />;
+    return <WordDetective key={track} profileId={profile.id} trackId={track} onDone={(r) => finishRound(track, r)} onExit={() => toLevels('reading')} />;
   }
 
   if (screen.name === 'phonics') {
-    return <PhonicsPop profileId={profile.id} onDone={(r) => finishRound('phonics', r)} onExit={() => setScreen({ name: 'home' })} />;
+    return <PhonicsPop profileId={profile.id} onDone={(r) => finishRound('phonics', r)} onExit={() => toLevels('reading')} />;
   }
 
   if (screen.name === 'reward') {
@@ -97,8 +141,15 @@ export default function App() {
       <div className="screen center reward">
         <div className="burst">{'⭐'.repeat(screen.stars)}</div>
         {screen.leveledUp && <div className="unlock">🔓</div>}
-        <button className="btn primary huge" onClick={() => launch(SUBJECT_OF(screen.game))} aria-label="Play again">▶️</button>
-        <button className="btn secondary" onClick={() => setScreen({ name: 'home' })} aria-label="Home">🏠</button>
+        <button className={`sticker-reveal ${screen.sticker.rarity}`} onClick={() => setScreen({ name: 'vault', from: screen })} aria-label={`New sticker: ${screen.sticker.name}. Open sticker book`}>
+          <span className="sticker-emoji">{screen.sticker.emoji}</span>
+          {screen.isNew && <span className="new-tag">NEW</span>}
+        </button>
+        <div className="reward-actions">
+          <button className="btn secondary" onClick={() => toLevels(SUBJECT_OF(screen.game))} aria-label="Pick a level">⬅️</button>
+          <button className="btn primary huge" onClick={() => launch(SUBJECT_OF(screen.game))} aria-label="Play again">▶️</button>
+          <button className="btn secondary" onClick={() => setScreen({ name: 'vault', from: screen })} aria-label="Sticker book">📒</button>
+        </div>
       </div>
     );
   }
@@ -108,6 +159,7 @@ export default function App() {
       <div className="topbar">
         <div className="avatar">{profile.avatar}</div>
         <div className="stars" aria-label={`${profile.stars} stars`}>⭐ {profile.stars}</div>
+        <button className="icon-btn" onClick={() => setScreen({ name: 'vault' })} aria-label="Sticker book">📒</button>
         <button
           className="icon-btn"
           aria-label={muted ? 'Sound on' : 'Sound off'}
@@ -139,8 +191,8 @@ export default function App() {
         </button>
       </div>
       <div className="parent-links">
-        <button className="link-btn" onClick={() => setScreen({ name: 'startpoint', subject: 'math' })}>🎯 Math level</button>
-        <button className="link-btn" onClick={() => setScreen({ name: 'startpoint', subject: 'reading' })}>🎯 Reading level</button>
+        <button className="link-btn" onClick={() => setScreen({ name: 'levels', subject: 'math' })}>🗺️ Math levels</button>
+        <button className="link-btn" onClick={() => setScreen({ name: 'levels', subject: 'reading' })}>🗺️ Reading levels</button>
       </div>
     </div>
   );

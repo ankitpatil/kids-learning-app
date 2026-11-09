@@ -3,6 +3,7 @@ import { startPlacement, answer, isDone, currentCheckpoint, PRESETS, type Starti
 import { makeQuickItem, type QuickItem } from '../engine/quickItems';
 import type { Subject } from '../engine/tracks';
 import { say } from '../audio/speech';
+import { fresh } from '../engine/recent';
 
 interface Props {
   subject: Subject;
@@ -54,7 +55,7 @@ export function Placement({ subject, onDone, onExit }: Props) {
       return () => clearTimeout(t);
     }
     const cp = currentCheckpoint(state);
-    const it = makeQuickItem(cp.trackId, cp.level);
+    const it = fresh(`placement-${cp.trackId}`, () => makeQuickItem(cp.trackId, cp.level), (x) => `${x.visual}|${x.answer}`);
     setItem(it);
     setPicked(null);
     busy.current = false;
