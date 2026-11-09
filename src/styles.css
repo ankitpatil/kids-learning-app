@@ -212,3 +212,22 @@ button { font: inherit; cursor: pointer; touch-action: manipulation; }
 .hop-game .actions { gap: 12px; margin-bottom: 24px; max-width: 100%; }
 .hop-game .actions .btn { min-width: 80px; }
 .hop-game .actions .btn.huge { min-width: 0; flex: 1 1 auto; font-size: 48px; padding: 0 16px; }
+
+/* Profiles (#13) */
+.avatar-btn { display: flex; flex-direction: column; align-items: center; border: none; background: none; padding: 4px 8px; min-width: 64px; min-height: 64px; }
+.avatar-btn .avatar { font-size: 44px; line-height: 1; }
+.avatar-name { font-size: 14px; font-weight: 700; color: #555; max-width: 96px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.avatar.big { font-size: 56px; }
+.profile-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 16px; padding: 8px 0 24px; }
+.profile-card { display: flex; flex-direction: column; align-items: center; gap: 4px; border: none; border-radius: 28px; background: #fff; padding: 16px 8px; min-height: 160px; box-shadow: 0 6px 0 #0002; }
+.profile-card:active { transform: translateY(3px); box-shadow: 0 3px 0 #0002; }
+.profile-card.current { outline: 4px solid var(--primary); }
+.profile-card.add { background: #f1efff; }
+.profile-avatar { font-size: 64px; line-height: 1.1; }
+.profile-name { font-size: 22px; font-weight: 800; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.profile-stars { font-size: 16px; opacity: .7; }
+.avatar-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 10px; padding: 8px 0; }
+.avatar-choice { font-size: 44px; min-height: 72px; border: none; border-radius: 20px; background: #fff; box-shadow: 0 4px 0 #0001; }
+.avatar-choice.chosen { outline: 4px solid var(--primary); background: #f1efff; transform: scale(1.06); }
+.nickname-field { display: flex; flex-direction: column; gap: 6px; margin: 12px 0; font-size: 15px; color: #666; }
+.nickname-field input { font-size: 24px; padding: 12px 16px; border-radius: 16px; border: 2px solid #ddd; min-height: 56px; }

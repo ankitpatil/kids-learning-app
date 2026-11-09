@@ -5,9 +5,11 @@ import { WordDetective } from './games/wordDetective/WordDetective';
 import { NumberLineHop } from './games/numberLine/NumberLineHop';
 import { isHopTrack, type HopTrack } from './games/numberLine/generator';
 import { WORD_TRACKS, type WordTrack } from './games/wordDetective/generator';
-import { ensureProfile, addStars, addSticker, requestPersistence, setTrackLevels, setPlaced, getSkillStates, getSkillState, type Profile } from './store/db';
+import { listProfiles, createProfile, touchProfile, addStars, addSticker, requestPersistence, setTrackLevels, setPlaced, getSkillStates, getSkillState, type Profile } from './store/db';
 import { LevelSelect } from './screens/LevelSelect';
 import { StickerVault } from './screens/StickerVault';
+import { ProfilePicker, CreateProfile } from './screens/Profiles';
+import { startupProfileId } from './engine/profiles';
 import { pickSticker } from './engine/stickers';
 import type { Sticker } from './content/stickers';
 import { playSparkle } from './audio/sfx';
@@ -25,20 +27,61 @@ type Screen =
   | { name: 'levels'; subject: Subject }
   | { name: 'vault'; from?: Screen }
   | { name: 'startpoint'; subject: Subject }
-  | { name: 'placement'; subject: Subject };
+  | { name: 'placement'; subject: Subject }
+  | { name: 'profiles' }
+  | { name: 'newProfile' };
 
 const SUBJECT_OF = (g: Game): Subject => (g === 'count' || g === 'missing' || isHopTrack(g) ? 'math' : 'reading');
 const isWordTrack = (g: string): g is WordTrack => (WORD_TRACKS as readonly string[]).includes(g);
 
 export default function App() {
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [profiles, setProfiles] = useState<Profile[] | null>(null);
   const [screen, setScreen] = useState<Screen>({ name: 'home' });
   const [muted, setMutedState] = useState(isMuted());
 
   useEffect(() => {
-    ensureProfile().then(setProfile);
+    listProfiles().then((list) => {
+      setProfiles(list);
+      const only = startupProfileId(list.map((p) => p.id));
+      if (only) setProfile(list[0]);
+      else setScreen(list.length ? { name: 'profiles' } : { name: 'newProfile' });
+    });
     requestPersistence();
   }, []);
+
+  function choose(p: Profile) {
+    window.speechSynthesis?.cancel();
+    setProfile(p);
+    touchProfile(p.id);
+    setScreen({ name: 'home' });
+  }
+
+  async function openProfiles() {
+    setProfiles(await listProfiles());
+    setScreen({ name: 'profiles' });
+  }
+
+  if (!profiles) return <div className="screen center">…</div>;
+
+  if (screen.name === 'profiles') {
+    return <ProfilePicker profiles={profiles} currentId={profile?.id} onPick={choose} onNew={() => setScreen({ name: 'newProfile' })} onBack={profile ? () => setScreen({ name: 'home' }) : undefined} />;
+  }
+
+  if (screen.name === 'newProfile') {
+    return (
+      <CreateProfile
+        usedAvatars={profiles.map((p) => p.avatar)}
+        onBack={profiles.length ? () => setScreen({ name: 'profiles' }) : undefined}
+        onCreate={async (nickname, avatar) => {
+          const p = await createProfile(nickname, avatar);
+          setProfiles(await listProfiles());
+          say(`Hi ${p.nickname}!`);
+          choose(p);
+        }}
+      />
+    );
+  }
 
   if (!profile) return <div className="screen center">…</div>;
 
@@ -164,7 +207,10 @@ export default function App() {
   return (
     <div className="screen home">
       <div className="topbar">
-        <div className="avatar">{profile.avatar}</div>
+        <button className="avatar-btn" onClick={openProfiles} aria-label={`${profile.nickname}. Switch player`}>
+          <span className="avatar">{profile.avatar}</span>
+          <span className="avatar-name">{profile.nickname}</span>
+        </button>
         <div className="stars" aria-label={`${profile.stars} stars`}>⭐ {profile.stars}</div>
         <button className="icon-btn" onClick={() => setScreen({ name: 'vault' })} aria-label="Sticker book">📒</button>
         <button

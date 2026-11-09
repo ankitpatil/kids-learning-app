@@ -57,3 +57,46 @@ describe('stickers storage', () => {
     expect((await d.profiles.get(p.id))?.stickers?.['animals-puppy']).toBe(2);
   });
 });
+
+import { createProfile, listProfiles, touchProfile, getProfile } from './db';
+import { MAX_PROFILES } from '../engine/profiles';
+describe('multiple profiles', () => {
+  it('keeps the existing default profile and adds siblings with separate progress', async () => {
+    const d = new AppDB('t6');
+    const old = await ensureProfile(d);
+    await setTrackLevels(old.id, { add10: 3 }, [], d);
+    await addStars(old.id, 7, d);
+
+    const kid = await createProfile('  Riya ', '🐼', d);
+    expect(kid.nickname).toBe('Riya');
+    expect(kid.id).not.toBe(old.id);
+    expect((await listProfiles(d)).map((p) => p.id).sort()).toEqual([old.id, kid.id].sort());
+
+    // Separate track levels, stars, stickers and placement per child.
+    expect((await getSkillState(kid.id, 'add10', d)).level).toBe(0);
+    expect((await getSkillState(old.id, 'add10', d)).level).toBe(3);
+    expect(await addStars(kid.id, 2, d)).toBe(2);
+    expect((await getProfile(old.id, d))?.stars).toBe(7);
+    await setPlaced(kid.id, 'math', true, d);
+    expect((await getProfile(old.id, d))?.placed?.math).toBeUndefined();
+    await addSticker(kid.id, 'animals-puppy', d);
+    expect((await getProfile(old.id, d))?.stickers).toBeUndefined();
+  });
+
+  it('defaults the nickname, de-duplicates, and orders by last played', async () => {
+    const d = new AppDB('t7');
+    const a = await createProfile('', '🦁', d);
+    const b = await createProfile('lion', '🐯', d);
+    expect(a.nickname).toBe('Lion');
+    expect(b.nickname).toBe('lion 2');
+    await touchProfile(b.id, d);
+    expect((await listProfiles(d))[0].id).toBe(b.id);
+  });
+
+  it(`caps at ${MAX_PROFILES} profiles`, async () => {
+    const d = new AppDB('t8');
+    for (let i = 0; i < MAX_PROFILES; i++) await createProfile(`Kid ${i}`, '🦊', d);
+    await expect(createProfile('One more', '🦊', d)).rejects.toThrow();
+    expect(await d.profiles.count()).toBe(MAX_PROFILES);
+  });
+});

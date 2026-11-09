@@ -1,6 +1,7 @@
 import Dexie, { type Table } from 'dexie';
 import { newSkillState, type SkillState } from '../engine/adaptive';
 import type { Subject } from '../engine/tracks';
+import { resolveNickname, sortProfiles, MAX_PROFILES } from '../engine/profiles';
 
 export interface Profile {
   id: string;
@@ -12,6 +13,8 @@ export interface Profile {
   placed?: Partial<Record<Subject, boolean>>;
   /** Sticker id → how many collected. */
   stickers?: Record<string, number>;
+  /** Last time this child was picked / played (orders the profile picker). */
+  lastPlayedAt?: number;
 }
 
 export interface Attempt {
@@ -56,10 +59,10 @@ async function safe<T>(fn: () => Promise<T>, fallback: () => T): Promise<T> {
   }
 }
 
-function memProfile(): Profile {
-  let p = mem.profiles.get(DEFAULT_PROFILE_ID);
+function memProfile(id: string = DEFAULT_PROFILE_ID): Profile {
+  let p = mem.profiles.get(id);
   if (!p) {
-    p = { id: DEFAULT_PROFILE_ID, nickname: 'Explorer', avatar: '🦊', stars: 0, createdAt: Date.now() };
+    p = { id, nickname: 'Explorer', avatar: '🦊', stars: 0, createdAt: Date.now() };
     mem.profiles.set(p.id, p);
   }
   return p;
@@ -97,7 +100,7 @@ export function addStars(profileId: string, n: number, d: AppDB = db): Promise<n
   return safe(
     () => addStarsDb(profileId, n, d),
     () => {
-      const p = memProfile();
+      const p = memProfile(profileId);
       p.stars += n;
       return p.stars;
     },
@@ -145,7 +148,7 @@ export function setPlaced(profileId: string, subject: Subject, placed: boolean, 
       return next;
     },
     () => {
-      const next = apply(memProfile());
+      const next = apply(memProfile(profileId));
       mem.profiles.set(next.id, next);
       return next;
     },
@@ -170,9 +173,54 @@ export function addSticker(profileId: string, stickerId: string, d: AppDB = db):
       return next;
     },
     () => {
-      const next = apply(memProfile());
+      const next = apply(memProfile(profileId));
       mem.profiles.set(next.id, next);
       return next;
     },
   );
+}
+
+// ---- Multiple children on one device -------------------------------------------------------
+
+export function listProfiles(d: AppDB = db): Promise<Profile[]> {
+  return safe(
+    async () => sortProfiles(await d.profiles.toArray()),
+    () => sortProfiles([...mem.profiles.values()]),
+  );
+}
+
+export function getProfile(id: string, d: AppDB = db): Promise<Profile | undefined> {
+  return safe(async () => d.profiles.get(id), () => mem.profiles.get(id));
+}
+
+function newProfileId(): string {
+  try {
+    return crypto.randomUUID();
+  } catch {
+    return `p-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+  }
+}
+
+/** Create a child profile (nickname + avatar only). Track levels start fresh; placement runs on first play. */
+export async function createProfile(nickname: string, avatar: string, d: AppDB = db): Promise<Profile> {
+  const existing = await listProfiles(d);
+  if (existing.length >= MAX_PROFILES) throw new Error(`At most ${MAX_PROFILES} profiles`);
+  const p: Profile = {
+    id: newProfileId(),
+    nickname: resolveNickname(nickname, avatar, existing.map((e) => e.nickname)),
+    avatar,
+    stars: 0,
+    createdAt: Date.now(),
+  };
+  mem.profiles.set(p.id, p);
+  await safe(async () => void (await d.profiles.put(p)), () => undefined);
+  return p;
+}
+
+/** Mark a profile as just picked so it sorts first in the picker. */
+export function touchProfile(id: string, d: AppDB = db): Promise<void> {
+  const at = Date.now();
+  const m = mem.profiles.get(id);
+  if (m) mem.profiles.set(id, { ...m, lastPlayedAt: at });
+  return safe(async () => void (await d.profiles.update(id, { lastPlayedAt: at })), () => undefined);
 }

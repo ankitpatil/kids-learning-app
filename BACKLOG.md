@@ -20,7 +20,7 @@ Reprioritised 2026-11-08 for the actual learner: knows basic words and +/- (≈ 
 - [x] 10. **Feed the Monster: add-on & missing-number modes**: "I have 3, feed me up to 8" (3 + __ = 8), within 10 then 20; ten-frame pictorial mode, then abstract equation mode (CPA). Tests
 - [x] 11. Game: **Number Line Hop**: + / − within 20; levels: visible line & counting hops → make-10 strategy (8 + 5 = 8 + 2 + 3) → equation only. Tests
 - [x] 12. Game: **Word Detective** (replaces Word Pop): alternates 🔍 Read it (written word, no audio → tap picture) and 🧩 Build it (picture + spoken word → grapheme tiles with decoys); tracks CVC → digraphs (sh, ch, th, ck) → blends (st, fl, tr…); near distractors are minimal pairs (ship/chip/shop). Word lists as data. Tests
-- [ ] 13. Profile picker / create profile (nickname + avatar emoji), multi-child on one device; each profile has its own track levels
+- [x] 13. Profile picker / create profile (nickname + avatar emoji), multi-child on one device; each profile has its own track levels
 - [ ] 14. Round mix: 70/20/10 current/review/stretch across the tracks of a subject + tests
 - [ ] 15. **Tens & ones**: Feed the Monster with boxes of 10 + loose cookies (numbers to 100), then compare two-digit numbers (bigger/smaller). Tests
 - [ ] 16. Word Detective: silent-e (cap → cape, kit → kite) and vowel teams (ee, ai, oa); then "pop the word that finishes the sentence". Tests
