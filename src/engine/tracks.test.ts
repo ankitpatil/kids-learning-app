@@ -43,14 +43,24 @@ describe('tracks', () => {
 
 import { pickTrack } from './tracks';
 describe('pickTrack', () => {
-  it('starts with counting, moves to missing number once counting is mastered', () => {
+  it('starts with counting, then follows the math track order', () => {
     expect(pickTrack('math', {})).toBe('count');
     expect(pickTrack('math', { count: { level: 3, mastery: 0.9 } })).toBe('count');
     expect(pickTrack('math', { count: { level: 5, mastery: 0.7 } })).toBe('count');
-    expect(pickTrack('math', { count: { level: 5, mastery: 0.95 } })).toBe('missing');
+    const m = { level: 9, mastery: 0.95 };
+    expect(pickTrack('math', { count: m })).toBe('add10');
+    expect(pickTrack('math', { count: m, add10: m })).toBe('sub10');
+    expect(pickTrack('math', { count: m, add10: m, sub10: m })).toBe('missing');
+    expect(pickTrack('math', { count: m, add10: m, sub10: m, missing: m })).toBe('add20');
+    expect(pickTrack('math', { count: m, add10: m, sub10: m, missing: m, add20: m })).toBe('sub20');
+  });
+  it('a child placed at missing number (add/sub 10 mastered) stays on missing number', () => {
+    const m = { level: 9, mastery: 0.95 };
+    expect(pickTrack('math', { count: m, add10: m, sub10: m, missing: { level: 2, mastery: 0.3 }, add20: { level: 0, mastery: 0.3 } })).toBe('missing');
   });
   it('falls back to the last playable track when all are mastered', () => {
-    expect(pickTrack('math', { count: { level: 5, mastery: 0.95 }, missing: { level: 2, mastery: 0.95 } })).toBe('missing');
+    const m = { level: 9, mastery: 0.95 };
+    expect(pickTrack('math', { count: m, add10: m, sub10: m, missing: m, add20: m, sub20: m })).toBe('sub20');
     expect(pickTrack('reading', { phonics: { level: 6, mastery: 0.95 } })).toBe('cvc');
     const allRead = Object.fromEntries(['phonics', 'cvc', 'digraphs', 'blends', 'silentE', 'vowelTeams'].map((id) => [id, { level: 9, mastery: 0.95 }]));
     expect(pickTrack('reading', allRead)).toBe('vowelTeams');

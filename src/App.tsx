@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { FeedMonster } from './games/feedMonster/FeedMonster';
 import { PhonicsPop } from './games/phonicsPop/PhonicsPop';
 import { WordDetective } from './games/wordDetective/WordDetective';
+import { NumberLineHop } from './games/numberLine/NumberLineHop';
+import { isHopTrack, type HopTrack } from './games/numberLine/generator';
 import { WORD_TRACKS, type WordTrack } from './games/wordDetective/generator';
 import { ensureProfile, addStars, addSticker, requestPersistence, setTrackLevels, setPlaced, getSkillStates, getSkillState, type Profile } from './store/db';
 import { LevelSelect } from './screens/LevelSelect';
@@ -15,7 +17,7 @@ import { Placement, StartPoint } from './screens/Placement';
 import type { Subject } from './engine/tracks';
 import { say, isMuted, setMuted } from './audio/speech';
 
-type Game = 'count' | 'missing' | 'phonics' | WordTrack;
+type Game = 'count' | 'missing' | HopTrack | 'phonics' | WordTrack;
 type Screen =
   | { name: 'home' }
   | { name: Game }
@@ -25,7 +27,7 @@ type Screen =
   | { name: 'startpoint'; subject: Subject }
   | { name: 'placement'; subject: Subject };
 
-const SUBJECT_OF = (g: Game): Subject => (g === 'count' || g === 'missing' ? 'math' : 'reading');
+const SUBJECT_OF = (g: Game): Subject => (g === 'count' || g === 'missing' || isHopTrack(g) ? 'math' : 'reading');
 const isWordTrack = (g: string): g is WordTrack => (WORD_TRACKS as readonly string[]).includes(g);
 
 export default function App() {
@@ -56,7 +58,7 @@ export default function App() {
 
   async function launch(subject: Subject) {
     const game = pickTrack(subject, await getSkillStates(profile!.id)) as Game;
-    say(game === 'phonics' ? 'Phonics pop!' : isWordTrack(game) ? 'Word detective!' : 'Feed the monster!');
+    say(game === 'phonics' ? 'Phonics pop!' : isWordTrack(game) ? 'Word detective!' : isHopTrack(game) ? 'Number line hop!' : 'Feed the monster!');
     setScreen({ name: game });
   }
 
@@ -127,6 +129,11 @@ export default function App() {
     return <FeedMonster key={track} profileId={profile.id} trackId={track} onDone={(r) => finishRound(track, r)} onExit={() => toLevels('math')} />;
   }
 
+  if (isHopTrack(screen.name)) {
+    const track = screen.name;
+    return <NumberLineHop key={track} profileId={profile.id} trackId={track} onDone={(r) => finishRound(track, r)} onExit={() => toLevels('math')} />;
+  }
+
   if (isWordTrack(screen.name)) {
     const track = screen.name;
     return <WordDetective key={track} profileId={profile.id} trackId={track} onDone={(r) => finishRound(track, r)} onExit={() => toLevels('reading')} />;
@@ -176,7 +183,7 @@ export default function App() {
         <button
           className="subject math"
           onClick={() => openSubject('math')}
-          aria-label="Math: Feed the Monster"
+          aria-label="Math games"
         >
           <span className="big-emoji">👾🍪</span>
           <span className="label">1 2 3</span>

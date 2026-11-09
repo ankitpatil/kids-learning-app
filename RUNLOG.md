@@ -8,3 +8,4 @@
 2026-11-08 15:50 PT — request — Back button to quit the quick check; no content under top bars — done (interactive session)
 2026-11-08 16:10 PT — item #12 — Word Detective (read-it / build-it) for 5 reading tracks, replaces Word Pop; 51 tests pass — done (interactive session)
 2026-11-08 16:35 PT — request — level picker via in-game Back, sound+animation feedback, sticker rewards + sticker book, no-repeat examples; 59 tests pass — done (interactive session)
+2026-11-08 23:46 PT — item #11 — Number Line Hop: add/sub within 10 & 20 (counting hops → make-10 split → equation), 4 math tracks now playable; 74 tests pass, build ok — done

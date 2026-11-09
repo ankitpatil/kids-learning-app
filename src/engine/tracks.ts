@@ -40,11 +40,11 @@ export const TRACKS: TrackDef[] = [
     levels: [3, 5, 7, 10, 15, 20].map((n, i) => L(`up to ${n}`, n, 'concrete', 'far', i < 2)),
   },
   {
-    id: 'add10', subject: 'math', name: 'Add within 10', emoji: '➕', playable: false,
+    id: 'add10', subject: 'math', name: 'Add within 10', emoji: '➕', playable: true,
     levels: [L('within 5, pictures', 5, 'pictorial', 'far', true), L('within 10, pictures', 10, 'pictorial', 'near', true), L('within 10, numbers', 10, 'abstract', 'near', false)],
   },
   {
-    id: 'sub10', subject: 'math', name: 'Subtract within 10', emoji: '➖', playable: false,
+    id: 'sub10', subject: 'math', name: 'Subtract within 10', emoji: '➖', playable: true,
     levels: [L('within 5, pictures', 5, 'pictorial', 'far', true), L('within 10, pictures', 10, 'pictorial', 'near', true), L('within 10, numbers', 10, 'abstract', 'near', false)],
   },
   {
@@ -52,12 +52,12 @@ export const TRACKS: TrackDef[] = [
     levels: [L('a + __ = c to 10, pictures', 10, 'pictorial', 'far', true), L('a + __ = c to 10', 10, 'abstract', 'near', false), L('a + __ = c to 20', 20, 'abstract', 'near', false)],
   },
   {
-    id: 'add20', subject: 'math', name: 'Add within 20', emoji: '🔟', playable: false,
+    id: 'add20', subject: 'math', name: 'Add within 20', emoji: '🔟', playable: true,
     levels: [L('make 10, number line', 20, 'pictorial', 'near', true), L('within 20, numbers', 20, 'abstract', 'near', false)],
   },
   {
-    id: 'sub20', subject: 'math', name: 'Subtract within 20', emoji: '🔢', playable: false,
-    levels: [L('number line', 20, 'pictorial', 'near', true), L('within 20, numbers', 20, 'abstract', 'near', false)],
+    id: 'sub20', subject: 'math', name: 'Subtract within 20', emoji: '🔢', playable: true,
+    levels: [L('back to 10, number line', 20, 'pictorial', 'near', true), L('within 20, numbers', 20, 'abstract', 'near', false)],
   },
   {
     id: 'placeValue', subject: 'math', name: 'Tens and ones', emoji: '📦', playable: false,
