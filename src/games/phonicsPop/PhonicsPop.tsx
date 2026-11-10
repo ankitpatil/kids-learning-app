@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { makePhonicsItem, PHONICS_MAX_LEVEL, type PhonicsItem } from './generator';
 import { LETTERS } from './letters';
 import { updateSkill, type SkillState } from '../../engine/adaptive';
-import { getSkillState, saveSkillState, logAttempt } from '../../store/db';
+import { getSkillState, getSkillStates, saveSkillState, logAttempt } from '../../store/db';
+import { planRound, resolveSlot, type Slot } from '../../engine/roundMix';
 import { say } from '../../audio/speech';
 import { fresh } from '../../engine/recent';
 import { feedback } from '../../components/Feedback';
@@ -33,18 +34,24 @@ export function PhonicsPop({ profileId, onDone, onExit }: Props) {
   const ease = useRef(false);
   const started = useRef(Date.now());
   const busy = useRef(false);
+  const plan = useRef(planRound(ROUND_LENGTH));
+  const all = useRef<Awaited<ReturnType<typeof getSkillStates>>>({});
+  const slot = useRef<Slot>({ kind: 'current', trackId: SKILL, level: 0 });
 
   useEffect(() => {
-    getSkillState(profileId, SKILL).then((s) => {
+    Promise.all([getSkillState(profileId, SKILL), getSkillStates(profileId)]).then(([s, states]) => {
+      all.current = states;
       setState(s);
       next(s.level, undefined);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profileId]);
 
-  function next(level: number, prevTarget: string | undefined) {
+  function next(level: number, prevTarget: string | undefined, i = 0) {
     const easy = ease.current;
-    const it = fresh(SKILL, () => makePhonicsItem(level, Math.random, easy, prevTarget), (x) => x.target);
+    // Round mix: review = level below, stretch = level above (one track, so nothing else to mix in).
+    const sl = (slot.current = resolveSlot(plan.current[i], SKILL, level, all.current, easy));
+    const it = fresh(SKILL, () => makePhonicsItem(sl.level, Math.random, easy, prevTarget), (x) => x.target);
     ease.current = false;
     setItem(it);
     setTried([]);
@@ -52,7 +59,7 @@ export function PhonicsPop({ profileId, onDone, onExit }: Props) {
     setWiggle(null);
     started.current = Date.now();
     busy.current = false;
-    setTimeout(() => say(prompt(it)), 250);
+    setTimeout(() => say((sl.kind === 'stretch' ? 'Bonus challenge! ' : '') + prompt(it)), 250);
   }
 
   async function choose(letter: string) {
@@ -61,12 +68,17 @@ export function PhonicsPop({ profileId, onDone, onExit }: Props) {
     const correct = letter === item.target;
     const hintUsed = tried.length > 0;
     const timeMs = Date.now() - started.current;
-    const out = updateSkill(state, { correct, hintUsed, timeMs }, PHONICS_MAX_LEVEL);
-    await logAttempt({ profileId, skillId: SKILL, itemId: item.id, level: state.level, correct, hintUsed, timeMs, at: Date.now() });
-    await saveSkillState(out.state);
-    setState(out.state);
-    if (out.change === 'up') leveledUp.current = true;
-    if (out.ease) ease.current = true;
+    const sl = slot.current;
+    await logAttempt({ profileId, skillId: SKILL, itemId: item.id, level: sl.level, correct, hintUsed, timeMs, at: Date.now(), mix: sl.kind });
+    // Review and stretch items are logged but don't move the level.
+    let out: ReturnType<typeof updateSkill> = { state, change: 'same', ease: false };
+    if (sl.kind === 'current') {
+      out = updateSkill(state, { correct, hintUsed, timeMs }, PHONICS_MAX_LEVEL);
+      await saveSkillState(out.state);
+      setState(out.state);
+      if (out.change === 'up') leveledUp.current = true;
+      if (out.ease) ease.current = true;
+    }
 
     feedback(correct ? (out.change === 'up' ? 'levelup' : 'correct') : 'wrong');
     if (correct) {
@@ -80,7 +92,7 @@ export function PhonicsPop({ profileId, onDone, onExit }: Props) {
           return;
         }
         setIndex(nextIndex);
-        next(out.state.level, item.target);
+        next(out.state.level, item.target, nextIndex);
       }, 1600);
     } else {
       setWiggle(letter);
@@ -103,7 +115,7 @@ export function PhonicsPop({ profileId, onDone, onExit }: Props) {
         <button className="back-btn" onClick={onExit} aria-label="Back to levels">⬅️ Levels</button>
         <div className="progress" aria-label={`Question ${index + 1} of ${ROUND_LENGTH}`}>
           {Array.from({ length: ROUND_LENGTH }, (_, i) => (
-            <span key={i} className={i < index ? 'dot done' : i === index ? 'dot now' : 'dot'} />
+            <span key={i} className={i < index ? 'dot done' : i === index ? `dot now${slot.current.kind === 'stretch' ? ' bonus' : ''}` : 'dot'} />
           ))}
         </div>
         <button className="icon-btn" onClick={() => say(prompt(item))} aria-label="Say again">🔊</button>

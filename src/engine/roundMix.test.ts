@@ -118,3 +118,55 @@ describe('resolveSlot', () => {
     expect(resolveSlot('review', 'digraphs', 1, states, false, () => 0.99)).toEqual({ kind: 'review', trackId: 'cvc', level: maxLevel('cvc') });
   });
 });
+
+describe('single-track games (#14b): Phonics Pop, Sight-Word Catch, Word Builder', () => {
+  const single = ['phonics', 'sightWords', 'endings'];
+
+  it('each plays only its own track', () => {
+    for (const id of single) expect(gameGroup(id)).toEqual([id]);
+  });
+
+  it('review = the level below, ignoring other tracks the child has mastered', () => {
+    const states = { cvc: { level: maxLevel('cvc'), mastery: 0.95 }, phonics: { level: 3, mastery: 0.6 } };
+    expect(reviewOptions('phonics', 3, states)).toEqual([{ kind: 'review', trackId: 'phonics', level: 2 }]);
+    expect(reviewOptions('sightWords', 2, states)).toEqual([{ kind: 'review', trackId: 'sightWords', level: 1 }]);
+    expect(reviewOptions('endings', 1, states)).toEqual([{ kind: 'review', trackId: 'endings', level: 0 }]);
+  });
+
+  it('stretch = the level above, and nothing past the top level', () => {
+    for (const id of single) {
+      expect(stretchOption(id, 0, {})).toEqual({ kind: 'stretch', trackId: id, level: 1 });
+      expect(stretchOption(id, maxLevel(id), {})).toBeNull();
+    }
+  });
+
+  it('a full round at level 0 is all current (nothing easier, stretch still allowed)', () => {
+    for (const id of single) {
+      const kinds = planRound(8).map((k) => resolveSlot(k, id, 0, {}).kind);
+      expect(kinds.filter((k) => k === 'review')).toHaveLength(0);
+      expect(kinds.filter((k) => k === 'stretch')).toHaveLength(1);
+    }
+  });
+
+  it('a full round at the top level has review but no stretch', () => {
+    for (const id of single) {
+      const top = maxLevel(id);
+      const slots = planRound(8).map((k) => resolveSlot(k, id, top, {}));
+      expect(slots.filter((s) => s.kind === 'review')).toHaveLength(2);
+      expect(slots.every((s) => s.kind !== 'stretch')).toBe(true);
+      expect(slots.every((s) => s.trackId === id && s.level >= top - 1 && s.level <= top)).toBe(true);
+    }
+  });
+
+  it('stretch/review levels are valid for each game generator', () => {
+    for (const id of single) {
+      for (let lv = 0; lv <= maxLevel(id); lv++) {
+        for (const s of [...reviewOptions(id, lv, {}), stretchOption(id, lv, {})]) {
+          if (!s) continue;
+          expect(s.level).toBeGreaterThanOrEqual(0);
+          expect(s.level).toBeLessThanOrEqual(maxLevel(id));
+        }
+      }
+    }
+  });
+});

@@ -2,6 +2,12 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-10 — Round mix in single-track games (#14b)
+- Phonics Pop, Sight-Word Catch and Word Builder now use the same 8-item plan (review warm-up first, one mid-round "Bonus challenge!", last item current) via `engine/roundMix`; no engine changes were needed since a single-track game's group is just its own track.
+- Review = one level below; stretch = one level above. These games don't mix in other tracks (e.g. a child who mastered Short words doesn't get those in Phonics Pop), keeping each game's round about one skill.
+- At level 0 there is nothing to review, so those slots become normal items; at the top level there is nothing to stretch to (no next track in these games), so the bonus slot becomes a normal item.
+- As in #14a, review/stretch answers are logged with `mix` and their own level but don't move the level or mastery. Phonics Pop now logs the attempt before (not after) the engine update, same as the other games.
+
 ## 2026-11-10 — Round mix 70/20/10 (#14a)
 - Split #14: this run did the engine plus the three games that play several tracks (Feed the Monster, Number Line Hop, Word Detective). The single-track games are #14b.
 - A round is still one game, so "across the tracks of a subject" means across the tracks that game can play (e.g. Word Detective: cvc → … → sentences). Mixing different games into one round would need a new mixed-round screen; not done.

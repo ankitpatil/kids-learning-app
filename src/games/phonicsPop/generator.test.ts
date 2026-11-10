@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { makePhonicsItem, choiceCount, PHONICS_MAX_LEVEL } from './generator';
 import { LETTERS, lettersUpTo, CONFUSABLES } from './letters';
+import { maxLevel as trackMax } from '../../engine/tracks';
 
 describe('letters', () => {
   it('every taught letter has a picture word starting with it', () => {
@@ -58,5 +59,11 @@ describe('makePhonicsItem', () => {
     let conf = 0;
     for (let k = 0; k < 1000; k++) if (CONFUSABLES[makePhonicsItem(PHONICS_MAX_LEVEL).target]) conf++;
     expect(conf).toBeGreaterThan(500);
+  });
+});
+
+describe('phonics levels line up with the track (round mix #14b)', () => {
+  it('PHONICS_MAX_LEVEL matches the track level count', () => {
+    expect(PHONICS_MAX_LEVEL).toBe(trackMax('phonics'));
   });
 });

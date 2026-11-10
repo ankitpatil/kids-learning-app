@@ -22,7 +22,7 @@ Reprioritised 2026-11-08 for the actual learner: knows basic words and +/- (≈ 
 - [x] 12. Game: **Word Detective** (replaces Word Pop): alternates 🔍 Read it (written word, no audio → tap picture) and 🧩 Build it (picture + spoken word → grapheme tiles with decoys); tracks CVC → digraphs (sh, ch, th, ck) → blends (st, fl, tr…); near distractors are minimal pairs (ship/chip/shop). Word lists as data. Tests
 - [x] 13. Profile picker / create profile (nickname + avatar emoji), multi-child on one device; each profile has its own track levels
 - [x] 14a. Round mix engine (70/20/10 current/review/stretch, review/stretch drawn from tracks the same game plays) + tests; wired into Feed the Monster, Number Line Hop, Word Detective
-- [ ] 14b. Round mix in the single-track games: Phonics Pop, Sight-Word Catch, Word Builder (review = level below, stretch = level above; reuse `engine/roundMix`)
+- [x] 14b. Round mix in the single-track games: Phonics Pop, Sight-Word Catch, Word Builder (review = level below, stretch = level above; reuse `engine/roundMix`)
 - [ ] 15. **Tens & ones**: Feed the Monster with boxes of 10 + loose cookies (numbers to 100), then compare two-digit numbers (bigger/smaller). Tests
 - [x] 16. Word Detective: silent-e (cap → cape, kit → kite) and vowel teams (ee, ai, oa); then "pop the word that finishes the sentence". Tests
 - [x] 17. Game: **Sight-Word Catch** with tricky/irregular words (said, was, the, of, they…; Dolch primer + first grade lists)

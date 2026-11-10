@@ -14,3 +14,4 @@
 2026-11-09 23:26 PT — item #17 — Sight-Word Catch: 54 tricky words in 3 levels, look-alike bubbles, example sentence after each catch; 101 tests pass, build ok — done (interactive session)
 2026-11-09 23:29 PT — item #18 — Word Builder: pick -s / -ed / -ing from sentence time clues, 3 levels (read aloud → read yourself); 109 tests pass, build ok — done (interactive session)
 2026-11-10 07:47 PT — item #14 (split → 14a) — round mix engine 70/20/10 (review warm-up, mid-round bonus stretch, logged but level-neutral) wired into Feed the Monster, Number Line Hop, Word Detective; 14b (single-track games) added; 126 tests pass, build ok — done
+2026-11-10 04:57 PT — item #14b — round mix (review warm-up, bonus stretch, level-neutral logging) in Phonics Pop, Sight-Word Catch, Word Builder; 133 tests pass, build ok — done
