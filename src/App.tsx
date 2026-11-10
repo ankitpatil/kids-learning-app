@@ -3,6 +3,7 @@ import { FeedMonster } from './games/feedMonster/FeedMonster';
 import { PhonicsPop } from './games/phonicsPop/PhonicsPop';
 import { WordDetective } from './games/wordDetective/WordDetective';
 import { NumberLineHop } from './games/numberLine/NumberLineHop';
+import { SightWordCatch } from './games/sightWords/SightWordCatch';
 import { isHopTrack, type HopTrack } from './games/numberLine/generator';
 import { WORD_TRACKS, type WordTrack } from './games/wordDetective/generator';
 import { listProfiles, createProfile, touchProfile, addStars, addSticker, requestPersistence, setTrackLevels, setPlaced, getSkillStates, getSkillState, type Profile } from './store/db';
@@ -19,7 +20,7 @@ import { Placement, StartPoint } from './screens/Placement';
 import type { Subject } from './engine/tracks';
 import { say, isMuted, setMuted } from './audio/speech';
 
-type Game = 'count' | 'missing' | HopTrack | 'phonics' | WordTrack;
+type Game = 'count' | 'missing' | HopTrack | 'phonics' | WordTrack | 'sightWords';
 type Screen =
   | { name: 'home' }
   | { name: Game }
@@ -101,7 +102,7 @@ export default function App() {
 
   async function launch(subject: Subject) {
     const game = pickTrack(subject, await getSkillStates(profile!.id)) as Game;
-    say(game === 'phonics' ? 'Phonics pop!' : isWordTrack(game) ? 'Word detective!' : isHopTrack(game) ? 'Number line hop!' : 'Feed the monster!');
+    say(game === 'phonics' ? 'Phonics pop!' : game === 'sightWords' ? 'Sight word catch!' : isWordTrack(game) ? 'Word detective!' : isHopTrack(game) ? 'Number line hop!' : 'Feed the monster!');
     setScreen({ name: game });
   }
 
@@ -180,6 +181,10 @@ export default function App() {
   if (isWordTrack(screen.name)) {
     const track = screen.name;
     return <WordDetective key={track} profileId={profile.id} trackId={track} onDone={(r) => finishRound(track, r)} onExit={() => toLevels('reading')} />;
+  }
+
+  if (screen.name === 'sightWords') {
+    return <SightWordCatch profileId={profile.id} onDone={(r) => finishRound('sightWords', r)} onExit={() => toLevels('reading')} />;
   }
 
   if (screen.name === 'phonics') {

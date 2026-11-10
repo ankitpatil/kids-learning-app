@@ -85,7 +85,10 @@ export const TRACKS: TrackDef[] = [
   { id: 'silentE', subject: 'reading', name: 'Magic e', emoji: '🪁', playable: true, levels: [L('kite, cake, bike', 0, 'pictorial', 'far', true), L('kite / kit / bite', 0, 'pictorial', 'near', false), L('cap / cape switch', 0, 'pictorial', 'near', false)] },
   { id: 'vowelTeams', subject: 'reading', name: 'ee ai oa', emoji: '⛵', playable: true, levels: [L('boat, rain, feet', 0, 'pictorial', 'far', true), L('boat / bat / coat', 0, 'pictorial', 'near', false)] },
   { id: 'endings', subject: 'reading', name: '-s -ed -ing', emoji: '🏃', playable: false, levels: [L('jump, jumped, jumping', 0, 'pictorial', 'far', true)] },
-  { id: 'sightWords', subject: 'reading', name: 'Tricky words', emoji: '👀', playable: false, levels: [L('said, was, the', 0, 'abstract', 'far', false)] },
+  {
+    id: 'sightWords', subject: 'reading', name: 'Tricky words', emoji: '👀', playable: true,
+    levels: [L('the, you, where', 0, 'abstract', 'far', false), L('was, they, said', 1, 'abstract', 'near', false), L('of, could, once', 2, 'abstract', 'near', false)],
+  },
   { id: 'sentences', subject: 'reading', name: 'Sentences', emoji: '💬', playable: true, levels: [L('finish it, with a picture', 0, 'pictorial', 'far', true), L('finish it, look-alike words', 0, 'abstract', 'near', false)] },
   { id: 'stories', subject: 'reading', name: 'Stories', emoji: '📚', playable: false, levels: [L('short stories', 0, 'abstract', 'far', true)] },
 ];

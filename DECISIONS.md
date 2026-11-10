@@ -2,6 +2,14 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-09 — Sight-Word Catch (#17, interactive session)
+- Mechanic: the app says a tricky word; the child taps (catches) the matching word bubble; a jar on top replays the word. After a catch, the word is used in a short spoken sentence ("was. The cake was yummy.") so it carries meaning, not just a shape.
+- 54 words in 3 levels, based on Dolch pre-primer / primer / first grade, keeping the words that are hard to sound out: level 1 (the, you, where…), level 2 (was, they, said…), level 3 (of, could, once…). Later levels mix in earlier words about 1 time in 4 as review.
+- Level 1 = 3 bubbles with clearly different words (look-alikes kept out). Levels 2–3 = 4 bubbles led by look-alikes young readers mix up (was/saw, of/off, they/then, there/three/their). Easing = 2 bubbles.
+- Wrong catch: that bubble fades, and the app names what it says and spells the target ("That one says saw. Find was: w, a, s").
+- Track order: tricky words come after ee/ai/oa and before sentences, since the sentences lean on heart words. Not in the placement quick check yet.
+- Bubbles bob gently, with no timer; reduced-motion turns the bobbing off.
+
 ## 2026-11-09 — Magic-e switch and finish-the-sentence (#16, interactive session)
 - Silent-e and ee/ai/oa word reading already shipped with Word Detective (#12), so #16 adds the two missing pieces.
 - Magic e: new silentE level 3 "cap / cape switch". Read items show either the short word (kit) or the magic-e word (kite); the pictures always include both, so the child has to notice the e. After a right answer the screen shows "kit + e = kite" and says it. Build items at this level still use the silent-e word list. 6 pairs with clear pictures (kit/kite, cub/cube, cap/cape, can/cane, pin/pine, tub/tube); mane, robe, note etc. left out because their pictures are ambiguous.
