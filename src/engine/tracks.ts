@@ -82,11 +82,11 @@ export const TRACKS: TrackDef[] = [
   { id: 'cvc', subject: 'reading', name: 'Short words', emoji: '🐱', playable: true, levels: [L('cat, dog, sun', 0, 'pictorial', 'far', true), L('cat / cap / cot', 0, 'pictorial', 'near', false)] },
   { id: 'digraphs', subject: 'reading', name: 'sh ch th ck', emoji: '🚢', playable: true, levels: [L('ship, fish, duck', 0, 'pictorial', 'far', true), L('ship / chip / sip', 0, 'pictorial', 'near', false)] },
   { id: 'blends', subject: 'reading', name: 'Blends', emoji: '🐸', playable: true, levels: [L('frog, star, drum', 0, 'pictorial', 'far', true), L('crab / cab / grab', 0, 'pictorial', 'near', false)] },
-  { id: 'silentE', subject: 'reading', name: 'Magic e', emoji: '🪁', playable: true, levels: [L('kite, cake, bike', 0, 'pictorial', 'far', true), L('kite / kit / bite', 0, 'pictorial', 'near', false)] },
+  { id: 'silentE', subject: 'reading', name: 'Magic e', emoji: '🪁', playable: true, levels: [L('kite, cake, bike', 0, 'pictorial', 'far', true), L('kite / kit / bite', 0, 'pictorial', 'near', false), L('cap / cape switch', 0, 'pictorial', 'near', false)] },
   { id: 'vowelTeams', subject: 'reading', name: 'ee ai oa', emoji: '⛵', playable: true, levels: [L('boat, rain, feet', 0, 'pictorial', 'far', true), L('boat / bat / coat', 0, 'pictorial', 'near', false)] },
   { id: 'endings', subject: 'reading', name: '-s -ed -ing', emoji: '🏃', playable: false, levels: [L('jump, jumped, jumping', 0, 'pictorial', 'far', true)] },
   { id: 'sightWords', subject: 'reading', name: 'Tricky words', emoji: '👀', playable: false, levels: [L('said, was, the', 0, 'abstract', 'far', false)] },
-  { id: 'sentences', subject: 'reading', name: 'Sentences', emoji: '💬', playable: false, levels: [L('finish the sentence', 0, 'abstract', 'far', true)] },
+  { id: 'sentences', subject: 'reading', name: 'Sentences', emoji: '💬', playable: true, levels: [L('finish it, with a picture', 0, 'pictorial', 'far', true), L('finish it, look-alike words', 0, 'abstract', 'near', false)] },
   { id: 'stories', subject: 'reading', name: 'Stories', emoji: '📚', playable: false, levels: [L('short stories', 0, 'abstract', 'far', true)] },
 ];
 

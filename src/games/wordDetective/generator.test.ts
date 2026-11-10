@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { NEAR_TILE, splitGraphemes, makeReadItem, makeBuildItem, makeWordItem, wrongSlots, WORD_TRACKS } from './generator';
-import { WORDS } from '../../content/words';
+import { NEAR_TILE, splitGraphemes, makeReadItem, makeBuildItem, makeWordItem, makeMagicItem, makeSentenceItem, fillSentence, wrongSlots, PICTURE_TRACKS, MAGIC_E_LEVEL } from './generator';
+import { WORDS, MAGIC_E, SENTENCES } from '../../content/words';
 
 describe('splitGraphemes', () => {
   it('keeps digraphs and vowel teams together', () => {
@@ -18,7 +18,7 @@ describe('splitGraphemes', () => {
 
 describe('read items', () => {
   it('answer is among unique pictures; size by level/ease; near uses same pattern', () => {
-    for (const t of WORD_TRACKS) {
+    for (const t of PICTURE_TRACKS) {
       for (let k = 0; k < 100; k++) {
         const far = makeReadItem(t, 0);
         const near = makeReadItem(t, 1);
@@ -39,7 +39,7 @@ describe('read items', () => {
 
 describe('build items', () => {
   it('tiles contain all slots plus the right number of decoys that are not in the word', () => {
-    for (const t of WORD_TRACKS) {
+    for (const t of PICTURE_TRACKS) {
       for (let k = 0; k < 100; k++) {
         const far = makeBuildItem(t, 0);
         const near = makeBuildItem(t, 1);
@@ -78,5 +78,80 @@ describe('makeWordItem', () => {
   it('alternates read and build', () => {
     expect(makeWordItem('cvc', 0, 0).kind).toBe('read');
     expect(makeWordItem('cvc', 0, 1).kind).toBe('build');
+  });
+});
+
+describe('magic e switch (#16)', () => {
+  it('shows the short or the long word; pictures always include both of the pair', () => {
+    const seen = new Set<string>();
+    for (let k = 0; k < 200; k++) {
+      const it = makeMagicItem();
+      const pair = MAGIC_E.find((p) => p.short === it.magic!.short)!;
+      expect([pair.short, pair.long]).toContain(it.word);
+      const emojis = it.pictures.map((p) => p.emoji);
+      expect(emojis).toContain(pair.shortEmoji);
+      expect(emojis).toContain(pair.longEmoji);
+      expect(it.answer).toBe(it.word === pair.long ? pair.longEmoji : pair.shortEmoji);
+      expect(it.pictures.length).toBe(3);
+      expect(new Set(emojis).size).toBe(3);
+      seen.add(it.word === pair.long ? 'long' : 'short');
+    }
+    expect(seen.size).toBe(2);
+  });
+  it('easing keeps just the pair; avoid skips the last pair', () => {
+    for (let k = 0; k < 50; k++) {
+      expect(makeMagicItem(Math.random, true).pictures.length).toBe(2);
+      const it = makeMagicItem(Math.random, false, 'kite');
+      expect(it.magic!.short).not.toBe('kit');
+    }
+  });
+  it('silentE alternates magic switches and builds from the magic-e level up', () => {
+    const a = makeWordItem('silentE', MAGIC_E_LEVEL, 0);
+    const b = makeWordItem('silentE', MAGIC_E_LEVEL, 1);
+    expect(a.kind === 'read' && a.magic).toBeTruthy();
+    expect(b.kind).toBe('build');
+    const c = makeWordItem('silentE', 1, 0);
+    expect(c.kind === 'read' && !c.magic).toBe(true);
+  });
+  it('every pair is short + e = long', () => {
+    for (const p of MAGIC_E) expect(p.short + 'e').toBe(p.long);
+  });
+});
+
+describe('finish the sentence (#16)', () => {
+  it('content: one blank each; answer and look-alikes are distinct', () => {
+    for (const s of SENTENCES) {
+      expect(s.text.split('_').length).toBe(2);
+      expect(s.near.length).toBeGreaterThanOrEqual(2);
+      expect(new Set([s.answer, ...s.near]).size).toBe(s.near.length + 1);
+    }
+    expect(new Set(SENTENCES.map((s) => s.answer)).size).toBe(SENTENCES.length);
+  });
+  it('level 0 = picture + 2 choices; level 1 = no picture + 3 choices; easing = picture + 2', () => {
+    for (let k = 0; k < 100; k++) {
+      const l0 = makeSentenceItem(0);
+      const l1 = makeSentenceItem(1);
+      const easy = makeSentenceItem(1, Math.random, true);
+      for (const it of [l0, l1, easy]) {
+        expect(it.choices).toContain(it.word);
+        expect(new Set(it.choices).size).toBe(it.choices.length);
+      }
+      expect(l0.choices.length).toBe(2);
+      expect(l0.emoji).toBeTruthy();
+      expect(l1.choices.length).toBe(3);
+      expect(l1.emoji).toBeUndefined();
+      expect(easy.choices.length).toBe(2);
+      expect(easy.emoji).toBeTruthy();
+    }
+  });
+  it('fills the blank back into a readable sentence', () => {
+    for (const s of SENTENCES) {
+      const it = makeSentenceItem(0, Math.random, false);
+      expect(fillSentence(it, it.word)).toBe(SENTENCES.find((x) => x.answer === it.word)!.text.replace('_', it.word));
+    }
+  });
+  it('avoid skips the previous sentence; the sentences track always makes sentence items', () => {
+    for (let k = 0; k < 50; k++) expect(makeSentenceItem(0, Math.random, false, 'mud').word).not.toBe('mud');
+    for (let i = 0; i < 4; i++) expect(makeWordItem('sentences', 0, i).kind).toBe('sentence');
   });
 });

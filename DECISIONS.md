@@ -2,6 +2,15 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-09 — Magic-e switch and finish-the-sentence (#16, interactive session)
+- Silent-e and ee/ai/oa word reading already shipped with Word Detective (#12), so #16 adds the two missing pieces.
+- Magic e: new silentE level 3 "cap / cape switch". Read items show either the short word (kit) or the magic-e word (kite); the pictures always include both, so the child has to notice the e. After a right answer the screen shows "kit + e = kite" and says it. Build items at this level still use the silent-e word list. 6 pairs with clear pictures (kit/kite, cub/cube, cap/cape, can/cane, pin/pine, tub/tube); mane, robe, note etc. left out because their pictures are ambiguous.
+- A child who had already finished the old top silent-e level now lands on the new level (pickTrack treats it as not mastered). Placement checkpoints are unchanged, so passing both silent-e checkpoints still skips the whole track.
+- Finish the sentence: the `sentences` track is now playable inside Word Detective (always sentence items). Level 1 = picture clue + 2 choices; level 2 = no picture + 3 look-alike choices (minimal pairs that don't fit: pond / pod / pot). Easing = picture + 2 choices.
+- The sentence is NOT read aloud (reading it is the skill). A wrong pick reads the sentence back with their word ("The duck swims in the pot. Hmm, does that make sense?") so the child hears why it doesn't fit.
+- 13 sentences built from taught patterns plus common heart words; look-alikes chosen so they don't make sense in the sentence.
+- Not added to the placement quick check; readers reach sentences after ee/ai/oa.
+
 ## 2026-11-09 — Profiles: multi-child on one device (#13)
 - Profile = nickname + avatar emoji only (16 animals). No age, photo or real-name requirement. Nickname is optional: blank → the animal's name ("Panda"); cleaned to letters/numbers/space/-/' (any script), max 12 chars; duplicate names get " 2", " 3".
 - A new sibling's animal defaults to one no other profile has. Cap of 6 profiles per device.

@@ -1,9 +1,16 @@
-import { WORDS, type PictureWord } from '../../content/words';
+import { WORDS, MAGIC_E, SENTENCES, type PictureWord } from '../../content/words';
 import { getLevel } from '../../engine/tracks';
 import type { Rng } from '../feedMonster/generator';
 
-export const WORD_TRACKS = ['cvc', 'digraphs', 'blends', 'silentE', 'vowelTeams'] as const;
+/** Tracks whose items are picture words (read it / build it). */
+export const PICTURE_TRACKS = ['cvc', 'digraphs', 'blends', 'silentE', 'vowelTeams'] as const;
+export type PictureTrack = (typeof PICTURE_TRACKS)[number];
+/** Every track Word Detective plays: picture-word tracks plus finish-the-sentence. */
+export const WORD_TRACKS = [...PICTURE_TRACKS, 'sentences'] as const;
 export type WordTrack = (typeof WORD_TRACKS)[number];
+
+/** silentE level at which the magic-e switch (cap / cape) items start. */
+export const MAGIC_E_LEVEL = 2;
 
 /** Multi-letter graphemes kept together as one tile (longest first). */
 const GRAPHEMES = ['sh', 'ch', 'th', 'ck', 'ee', 'ai', 'oa', 'wh', 'qu'];
@@ -44,7 +51,7 @@ function shuffle<T>(arr: T[], rng: Rng): T[] {
   }
   return a;
 }
-function pickWord(track: WordTrack, rng: Rng, avoid?: string): PictureWord {
+function pickWord(track: PictureTrack, rng: Rng, avoid?: string): PictureWord {
   const list = WORDS[track].filter((w) => w.word !== avoid);
   return list[int(rng, 0, list.length - 1)];
 }
@@ -56,6 +63,8 @@ export interface ReadItem {
   /** Pictures to choose from (emoji); answer is the target's emoji. */
   pictures: { emoji: string; word: string }[];
   answer: string;
+  /** Magic-e switch item: the short/long pair, shown after a correct answer (kit + e = kite). */
+  magic?: { short: string; long: string };
 }
 
 export interface BuildItem {
@@ -71,10 +80,22 @@ export interface BuildItem {
   prefilled: number;
 }
 
-export type WordItem = ReadItem | BuildItem;
+export interface SentenceItem {
+  kind: 'sentence';
+  id: string;
+  /** The answer word (used for no-repeat memory and feedback). */
+  word: string;
+  before: string;
+  after: string;
+  choices: string[];
+  /** Picture clue, shown at the scaffolded level and when easing. */
+  emoji?: string;
+}
+
+export type WordItem = ReadItem | BuildItem | SentenceItem;
 
 /** Read it: written word → pick the picture. Near levels use pictures from the same pattern. */
-export function makeReadItem(track: WordTrack, level: number, rng: Rng = Math.random, ease = false, avoid?: string): ReadItem {
+export function makeReadItem(track: PictureTrack, level: number, rng: Rng = Math.random, ease = false, avoid?: string): ReadItem {
   const target = pickWord(track, rng, avoid);
   const near = getLevel(track, level).distractors === 'near' && !ease;
   const n = ease ? 2 : near ? 4 : 3;
@@ -96,7 +117,7 @@ export function makeReadItem(track: WordTrack, level: number, rng: Rng = Math.ra
 }
 
 /** Build it: picture + spoken word → put grapheme tiles in order. Decoys get closer at near levels. */
-export function makeBuildItem(track: WordTrack, level: number, rng: Rng = Math.random, ease = false, avoid?: string): BuildItem {
+export function makeBuildItem(track: PictureTrack, level: number, rng: Rng = Math.random, ease = false, avoid?: string): BuildItem {
   const target = pickWord(track, rng, avoid);
   const slots = splitGraphemes(target.word);
   const near = getLevel(track, level).distractors === 'near';
@@ -123,9 +144,62 @@ export function makeBuildItem(track: WordTrack, level: number, rng: Rng = Math.r
   };
 }
 
-/** Rounds alternate: read, build, read, build… */
+/**
+ * Magic-e switch: show either the short word (kit) or the magic-e word (kite); the pictures always
+ * include both, so the child must notice the e. Easing drops the third picture.
+ */
+export function makeMagicItem(rng: Rng = Math.random, ease = false, avoid?: string): ReadItem {
+  const pairs = MAGIC_E.filter((p) => p.short !== avoid && p.long !== avoid);
+  const pair = pairs[int(rng, 0, pairs.length - 1)];
+  const showLong = rng() < 0.5;
+  const word = showLong ? pair.long : pair.short;
+  const answer = showLong ? pair.longEmoji : pair.shortEmoji;
+  const pics = [
+    { emoji: pair.shortEmoji, word: pair.short },
+    { emoji: pair.longEmoji, word: pair.long },
+  ];
+  if (!ease) {
+    const others = MAGIC_E.filter((p) => p !== pair);
+    const o = others[int(rng, 0, others.length - 1)];
+    pics.push(rng() < 0.5 ? { emoji: o.shortEmoji, word: o.short } : { emoji: o.longEmoji, word: o.long });
+  }
+  return { kind: 'read', id: `magic-${word}`, word, pictures: shuffle(pics, rng), answer, magic: { short: pair.short, long: pair.long } };
+}
+
+/**
+ * Finish the sentence: pick the word that fits. Level 0 = picture clue + 2 choices;
+ * higher levels = no picture + 3 look-alike choices. Easing = picture + 2 choices.
+ */
+export function makeSentenceItem(level: number, rng: Rng = Math.random, ease = false, avoid?: string): SentenceItem {
+  const pool = SENTENCES.filter((x) => x.answer !== avoid);
+  const s = pool[int(rng, 0, pool.length - 1)];
+  const near = getLevel('sentences', level).distractors === 'near' && !ease;
+  const decoys = shuffle(s.near, rng).slice(0, near ? 2 : 1);
+  const [before, after] = s.text.split('_');
+  return {
+    kind: 'sentence',
+    id: `sentence-${s.answer}`,
+    word: s.answer,
+    before: before.trimEnd(),
+    after: after.trimStart(),
+    choices: shuffle([s.answer, ...decoys], rng),
+    emoji: near ? undefined : s.emoji,
+  };
+}
+
+/** Rounds alternate: read, build, read, build… (magic-e level swaps reads for magic-e switches). */
 export function makeWordItem(track: WordTrack, level: number, index: number, rng: Rng = Math.random, ease = false, avoid?: string): WordItem {
-  return index % 2 === 0 ? makeReadItem(track, level, rng, ease, avoid) : makeBuildItem(track, level, rng, ease, avoid);
+  if (track === 'sentences') return makeSentenceItem(level, rng, ease, avoid);
+  if (index % 2 === 0) {
+    if (track === 'silentE' && level >= MAGIC_E_LEVEL) return makeMagicItem(rng, ease, avoid);
+    return makeReadItem(track, level, rng, ease, avoid);
+  }
+  return makeBuildItem(track, level, rng, ease, avoid);
+}
+
+/** The full sentence with a word in the blank (for speech and the success display). */
+export function fillSentence(item: SentenceItem, word: string): string {
+  return `${item.before} ${word}${/^[.,!?]/.test(item.after) ? '' : ' '}${item.after}`.trim();
 }
 
 /** Which slots are wrong (indices). Empty array = correct. */

@@ -23,7 +23,7 @@ Reprioritised 2026-11-08 for the actual learner: knows basic words and +/- (≈ 
 - [x] 13. Profile picker / create profile (nickname + avatar emoji), multi-child on one device; each profile has its own track levels
 - [ ] 14. Round mix: 70/20/10 current/review/stretch across the tracks of a subject + tests
 - [ ] 15. **Tens & ones**: Feed the Monster with boxes of 10 + loose cookies (numbers to 100), then compare two-digit numbers (bigger/smaller). Tests
-- [ ] 16. Word Detective: silent-e (cap → cape, kit → kite) and vowel teams (ee, ai, oa); then "pop the word that finishes the sentence". Tests
+- [x] 16. Word Detective: silent-e (cap → cape, kit → kite) and vowel teams (ee, ai, oa); then "pop the word that finishes the sentence". Tests
 - [ ] 17. Game: **Sight-Word Catch** with tricky/irregular words (said, was, the, of, they…; Dolch primer + first grade lists)
 - [ ] 18. Game: **Word Builder** for endings: drag -s / -ed / -ing onto a base word to match a picture/sentence (jump → jumped / jumping)
 - [ ] 19. **Story Choose**: short decodable stories (only unlocked patterns), read-along highlighting, 1–2 comprehension questions

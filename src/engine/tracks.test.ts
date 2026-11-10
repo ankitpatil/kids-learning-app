@@ -62,8 +62,16 @@ describe('pickTrack', () => {
     const m = { level: 9, mastery: 0.95 };
     expect(pickTrack('math', { count: m, add10: m, sub10: m, missing: m, add20: m, sub20: m })).toBe('sub20');
     expect(pickTrack('reading', { phonics: { level: 6, mastery: 0.95 } })).toBe('cvc');
-    const allRead = Object.fromEntries(['phonics', 'cvc', 'digraphs', 'blends', 'silentE', 'vowelTeams'].map((id) => [id, { level: 9, mastery: 0.95 }]));
-    expect(pickTrack('reading', allRead)).toBe('vowelTeams');
+    const allRead = Object.fromEntries(['phonics', 'cvc', 'digraphs', 'blends', 'silentE', 'vowelTeams', 'sentences'].map((id) => [id, { level: 9, mastery: 0.95 }]));
+    expect(pickTrack('reading', allRead)).toBe('sentences');
+  });
+  it('after ee/ai/oa words a reader moves on to finishing sentences (#16)', () => {
+    const done = Object.fromEntries(['phonics', 'cvc', 'digraphs', 'blends', 'silentE', 'vowelTeams'].map((id) => [id, { level: 9, mastery: 0.95 }]));
+    expect(pickTrack('reading', done)).toBe('sentences');
+  });
+  it('a reader who finished the old top magic-e level gets the new cap / cape switch level (#16)', () => {
+    const states = Object.fromEntries(['phonics', 'cvc', 'digraphs', 'blends'].map((id) => [id, { level: 9, mastery: 0.95 }]));
+    expect(pickTrack('reading', { ...states, silentE: { level: 1, mastery: 0.95 } })).toBe('silentE');
   });
   it('a reader who mastered letters and short words goes to sh/ch/th words, not letter popping', () => {
     expect(pickTrack('reading', { phonics: { level: 6, mastery: 0.95 }, cvc: { level: 1, mastery: 0.95 } })).toBe('digraphs');

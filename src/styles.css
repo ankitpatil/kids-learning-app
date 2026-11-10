@@ -231,3 +231,18 @@ button { font: inherit; cursor: pointer; touch-action: manipulation; }
 .avatar-choice.chosen { outline: 4px solid var(--primary); background: #f1efff; transform: scale(1.06); }
 .nickname-field { display: flex; flex-direction: column; gap: 6px; margin: 12px 0; font-size: 15px; color: #666; }
 .nickname-field input { font-size: 24px; padding: 12px 16px; border-radius: 16px; border: 2px solid #ddd; min-height: 56px; }
+
+/* Finish the sentence (Word Detective, sentences track) */
+.sentence-clue { font-size: 72px; line-height: 1; }
+.sentence-text { font-family: 'Andika', 'Comic Sans MS', ui-rounded, sans-serif; font-size: clamp(32px, 7vw, 56px); font-weight: 800; line-height: 1.4; text-align: center; background: #fff; border-radius: 28px; padding: 16px 28px; margin: 0 16px; box-shadow: 0 8px 0 #0002; max-width: 900px; }
+.sentence-text.oops { animation: wiggle .4s ease 2; }
+.sentence-text .blank { display: inline-block; min-width: 3.2em; border-bottom: 6px dashed var(--primary); text-align: center; }
+.sentence-text .blank.filled { border-bottom-style: solid; color: #1e8e4e; animation: bounce .5s ease 1; }
+.word-choices { display: flex; flex-wrap: wrap; justify-content: center; gap: 18px; padding: 0 16px; }
+.word-choice { min-width: 140px; min-height: 84px; padding: 0 24px; border: none; border-radius: 24px; background: var(--primary); color: #fff; font-family: 'Andika', 'Comic Sans MS', ui-rounded, sans-serif; font-size: 46px; font-weight: 800; box-shadow: 0 6px 0 #4834d4; }
+.word-choice:active { transform: translateY(3px); box-shadow: 0 3px 0 #4834d4; }
+.word-choice.tried { opacity: .3; }
+.word-choice.right { background: #2ecc71; box-shadow: 0 6px 0 #1e8e4e; animation: bounce .5s ease 2; }
+.magic-reveal { font-family: 'Andika', 'Comic Sans MS', ui-rounded, sans-serif; font-size: clamp(28px, 6vw, 44px); font-weight: 800; background: #fff6d6; border-radius: 20px; padding: 6px 20px; animation: bounce .5s ease 1; }
+.magic-reveal .magic-e { color: #e17055; }
+@media (max-width: 480px) { .word-choice { min-width: 110px; min-height: 72px; font-size: 38px; } }

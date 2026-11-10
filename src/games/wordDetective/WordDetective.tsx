@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { makeWordItem, wrongSlots, type WordItem, type WordTrack, type BuildItem } from './generator';
+import { makeWordItem, wrongSlots, fillSentence, type WordItem, type WordTrack, type BuildItem } from './generator';
 import { updateSkill, type SkillState } from '../../engine/adaptive';
 import { maxLevel } from '../../engine/tracks';
 import { getSkillState, saveSkillState, logAttempt } from '../../store/db';
@@ -17,7 +17,9 @@ interface Props {
 }
 
 function promptFor(it: WordItem) {
-  return it.kind === 'read' ? 'Read the word, then tap its picture!' : `Build the word ${it.word}!`;
+  if (it.kind === 'sentence') return 'Read the sentence. Which word fits?';
+  if (it.kind === 'read') return it.magic ? 'Look for the magic e! Read the word, then tap its picture.' : 'Read the word, then tap its picture!';
+  return `Build the word ${it.word}!`;
 }
 
 export function WordDetective({ profileId, trackId, onDone, onExit }: Props) {
@@ -95,7 +97,14 @@ export function WordDetective({ profileId, trackId, onDone, onExit }: Props) {
     feedback(out.change === 'up' ? 'levelup' : 'correct');
     if (!hinted.current) correctCount.current += 1;
     setMood('yay');
-    say(out.change === 'up' ? `Yes, ${item!.word}! You're a word detective — new words unlocked!` : `Yes! ${item!.word}!`);
+    const it = item!;
+    const praise =
+      it.kind === 'sentence'
+        ? `Yes! ${fillSentence(it, it.word)}`
+        : it.kind === 'read' && it.magic
+          ? `Yes! ${it.magic.short}, add a magic e, ${it.magic.long}!`
+          : `Yes! ${it.word}!`;
+    say(out.change === 'up' ? `${praise} You're a word detective — new words unlocked!` : praise);
     setTimeout(() => advance(out.state.level), 1700);
   }
 
@@ -110,6 +119,24 @@ export function WordDetective({ profileId, trackId, onDone, onExit }: Props) {
     setMood('oops');
     // Hint: name the picture they tapped and sound out the word by its letters.
     say(`That's ${word}. Look again: ${item.word.split('').join(', ')}.`);
+    setTimeout(() => {
+      setMood('idle');
+      busy.current = false;
+      started.current = Date.now();
+    }, 900);
+  }
+
+  async function pickWord(word: string) {
+    if (!item || item.kind !== 'sentence' || busy.current || tried.includes(word)) return;
+    busy.current = true;
+    if (word === item.word) return success();
+    await record(false);
+    feedback('wrong');
+    hinted.current = true;
+    setTried((t) => [...t, word]);
+    setMood('oops');
+    // Hint: read the sentence with their word so they can hear it doesn't make sense.
+    say(`${fillSentence(item, word)} Hmm, does that make sense? Try again.`);
     setTimeout(() => {
       setMood('idle');
       busy.current = false;
@@ -176,11 +203,38 @@ export function WordDetective({ profileId, trackId, onDone, onExit }: Props) {
         <button className="icon-btn" onClick={() => say(promptFor(item))} aria-label="Say again">🔊</button>
       </div>
 
-      <div className="mode-badge">{item.kind === 'read' ? '🔍' : '🧩'}</div>
+      <div className="mode-badge">{item.kind === 'sentence' ? '💬' : item.kind === 'read' ? (item.magic ? '✨' : '🔍') : '🧩'}</div>
 
-      {item.kind === 'read' ? (
+      {item.kind === 'sentence' ? (
+        <>
+          {item.emoji && <div className="sentence-clue" aria-hidden="true">{item.emoji}</div>}
+          <p className={`sentence-text ${mood}`}>
+            {item.before}{' '}
+            <span className={`blank ${mood === 'yay' ? 'filled' : ''}`}>{mood === 'yay' ? item.word : '\u00a0'}</span>
+            {/^[.,!?]/.test(item.after) ? '' : ' '}
+            {item.after}
+          </p>
+          <div className="word-choices">
+            {item.choices.map((w) => (
+              <button
+                key={w}
+                className={`word-choice ${tried.includes(w) ? 'tried' : ''} ${mood === 'yay' && w === item.word ? 'right' : ''}`}
+                onClick={() => pickWord(w)}
+                aria-label={`Word ${w}`}
+              >
+                {w}
+              </button>
+            ))}
+          </div>
+        </>
+      ) : item.kind === 'read' ? (
         <>
           <div className={`read-word ${mood}`}>{item.word}</div>
+          {item.magic && mood === 'yay' && (
+            <div className="magic-reveal" aria-live="polite">
+              {item.magic.short} + <span className="magic-e">e</span> = {item.magic.long}
+            </div>
+          )}
           <div className={`picture-grid n${item.pictures.length}`}>
             {item.pictures.map((p) => (
               <button
