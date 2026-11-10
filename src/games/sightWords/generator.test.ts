@@ -62,8 +62,8 @@ describe('sight-word items (#17)', () => {
   it('avoid skips the previous word', () => {
     for (let k = 0; k < 100; k++) expect(makeSightItem(0, Math.random, false, 'the').word).not.toBe('the');
   });
-  it('readers reach tricky words after ee/ai/oa, before sentences', () => {
-    const done = Object.fromEntries(['phonics', 'cvc', 'digraphs', 'blends', 'silentE', 'vowelTeams'].map((id) => [id, { level: 9, mastery: 0.95 }]));
+  it('readers reach tricky words after word endings, before sentences', () => {
+    const done = Object.fromEntries(['phonics', 'cvc', 'digraphs', 'blends', 'silentE', 'vowelTeams', 'endings'].map((id) => [id, { level: 9, mastery: 0.95 }]));
     expect(pickTrack('reading', done)).toBe('sightWords');
     expect(pickTrack('reading', { ...done, sightWords: { level: 9, mastery: 0.95 } })).toBe('sentences');
   });

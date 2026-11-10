@@ -2,6 +2,15 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-09 — Word Builder: -s / -ed / -ing (#18, interactive session)
+- Mechanic: a sentence with a time clue and a base word ("Last night, we walk__."); the child taps the ending tile that fits. A picture sits above (two pictures for plurals: "I see two cats").
+- Pictures alone can't show tense, so the sentence's time clue (Every day / Yesterday / Right now) carries the meaning instead.
+- Levels: 1 = -s and -ing, read aloud with a blank; 2 = -s, -ed, -ing, read aloud; 3 = read it yourself. Easing = read aloud + 2 endings.
+- Only base words that need no spelling change (jump, play, walk, cook, paint, climb, rest, laugh, kick, help; cat, dog, duck, frog, hat, ship, kite, cup). Doubling (hop → hopping) and dropping e (bake → baking) are left for a later item.
+- -s is a plural noun half the time and a verb ("Sam jumps") otherwise, so children meet both uses.
+- Wrong pick: the slot shows their ending in orange and the app reads their version ("Right now, we are rested. Hmm, does that sound right?").
+- Reading track order is now: … ee/ai/oa → endings → tricky words → sentences.
+
 ## 2026-11-09 — Sight-Word Catch (#17, interactive session)
 - Mechanic: the app says a tricky word; the child taps (catches) the matching word bubble; a jar on top replays the word. After a catch, the word is used in a short spoken sentence ("was. The cake was yummy.") so it carries meaning, not just a shape.
 - 54 words in 3 levels, based on Dolch pre-primer / primer / first grade, keeping the words that are hard to sound out: level 1 (the, you, where…), level 2 (was, they, said…), level 3 (of, could, once…). Later levels mix in earlier words about 1 time in 4 as review.

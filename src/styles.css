@@ -260,3 +260,11 @@ button { font: inherit; cursor: pointer; touch-action: manipulation; }
 @keyframes pop-up { 0% { transform: scale(1); } 40% { transform: scale(1.15); } 100% { transform: translateY(-40px) scale(.9); opacity: .85; } }
 @media (max-width: 480px) { .bubble { width: 136px; height: 136px; font-size: 36px; } .catcher { font-size: 64px; } }
 @media (prefers-reduced-motion: reduce) { .bubble { animation: none; } }
+
+/* Word Builder: endings */
+.sentence-text .base-word { color: var(--primary); }
+.sentence-text .ending-slot { display: inline-block; min-width: 1.6em; border-bottom: 6px dashed #e17055; text-align: left; }
+.sentence-text .ending-slot.filled { border-bottom-style: solid; color: #1e8e4e; }
+.sentence-text .ending-slot.bad { border-bottom-style: solid; color: #e17055; }
+.word-choice.ending { background: #e17055; box-shadow: 0 6px 0 #b8553d; }
+.word-choice.ending.right { background: #2ecc71; box-shadow: 0 6px 0 #1e8e4e; }
