@@ -38,6 +38,7 @@ button { font: inherit; cursor: pointer; touch-action: manipulation; }
 .dot { width: 16px; height: 16px; border-radius: 50%; background: #0001; }
 .dot.done { background: var(--math); }
 .dot.now { background: var(--primary); transform: scale(1.3); }
+.dot.now.bonus { background: #f5b301; box-shadow: 0 0 0 3px #f5b30155; } /* stretch item */
 
 .game { align-items: center; }
 .target-number { font-size: 72px; font-weight: 900; color: var(--primary); line-height: 1; }

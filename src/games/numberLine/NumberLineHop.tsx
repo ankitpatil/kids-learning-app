@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { makeHopItem, checkHops, frogAt, maxHops, splitText, type HopItem, type HopTrack } from './generator';
 import { updateSkill, type SkillState } from '../../engine/adaptive';
 import { maxLevel } from '../../engine/tracks';
-import { getSkillState, saveSkillState, logAttempt } from '../../store/db';
+import { getSkillState, getSkillStates, saveSkillState, logAttempt } from '../../store/db';
+import { planRound, resolveSlot, type Slot } from '../../engine/roundMix';
 import { say } from '../../audio/speech';
 import { fresh } from '../../engine/recent';
 import { feedback } from '../../components/Feedback';
@@ -65,18 +66,23 @@ export function NumberLineHop({ profileId, trackId, onDone, onExit }: Props) {
   const ease = useRef(false);
   const started = useRef(Date.now());
   const busy = useRef(false);
+  const plan = useRef(planRound(ROUND_LENGTH));
+  const all = useRef<Awaited<ReturnType<typeof getSkillStates>>>({});
+  const slot = useRef<Slot>({ kind: 'current', trackId, level: 0 });
 
   useEffect(() => {
-    getSkillState(profileId, trackId).then((s) => {
+    Promise.all([getSkillState(profileId, trackId), getSkillStates(profileId)]).then(([s, states]) => {
+      all.current = states;
       setState(s);
       next(s.level, undefined);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profileId, trackId]);
 
-  function next(level: number, prevId: string | undefined) {
+  function next(level: number, prevId: string | undefined, i = 0) {
     const easy = ease.current;
-    const it = fresh(trackId, () => makeHopItem(trackId, level, Math.random, easy, prevId), (x) => x.id);
+    const sl = (slot.current = resolveSlot(plan.current[i], trackId, level, all.current, easy));
+    const it = fresh(sl.trackId, () => makeHopItem(sl.trackId as HopTrack, sl.level, Math.random, easy, prevId), (x) => x.id);
     setHintUsed(easy);
     ease.current = false;
     const s = firstStep(it);
@@ -88,7 +94,7 @@ export function NumberLineHop({ profileId, trackId, onDone, onExit }: Props) {
     setTried([]);
     started.current = Date.now();
     busy.current = false;
-    setTimeout(() => say(promptFor(it, s)), 250);
+    setTimeout(() => say((sl.kind === 'stretch' ? 'Bonus challenge! ' : '') + promptFor(it, s)), 250);
   }
 
   function hop() {
@@ -108,8 +114,11 @@ export function NumberLineHop({ profileId, trackId, onDone, onExit }: Props) {
   /** Log the attempt and update the engine. Returns the engine result. */
   async function record(correct: boolean) {
     const timeMs = Date.now() - started.current;
+    const sl = slot.current;
+    await logAttempt({ profileId, skillId: sl.trackId, itemId: item!.id, level: sl.level, correct, hintUsed, timeMs, at: Date.now(), mix: sl.kind });
+    // Review and stretch items are logged but don't move the current track's level.
+    if (sl.kind !== 'current') return { state: state!, change: 'same' as const, ease: false };
     const out = updateSkill(state!, { correct, hintUsed, timeMs }, maxLevel(trackId));
-    await logAttempt({ profileId, skillId: trackId, itemId: item!.id, level: state!.level, correct, hintUsed, timeMs, at: Date.now() });
     await saveSkillState(out.state);
     setState(out.state);
     if (out.change === 'up') leveledUp.current = true;
@@ -132,7 +141,7 @@ export function NumberLineHop({ profileId, trackId, onDone, onExit }: Props) {
         return;
       }
       setIndex(nextIndex);
-      next(out.state.level, it.id);
+      next(out.state.level, it.id, nextIndex);
     }, 2300);
   }
 
@@ -195,7 +204,7 @@ export function NumberLineHop({ profileId, trackId, onDone, onExit }: Props) {
         <button className="back-btn" onClick={onExit} aria-label="Back to levels">⬅️ Levels</button>
         <div className="progress" aria-label={`Question ${index + 1} of ${ROUND_LENGTH}`}>
           {Array.from({ length: ROUND_LENGTH }, (_, i) => (
-            <span key={i} className={i < index ? 'dot done' : i === index ? 'dot now' : 'dot'} />
+            <span key={i} className={i < index ? 'dot done' : i === index ? `dot now${slot.current.kind === 'stretch' ? ' bonus' : ''}` : 'dot'} />
           ))}
         </div>
         <button className="icon-btn" onClick={() => say(promptFor(item, step))} aria-label="Say again">🔊</button>

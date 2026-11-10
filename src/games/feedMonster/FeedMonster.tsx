@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { makeFeedItem, checkFeed, type FeedItem } from './generator';
 import { updateSkill, type SkillState } from '../../engine/adaptive';
 import { maxLevel } from '../../engine/tracks';
-import { getSkillState, saveSkillState, logAttempt } from '../../store/db';
+import { getSkillState, getSkillStates, saveSkillState, logAttempt } from '../../store/db';
+import { planRound, resolveSlot, type Slot } from '../../engine/roundMix';
 import { say } from '../../audio/speech';
 import { fresh } from '../../engine/recent';
 import { feedback } from '../../components/Feedback';
@@ -58,18 +59,23 @@ export function FeedMonster({ profileId, trackId, onDone, onExit }: Props) {
   const ease = useRef(false);
   const started = useRef(Date.now());
   const busy = useRef(false);
+  const plan = useRef(planRound(ROUND_LENGTH));
+  const all = useRef<Awaited<ReturnType<typeof getSkillStates>>>({});
+  const slot = useRef<Slot>({ kind: 'current', trackId, level: 0 });
 
   useEffect(() => {
-    getSkillState(profileId, trackId).then((s) => {
+    Promise.all([getSkillState(profileId, trackId), getSkillStates(profileId)]).then(([s, states]) => {
+      all.current = states;
       setState(s);
       next(s.level, undefined);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profileId, trackId]);
 
-  function next(level: number, prevNeed: number | undefined) {
+  function next(level: number, prevNeed: number | undefined, i = 0) {
     const easy = ease.current;
-    const it = fresh(trackId, () => makeFeedItem(trackId, level, Math.random, easy, prevNeed), (x) => x.id);
+    const sl = (slot.current = resolveSlot(plan.current[i], trackId, level, all.current, easy));
+    const it = fresh(sl.trackId, () => makeFeedItem(sl.trackId as 'count' | 'missing', sl.level, Math.random, easy, prevNeed), (x) => x.id);
     setHintUsed(ease.current);
     ease.current = false;
     setItem(it);
@@ -78,7 +84,7 @@ export function FeedMonster({ profileId, trackId, onDone, onExit }: Props) {
     setWrongPick(null);
     started.current = Date.now();
     busy.current = false;
-    setTimeout(() => say(promptFor(it)), 250);
+    setTimeout(() => say((sl.kind === 'stretch' ? 'Bonus challenge! ' : '') + promptFor(it)), 250);
   }
 
   function feed() {
@@ -99,9 +105,11 @@ export function FeedMonster({ profileId, trackId, onDone, onExit }: Props) {
     const verdict = checkFeed(item, given);
     const correct = verdict === 'correct';
     const timeMs = Date.now() - started.current;
-    const out = updateSkill(state, { correct, hintUsed, timeMs }, maxLevel(trackId));
-    await logAttempt({ profileId, skillId: trackId, itemId: item.id, level: state.level, correct, hintUsed, timeMs, at: Date.now() });
-    await saveSkillState(out.state);
+    const sl = slot.current;
+    await logAttempt({ profileId, skillId: sl.trackId, itemId: item.id, level: sl.level, correct, hintUsed, timeMs, at: Date.now(), mix: sl.kind });
+    // Review and stretch items are logged but don't move the current track's level.
+    const out = sl.kind === 'current' ? updateSkill(state, { correct, hintUsed, timeMs }, maxLevel(trackId)) : { state, change: 'same' as const, ease: false };
+    if (sl.kind === 'current') await saveSkillState(out.state);
     setState(out.state);
     if (out.change === 'up') leveledUp.current = true;
     if (out.ease) ease.current = true;
@@ -120,7 +128,7 @@ export function FeedMonster({ profileId, trackId, onDone, onExit }: Props) {
           return;
         }
         setIndex(nextIndex);
-        next(out.state.level, item.need);
+        next(out.state.level, item.need, nextIndex);
       }, item.have > 0 ? 2200 : 1400);
     } else {
       setMood('oops');
@@ -157,7 +165,7 @@ export function FeedMonster({ profileId, trackId, onDone, onExit }: Props) {
         <button className="back-btn" onClick={onExit} aria-label="Back to levels">⬅️ Levels</button>
         <div className="progress" aria-label={`Question ${index + 1} of ${ROUND_LENGTH}`}>
           {Array.from({ length: ROUND_LENGTH }, (_, i) => (
-            <span key={i} className={i < index ? 'dot done' : i === index ? 'dot now' : 'dot'} />
+            <span key={i} className={i < index ? 'dot done' : i === index ? `dot now${slot.current.kind === 'stretch' ? ' bonus' : ''}` : 'dot'} />
           ))}
         </div>
         <button className="icon-btn" onClick={() => say(promptFor(item))} aria-label="Say again">🔊</button>

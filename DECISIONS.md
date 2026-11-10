@@ -2,7 +2,18 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
-## 2026-11-09 — Word Builder: -s / -ed / -ing (#18, interactive session)
+## 2026-11-10 — Round mix 70/20/10 (#14a)
+- Split #14: this run did the engine plus the three games that play several tracks (Feed the Monster, Number Line Hop, Word Detective). The single-track games are #14b.
+- A round is still one game, so "across the tracks of a subject" means across the tracks that game can play (e.g. Word Detective: cvc → … → sentences). Mixing different games into one round would need a new mixed-round screen; not done.
+- 8-item round = 5 current, 2 review, 1 stretch (rounding 20% and 10%). Over 20 items it's exactly 14/4/2.
+- Order: item 1 is a review warm-up (an easy first win), the last item is always current, and the stretch item is never 1st, 2nd or last.
+- Review = the level just below the current one, or an earlier track in the same game that the child has played (its top level if mastered, otherwise one level below where they are). Tracks never played (jumped past on the level map) are not "review".
+- Stretch = the next level, or the next track in the same game once at the top level. Never right after two misses (the next item must be easier then). Nothing to review/stretch to → the slot is a normal current item.
+- Review and stretch answers are logged as attempts (with `mix: 'review' | 'stretch'` and their own track/level) but do NOT change any track's level or mastery: a hard stretch item can't knock a child down a level, and an easy review can't push them up. The logs are there for the parent dashboard (#23) and spaced review (#25).
+- Stretch items are announced as "Bonus challenge!" and their progress dot glows gold, so a miss feels like a bonus attempt, not a failure. Stars still count all 8 items.
+- Mixing also applies when a level is picked from the level map.
+
+: -s / -ed / -ing (#18, interactive session)
 - Mechanic: a sentence with a time clue and a base word ("Last night, we walk__."); the child taps the ending tile that fits. A picture sits above (two pictures for plurals: "I see two cats").
 - Pictures alone can't show tense, so the sentence's time clue (Every day / Yesterday / Right now) carries the meaning instead.
 - Levels: 1 = -s and -ing, read aloud with a blank; 2 = -s, -ed, -ing, read aloud; 3 = read it yourself. Easing = read aloud + 2 endings.

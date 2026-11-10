@@ -27,6 +27,8 @@ export interface Attempt {
   hintUsed: boolean;
   timeMs: number;
   at: number;
+  /** Round-mix slot (absent on older attempts = current). */
+  mix?: 'current' | 'review' | 'stretch';
 }
 
 export class AppDB extends Dexie {
