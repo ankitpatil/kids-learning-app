@@ -16,4 +16,4 @@
 2026-11-10 07:47 PT — item #14 (split → 14a) — round mix engine 70/20/10 (review warm-up, mid-round bonus stretch, logged but level-neutral) wired into Feed the Monster, Number Line Hop, Word Detective; 14b (single-track games) added; 126 tests pass, build ok — done
 2026-11-10 04:57 PT — item #14b — round mix (review warm-up, bonus stretch, level-neutral logging) in Phonics Pop, Sight-Word Catch, Word Builder; 133 tests pass, build ok — done
 2026-11-10 23:45 PT — item #15 (split → 15a) — Tens & ones in Feed the Monster: boxes of 10 + loose cookies to 100, digit-split guide, "3 tens and 4 ones" pick level, specific hints; 15b (compare 2-digit) added; 146 tests pass, build ok — done
-2026-11-11 04:57 PT — item #15b — Compare 2-digit numbers: 'more / fewer cookies?' plates in Feed the Monster, 3 levels (far + picture → close/swapped + picture → numbers only), tens-first hint speech; 173 tests pass, build ok — done
+2026-11-11 04:57 PT — item #15b — Compare 2-digit numbers: 'more / fewer cookies?' plates in Feed the Monster, 3 levels (far + picture → close/swapped + picture → numbers only), tens-first hint speech; 160 tests pass, build ok — done
