@@ -23,7 +23,8 @@ Reprioritised 2026-11-08 for the actual learner: knows basic words and +/- (≈ 
 - [x] 13. Profile picker / create profile (nickname + avatar emoji), multi-child on one device; each profile has its own track levels
 - [x] 14a. Round mix engine (70/20/10 current/review/stretch, review/stretch drawn from tracks the same game plays) + tests; wired into Feed the Monster, Number Line Hop, Word Detective
 - [x] 14b. Round mix in the single-track games: Phonics Pop, Sight-Word Catch, Word Builder (review = level below, stretch = level above; reuse `engine/roundMix`)
-- [ ] 15. **Tens & ones**: Feed the Monster with boxes of 10 + loose cookies (numbers to 100), then compare two-digit numbers (bigger/smaller). Tests
+- [x] 15a. **Tens & ones**: Feed the Monster with boxes of 10 + loose cookies (numbers to 100); level 3 = "3 tens and 4 ones" → pick the number. Tests
+- [ ] 15b. **Compare 2-digit numbers** (bigger/smaller, close numbers and swapped digits like 34/43), using the tens & ones picture as a hint. Tests
 - [x] 16. Word Detective: silent-e (cap → cape, kit → kite) and vowel teams (ee, ai, oa); then "pop the word that finishes the sentence". Tests
 - [x] 17. Game: **Sight-Word Catch** with tricky/irregular words (said, was, the, of, they…; Dolch primer + first grade lists)
 - [x] 18. Game: **Word Builder** for endings: drag -s / -ed / -ing onto a base word to match a picture/sentence (jump → jumped / jumping)

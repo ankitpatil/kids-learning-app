@@ -60,7 +60,7 @@ export const TRACKS: TrackDef[] = [
     levels: [L('back to 10, number line', 20, 'pictorial', 'near', true), L('within 20, numbers', 20, 'abstract', 'near', false)],
   },
   {
-    id: 'placeValue', subject: 'math', name: 'Tens and ones', emoji: '📦', playable: false,
+    id: 'placeValue', subject: 'math', name: 'Tens and ones', emoji: '📦', playable: true,
     levels: [L('to 50, boxes of 10', 50, 'pictorial', 'far', true), L('to 100, boxes of 10', 100, 'pictorial', 'near', false), L('to 100, words', 100, 'abstract', 'near', false)],
   },
   {

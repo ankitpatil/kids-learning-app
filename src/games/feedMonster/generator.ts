@@ -81,7 +81,91 @@ export function makeFeedItem(trackId: 'count' | 'missing', level: number, rng: R
   };
 }
 
-export function checkFeed(item: FeedItem, given: number): 'correct' | 'too-few' | 'too-many' {
+export function checkFeed(item: { need: number }, given: number): 'correct' | 'too-few' | 'too-many' {
   if (given === item.need) return 'correct';
   return given < item.need ? 'too-few' : 'too-many';
+}
+
+// ---- Tens & ones (#15a): boxes of 10 + loose cookies, numbers to 100 ----
+export interface PlaceValueItem extends Omit<FeedItem, 'trackId'> {
+  trackId: 'placeValue';
+  tens: number;
+  ones: number;
+  /** Boxes of 10 on the plate (feed mode). `supply` is the loose cookies. */
+  boxSupply: number;
+  /** Show the number split into a tens digit (📦) and a ones digit (🍪). */
+  split: boolean;
+}
+
+export type AnyFeedItem = FeedItem | PlaceValueItem;
+
+export function isPlaceValue(it: AnyFeedItem): it is PlaceValueItem {
+  return it.trackId === 'placeValue';
+}
+
+/**
+ * Level 0: 10–49, feed boxes + cookies, digits split as a guide. Level 1: 10–99, no guide.
+ * Level 2: "3 tens and 4 ones" → pick the number (near choices: swapped digits, ±10, ±1).
+ * Easing: tens ≤ 3, feed mode, guide on. Loose cookies never exceed 9, so the only way to make
+ * the number is the place-value way (no 2 boxes + 14 cookies).
+ */
+export function makePlaceValueItem(level: number, rng: Rng = Math.random, ease = false, avoid?: number): PlaceValueItem {
+  const cfg = getLevel('placeValue', level);
+  const maxTens = ease ? 3 : Math.min(9, Math.floor((cfg.range - 1) / 10));
+  const tens = int(rng, 1, maxTens);
+  let ones = int(rng, 0, 9);
+  if (tens * 10 + ones === avoid) ones = ones === 9 ? 8 : ones + 1;
+  const n = tens * 10 + ones;
+  const mode = cfg.representation === 'abstract' && !ease ? 'choose' : 'feed';
+  return {
+    id: `pv-${n}`,
+    trackId: 'placeValue',
+    have: 0,
+    total: n,
+    need: n,
+    tens,
+    ones,
+    supply: Math.min(9, ones + 2 + int(rng, 0, 2)),
+    boxSupply: Math.min(9, tens + 1 + int(rng, 0, 1)),
+    mode,
+    frames: false,
+    split: cfg.scaffold || ease,
+    choices: mode === 'choose' ? placeValueChoices(tens, ones, cfg.distractors === 'near', rng) : [],
+  };
+}
+
+/** Answer + 3 distractors (all 10–99). Near: digits swapped (34/43), ±10, ±1. Far: anywhere. */
+export function placeValueChoices(tens: number, ones: number, near: boolean, rng: Rng = Math.random): number[] {
+  const n = tens * 10 + ones;
+  const set = new Set<number>([n]);
+  const ok = (v: number) => v >= 10 && v <= 99;
+  if (near) {
+    const swapped = ones * 10 + tens;
+    for (const v of [swapped, n + 10, n - 10, n + 1, n - 1]) {
+      if (set.size >= 4) break;
+      if (ok(v)) set.add(v);
+    }
+  }
+  let guard = 0;
+  while (set.size < 4 && guard++ < 200) {
+    const v = int(rng, 10, 99);
+    if (!near && Math.abs(v - n) < 5) continue;
+    set.add(v);
+  }
+  const arr = [...set];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+export type PlaceValueVerdict = 'correct' | 'swapped' | 'tens' | 'ones' | 'both';
+
+/** Classify a fed answer (boxes, loose cookies) so the hint can say which part to fix. */
+export function checkPlaceValue(item: { tens: number; ones: number }, tens: number, ones: number): PlaceValueVerdict {
+  if (tens === item.tens && ones === item.ones) return 'correct';
+  if (item.tens !== item.ones && tens === item.ones && ones === item.tens) return 'swapped';
+  if (tens !== item.tens && ones !== item.ones) return 'both';
+  return tens !== item.tens ? 'tens' : 'ones';
 }

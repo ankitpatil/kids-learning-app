@@ -2,6 +2,16 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-10 — Tens & ones in Feed the Monster (#15a)
+- Split #15: this run made the `placeValue` track playable in Feed the Monster; comparing 2-digit numbers is #15b.
+- Mechanic: "Feed me thirty four cookies!" The plate has boxes of 10 (📦 with a "10" tag) and loose cookies. Tapping a box counts by tens ("twenty, thirty"), a cookie counts on ("thirty one"); the running total shows under the belly.
+- Levels follow the existing track config: 1 = 10–49 with the number split into a tens digit (📦) and ones digit (🍪) and grey ghost boxes/cookies as a guide; 2 = 10–99, number only; 3 = "three tens and four ones" spoken + shown as 3 📦 4 🍪 → pick the number. Near choices are swapped digits (43), ±10 and ±1.
+- Loose cookies on the plate never exceed 9, so the number can only be built the place-value way (no 2 boxes + 14 cookies). Numbers include round tens (30 = 3 boxes, 0 cookies).
+- Mistake hints say which part to fix ("The boxes are right! Now count the cookies.") or that boxes and cookies swapped; after a miss the ghost guide appears even on level 2.
+- Easing (2 misses): tens ≤ 3, feed mode, guide on.
+- The track joins Feed the Monster's round-mix group (count → missing → tens & ones), so the top of "missing number" stretches into tens & ones level 1, and tens & ones reviews missing-number items. It comes after "Subtract within 20" in the math sequence.
+- Added `engine/numberWords` (0–100 in words) so TTS says "thirty four" consistently.
+
 ## 2026-11-10 — Round mix in single-track games (#14b)
 - Phonics Pop, Sight-Word Catch and Word Builder now use the same 8-item plan (review warm-up first, one mid-round "Bonus challenge!", last item current) via `engine/roundMix`; no engine changes were needed since a single-track game's group is just its own track.
 - Review = one level below; stretch = one level above. These games don't mix in other tracks (e.g. a child who mastered Short words doesn't get those in Phonics Pop), keeping each game's round about one skill.

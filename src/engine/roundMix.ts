@@ -21,6 +21,7 @@ export const STRETCH_SHARE = 0.1;
 const GAME_OF: Record<string, string> = {
   count: 'feed',
   missing: 'feed',
+  placeValue: 'feed',
   add10: 'hop',
   sub10: 'hop',
   add20: 'hop',
