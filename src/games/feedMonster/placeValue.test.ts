@@ -114,7 +114,7 @@ describe('checkPlaceValue', () => {
 describe('tens & ones track wiring', () => {
   it('is playable and played by Feed the Monster', () => {
     expect(getTrack('placeValue').playable).toBe(true);
-    expect(gameGroup('placeValue')).toEqual(['count', 'missing', 'placeValue']);
+    expect(gameGroup('placeValue')).toEqual(['count', 'missing', 'placeValue', 'compare2d']);
   });
   it('comes after subtract within 20 in the math sequence', () => {
     const m = { level: 9, mastery: 0.95 };

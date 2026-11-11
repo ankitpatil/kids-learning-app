@@ -20,7 +20,7 @@ export const CHECKPOINTS: Record<Subject, Checkpoint[]> = {
     { trackId: 'sub20', level: 1 },
     { trackId: 'placeValue', level: 1 },
     { trackId: 'placeValue', level: 2 },
-    { trackId: 'compare2d', level: 1 },
+    { trackId: 'compare2d', level: 2 },
   ],
   reading: [
     { trackId: 'phonics', level: 1 },

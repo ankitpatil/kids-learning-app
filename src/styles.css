@@ -294,3 +294,19 @@ button { font: inherit; cursor: pointer; touch-action: manipulation; }
 .pv-plate { padding: 14px 20px; }
 .pv-plate .cookie.big { font-size: 44px; width: 60px; height: 60px; }
 .pv-plate .pv-box.big { font-size: 48px; width: 64px; height: 64px; }
+
+/* Compare 2-digit numbers (#15b) */
+.cmp-monster { padding: 10px 16px; }
+.cmp-monster .monster-face { font-size: 80px; }
+.cmp-ask { font-size: 28px; font-weight: 900; color: #fff; }
+.cmp-plates { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: min(94vw, 560px); margin: auto 0 24px; }
+.cmp-plate { border: none; min-height: 160px; border-radius: 32px; background: #fff; box-shadow: 0 6px 0 #0002; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 8px; padding: 14px 8px; }
+.cmp-plate:active { transform: translateY(3px); box-shadow: 0 3px 0 #0002; }
+.cmp-number { font-size: 64px; font-weight: 900; color: var(--primary); line-height: 1; }
+.cmp-pic { display: flex; flex-direction: column; gap: 4px; }
+.cmp-pic .pv-box { font-size: 26px; }
+.cmp-pic .pv-box b { font-size: 10px; }
+.cmp-pic .cookie.small { font-size: 20px; }
+.cmp-plate.tried { opacity: .4; }
+.cmp-plate.right { background: #d7f7d0; animation: bounce .5s ease 2; }
+.cmp-plate.other { opacity: .5; }

@@ -21,7 +21,7 @@ import { Placement, StartPoint } from './screens/Placement';
 import type { Subject } from './engine/tracks';
 import { say, isMuted, setMuted } from './audio/speech';
 
-type Game = 'count' | 'missing' | 'placeValue' | HopTrack | 'phonics' | WordTrack | 'sightWords' | 'endings';
+type Game = 'count' | 'missing' | 'placeValue' | 'compare2d' | HopTrack | 'phonics' | WordTrack | 'sightWords' | 'endings';
 type Screen =
   | { name: 'home' }
   | { name: Game }
@@ -33,7 +33,7 @@ type Screen =
   | { name: 'profiles' }
   | { name: 'newProfile' };
 
-const SUBJECT_OF = (g: Game): Subject => (g === 'count' || g === 'missing' || g === 'placeValue' || isHopTrack(g) ? 'math' : 'reading');
+const SUBJECT_OF = (g: Game): Subject => (g === 'count' || g === 'missing' || g === 'placeValue' || g === 'compare2d' || isHopTrack(g) ? 'math' : 'reading');
 const isWordTrack = (g: string): g is WordTrack => (WORD_TRACKS as readonly string[]).includes(g);
 
 export default function App() {
@@ -169,7 +169,7 @@ export default function App() {
     return <Placement subject={subject} onDone={(best) => applyStart(subject, best)} onExit={() => setScreen({ name: 'startpoint', subject })} />;
   }
 
-  if (screen.name === 'count' || screen.name === 'missing' || screen.name === 'placeValue') {
+  if (screen.name === 'count' || screen.name === 'missing' || screen.name === 'placeValue' || screen.name === 'compare2d') {
     const track = screen.name;
     return <FeedMonster key={track} profileId={profile.id} trackId={track} onDone={(r) => finishRound(track, r)} onExit={() => toLevels('math')} />;
   }

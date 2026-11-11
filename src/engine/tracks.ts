@@ -64,8 +64,8 @@ export const TRACKS: TrackDef[] = [
     levels: [L('to 50, boxes of 10', 50, 'pictorial', 'far', true), L('to 100, boxes of 10', 100, 'pictorial', 'near', false), L('to 100, words', 100, 'abstract', 'near', false)],
   },
   {
-    id: 'compare2d', subject: 'math', name: 'Bigger or smaller', emoji: '⚖️', playable: false,
-    levels: [L('to 100', 100, 'abstract', 'far', false), L('to 100, close numbers', 100, 'abstract', 'near', false)],
+    id: 'compare2d', subject: 'math', name: 'More or fewer', emoji: '⚖️', playable: true,
+    levels: [L('far apart, boxes of 10', 100, 'pictorial', 'far', true), L('close numbers, boxes of 10', 100, 'pictorial', 'near', true), L('close numbers, numbers only', 100, 'abstract', 'near', false)],
   },
   { id: 'wordProblems', subject: 'math', name: 'Story sums', emoji: '📖', playable: false, levels: [L('one step', 20, 'pictorial', 'far', true)] },
   { id: 'money', subject: 'math', name: 'Money', emoji: '🪙', playable: false, levels: [L('pay exact', 20, 'concrete', 'far', true)] },

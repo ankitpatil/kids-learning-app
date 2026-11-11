@@ -2,6 +2,14 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-11 — Compare 2-digit numbers in Feed the Monster (#15b)
+- Mechanic: two plates with a number each; the monster says "I'm so hungry! Which plate has more cookies?" or "I'm nearly full. Which plate has fewer cookies?" → tap a plate. Both "more" and "fewer" are asked (~50/50) so the child can't just always tap the bigger number. Uses "more/fewer" (K–1 language) in the question and "more than / less than" in the feedback.
+- Track `compare2d` (renamed "More or fewer") is now playable and has 3 levels instead of 2: 0 = far apart (tens differ by ≥ 2) with the tens & ones picture (📦 boxes + 🍪) under each number; 1 = close numbers with the picture; 2 = close numbers, numbers only. Saved progress at old level 0/1 stays valid (level 1 is now "close numbers with the picture", slightly easier than before).
+- Close pairs are an even mix of swapped digits (34 / 43), same tens (34 / 37) and a "tens trap" (29 / 31: more boxes wins even with fewer loose cookies).
+- A wrong pick fades that plate, shows the picture (even on level 2) and the hint walks through it the place-value way: "Look at the boxes first. forty three has four boxes, thirty four has three boxes. So forty three is more than thirty four." or, with equal tens, "Both have three boxes. So look at the cookies…".
+- Easing (2 misses): a far pair with the picture, asking "more".
+- Joins Feed the Monster's round-mix group after tens & ones (count → missing → tens & ones → compare): top-level tens & ones stretches into compare, compare reviews tens & ones. Placement checkpoint moved to compare level 2 (the quick-check item is numbers only).
+
 ## 2026-11-10 — Tens & ones in Feed the Monster (#15a)
 - Split #15: this run made the `placeValue` track playable in Feed the Monster; comparing 2-digit numbers is #15b.
 - Mechanic: "Feed me thirty four cookies!" The plate has boxes of 10 (📦 with a "10" tag) and loose cookies. Tapping a box counts by tens ("twenty, thirty"), a cookie counts on ("thirty one"); the running total shows under the belly.

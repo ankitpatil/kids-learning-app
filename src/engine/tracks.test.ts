@@ -60,7 +60,7 @@ describe('pickTrack', () => {
   });
   it('falls back to the last playable track when all are mastered', () => {
     const m = { level: 9, mastery: 0.95 };
-    expect(pickTrack('math', { count: m, add10: m, sub10: m, missing: m, add20: m, sub20: m, placeValue: m })).toBe('placeValue');
+    expect(pickTrack('math', { count: m, add10: m, sub10: m, missing: m, add20: m, sub20: m, placeValue: m, compare2d: m })).toBe('compare2d');
     expect(pickTrack('reading', { phonics: { level: 6, mastery: 0.95 } })).toBe('cvc');
     const allRead = Object.fromEntries(['phonics', 'cvc', 'digraphs', 'blends', 'silentE', 'vowelTeams', 'endings', 'sightWords', 'sentences'].map((id) => [id, { level: 9, mastery: 0.95 }]));
     expect(pickTrack('reading', allRead)).toBe('sentences');

@@ -46,7 +46,7 @@ describe('planRound', () => {
 
 describe('gameGroup', () => {
   it('groups tracks by the game that plays them, in curriculum order', () => {
-    expect(gameGroup('missing')).toEqual(['count', 'missing', 'placeValue']);
+    expect(gameGroup('missing')).toEqual(['count', 'missing', 'placeValue', 'compare2d']);
     expect(gameGroup('add20')).toEqual(['add10', 'sub10', 'add20', 'sub20']);
     expect(gameGroup('cvc')[0]).toBe('cvc');
     expect(gameGroup('cvc')).toContain('sentences');

@@ -8,6 +8,7 @@ import { planRound, resolveSlot, type Slot } from '../../engine/roundMix';
 import { say } from '../../audio/speech';
 import { fresh } from '../../engine/recent';
 import { feedback } from '../../components/Feedback';
+import { makeCompareItem, comparePrompt, compareHint, comparePraise, type CompareItem } from './compare';
 
 const ROUND_LENGTH = 8;
 const w = numberWord;
@@ -19,14 +20,18 @@ interface Props {
   onExit: () => void;
 }
 
-export type FeedTrack = 'count' | 'missing' | 'placeValue';
+export type FeedTrack = 'count' | 'missing' | 'placeValue' | 'compare2d';
+type GameItem = AnyFeedItem | CompareItem;
+const isCompare = (it: GameItem): it is CompareItem => it.trackId === 'compare2d';
 
-function makeItem(trackId: string, level: number, ease: boolean, avoid: number | undefined): AnyFeedItem {
+function makeItem(trackId: string, level: number, ease: boolean, avoid: number | undefined): GameItem {
+  if (trackId === 'compare2d') return makeCompareItem(level, Math.random, ease, avoid);
   if (trackId === 'placeValue') return makePlaceValueItem(level, Math.random, ease, avoid);
   return makeFeedItem(trackId as 'count' | 'missing', level, Math.random, ease, avoid);
 }
 
-function promptFor(it: AnyFeedItem) {
+function promptFor(it: GameItem) {
+  if (isCompare(it)) return comparePrompt(it);
   if (isPlaceValue(it)) {
     if (it.mode === 'choose') return `${tensOnesWords(it.tens, it.ones)}. What number is that?`;
     const guide = it.split ? ` ${w(it.total)} is ${tensOnesWords(it.tens, it.ones)}.` : ' A box has ten cookies.';
@@ -73,7 +78,7 @@ function TenFrames({ have, fed, ghost }: { have: number; fed: number; ghost: num
 
 export function FeedMonster({ profileId, trackId, onDone, onExit }: Props) {
   const [state, setState] = useState<SkillState | null>(null);
-  const [item, setItem] = useState<AnyFeedItem | null>(null);
+  const [item, setItem] = useState<GameItem | null>(null);
   const [fed, setFed] = useState(0);
   /** Boxes of ten fed (tens & ones). `fed` is then the loose cookies. */
   const [boxes, setBoxes] = useState(0);
@@ -123,7 +128,7 @@ export function FeedMonster({ profileId, trackId, onDone, onExit }: Props) {
   }
 
   function feedBox() {
-    if (!item || !isPlaceValue(item) || busy.current || boxes >= item.boxSupply) return;
+    if (!item || isCompare(item) || !isPlaceValue(item) || busy.current || boxes >= item.boxSupply) return;
     const b = boxes + 1;
     setBoxes(b);
     say(w(b * 10 + fed), { rate: 1.1 }); // count by tens: ten, twenty, thirty…
@@ -138,7 +143,7 @@ export function FeedMonster({ profileId, trackId, onDone, onExit }: Props) {
   async function submit(given: number) {
     if (!item || !state || busy.current) return;
     busy.current = true;
-    const pv = isPlaceValue(item) && item.mode === 'feed' ? checkPlaceValue(item, boxes, fed) : null;
+    const pv = !isCompare(item) && isPlaceValue(item) && item.mode === 'feed' ? checkPlaceValue(item, boxes, fed) : null;
     const verdict = pv ? (pv === 'correct' ? 'correct' : 'too-few') : checkFeed(item, given);
     const correct = verdict === 'correct';
     const timeMs = Date.now() - started.current;
@@ -154,13 +159,13 @@ export function FeedMonster({ profileId, trackId, onDone, onExit }: Props) {
     feedback(correct ? (out.change === 'up' ? 'levelup' : 'correct') : 'wrong');
     if (correct) {
       setMood('yum');
-      if (item.mode === 'feed' && !isPlaceValue(item)) setFed(given);
-      if (isPlaceValue(item)) {
+      if (item.mode === 'feed' && !isCompare(item) && !isPlaceValue(item)) setFed(given);
+      if (!isCompare(item) && isPlaceValue(item)) {
         setBoxes(item.tens);
         setFed(item.ones);
       }
       if (!hintUsed) correctCount.current += 1;
-      const sum = isPlaceValue(item) ? `${tensOnesWords(item.tens, item.ones)} make ${w(item.total)}! ` : item.have > 0 ? `${w(item.have)} and ${w(item.need)} make ${w(item.total)}! ` : '';
+      const sum = isCompare(item) ? comparePraise(item) + ' ' : isPlaceValue(item) ? `${tensOnesWords(item.tens, item.ones)} make ${w(item.total)}! ` : item.have > 0 ? `${w(item.have)} and ${w(item.need)} make ${w(item.total)}! ` : '';
       say(sum + (out.change === 'up' ? 'Yum yum! You are getting so good!' : 'Yum yum! Thank you!'));
       setTimeout(() => {
         const nextIndex = index + 1;
@@ -170,11 +175,14 @@ export function FeedMonster({ profileId, trackId, onDone, onExit }: Props) {
         }
         setIndex(nextIndex);
         next(out.state.level, item.need, nextIndex);
-      }, item.have > 0 || isPlaceValue(item) ? 2400 : 1400);
+      }, item.have > 0 || isCompare(item) || isPlaceValue(item) ? 2400 : 1400);
     } else {
       setMood('oops');
       setHintUsed(true);
-      if (isPlaceValue(item)) {
+      if (isCompare(item)) {
+        setWrongPick(given);
+        say(compareHint(item));
+      } else if (isPlaceValue(item)) {
         say(placeValueHint(item, pv, boxes, fed, given));
         if (item.mode === 'choose') setWrongPick(given);
       } else if (item.mode === 'choose') {
@@ -198,6 +206,46 @@ export function FeedMonster({ profileId, trackId, onDone, onExit }: Props) {
   }
 
   if (!item || !state) return <div className="screen center">Loading…</div>;
+
+  if (isCompare(item)) {
+    const done = mood === 'yum';
+    // Picture on levels 0–1 and after a miss; the hint speech walks through boxes, then cookies.
+    const picture = item.picture || hintUsed;
+    return (
+      <div className="screen game">
+        <div className="topbar">
+          <button className="back-btn" onClick={onExit} aria-label="Back to levels">⬅️ Levels</button>
+          <div className="progress" aria-label={`Question ${index + 1} of ${ROUND_LENGTH}`}>
+            {Array.from({ length: ROUND_LENGTH }, (_, i) => (
+              <span key={i} className={i < index ? 'dot done' : i === index ? `dot now${slot.current.kind === 'stretch' ? ' bonus' : ''}` : 'dot'} />
+            ))}
+          </div>
+          <button className="icon-btn" onClick={() => say(promptFor(item))} aria-label="Say again">🔊</button>
+        </div>
+        <div className={`monster cmp-monster ${mood}`} aria-hidden>
+          <div className="monster-face">{done ? '😋' : mood === 'oops' ? '😮' : item.ask === 'more' ? '🤤' : '😌'}</div>
+          <div className="cmp-ask">{item.ask === 'more' ? 'more 🍪🍪🍪' : 'fewer 🍪'}</div>
+        </div>
+        <div className="cmp-plates">
+          {[item.left, item.right].map((n) => {
+            const t = Math.floor(n / 10), o = n % 10;
+            const cls = done ? (n === item.need ? 'right' : 'other') : wrongPick === n ? 'tried' : '';
+            return (
+              <button key={n} className={`cmp-plate ${cls}`} onClick={() => submit(n)} aria-label={String(n)}>
+                <span className="cmp-number">{n}</span>
+                {picture && (
+                  <span className="cmp-pic">
+                    <span className="pv-row">{Array.from({ length: t }, (_, i) => <span key={i} className="pv-box">📦<b>10</b></span>)}</span>
+                    <span className="pv-row">{Array.from({ length: o }, (_, i) => <span key={i} className="cookie small">🍪</span>)}</span>
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
 
   if (isPlaceValue(item)) {
     const done = mood === 'yum';

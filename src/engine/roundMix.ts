@@ -22,6 +22,7 @@ const GAME_OF: Record<string, string> = {
   count: 'feed',
   missing: 'feed',
   placeValue: 'feed',
+  compare2d: 'feed',
   add10: 'hop',
   sub10: 'hop',
   add20: 'hop',
