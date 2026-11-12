@@ -2,6 +2,17 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-12 — Story sums: word problems (#20)
+- New game "Story sums" for the `wordProblems` track (now playable, 3 levels, last in the math sequence after More or fewer). 8-item rounds with the usual round mix (review = level below, stretch = level above; its own single-track group).
+- Story kinds (Common Core 1.OA.1 / NCERT Class 1–2): add to and take from (result unknown) from level 1; put together ("in all") from level 2. Change-unknown ("how many more did she get?") and compare stories are left out for now — the Missing number track covers a + __ = c; could be a 4th level later.
+- Levels are the format: 1 = pick the answer, within 10, objects shown as pictures (taken-away ones greyed out); 2 = pick the number sentence, within 20, no pictures; 3 = build it: tap + or −, then pick the answer (4 choices). Every story is read aloud on every level (spoken story, per the backlog) and also shown as text; tap the story or 🔊 to hear it again.
+- Equation choices are always true facts (right one, same numbers with the other sign, one with a different story number) so the app never shows a wrong sum like 5 + 3 = 9.
+- Near number choices always include the wrong-operation result (e.g. 9 for 7 − 2), the most telling mistake; far choices are ≥ 2 apart; no 0 choices.
+- Hints never give the answer: wrong number → "Start at seven, and count back two" (count on for +) and the pictures appear even on levels 2–3; wrong sign / wrong equation → what the action means ("Some sweets go away, so there are fewer… Minus!"); right sign but wrong numbers → re-read the story's number lines.
+- Easing (2 misses): a picture item within 10, get-more / take-away only, 2 choices.
+- Names mix Indian (Riya, Aarav, Kabir, Meera…) and US (Emma, Liam, Mia…); things lean Indian where there's an emoji (mangoes, rotis, kites). No ₹/$-style setting is needed here; a names region setting could come with the money item (#21). Content is data in `content/wordProblems.ts`.
+- Not added to placement checkpoints: placement tops out at compare 2-digit, so a child who passes everything starts here at level 1.
+
 ## 2026-11-11 — Story Choose (#19)
 - New game for the `stories` track (now playable, 3 levels, last in the reading sequence after Sentences). A round = 2 stories × 2 questions = 4 answers (stories take longer than single items, so 4 keeps the round at ~3–5 min).
 - 14 hand-written stories (4–5 lines, ≤ 9 words a line, one picture per line): 5 CVC, 3 digraphs, 2 blends, 2 magic e, 2 ee/ai/oa. Names mix Indian and US (Raj, Dev, Jai, Neel, Chen, Sam, Meg, Kate…). Content is data in `content/stories.ts`.

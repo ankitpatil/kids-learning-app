@@ -29,7 +29,7 @@ Reprioritised 2026-11-08 for the actual learner: knows basic words and +/- (≈ 
 - [x] 17. Game: **Sight-Word Catch** with tricky/irregular words (said, was, the, of, they…; Dolch primer + first grade lists)
 - [x] 18. Game: **Word Builder** for endings: drag -s / -ed / -ing onto a base word to match a picture/sentence (jump → jumped / jumping)
 - [x] 19. **Story Choose**: short decodable stories (only unlocked patterns), read-along highlighting, 1–2 comprehension questions
-- [ ] 20. **Word problems**: spoken 1-step stories ("Riya has 5 mangoes, gets 3 more…") → pick or build the equation; Indian + US names/objects
+- [x] 20. **Word problems**: spoken 1-step stories ("Riya has 5 mangoes, gets 3 more…") → pick or build the equation; Indian + US names/objects
 - [ ] 21. **Fun at the Fair (money)**: coins/notes in ₹ (default) with $ as a setting; pay exact amount, make change within 20
 - [ ] 22. **Clock**: time to the hour and half hour, then 5 minutes
 - [ ] 23. Parent gate + parent dashboard (time, mastery per track, weak spots, current level per track)

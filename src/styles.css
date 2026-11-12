@@ -332,3 +332,20 @@ button { font: inherit; cursor: pointer; touch-action: manipulation; }
 .story-choice.tried { opacity: .3; }
 .story-choice.right { background: #2ecc71; box-shadow: 0 6px 0 #1e8e4e; animation: bounce .5s ease 2; }
 @media (prefers-reduced-motion: reduce) { .story-choice.right, .story-question.oops { animation: none; } }
+
+/* Story sums (#20) */
+.sum-story { cursor: pointer; }
+.sum-story.oops { animation: wiggle .4s ease 2; }
+.sum-story .sum-question { color: var(--primary); }
+.sum-pictures { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 8px 16px; }
+.sum-group { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; max-width: 320px; background: #fff; border-radius: 20px; padding: 8px 12px; box-shadow: 0 4px 0 #0002; }
+.sum-group.more { background: var(--soft); }
+.sum-pic { font-size: 40px; line-height: 1.1; transition: opacity .3s; }
+.sum-pic.gone { opacity: .25; filter: grayscale(1); }
+.sum-plus { font-size: 48px; font-weight: 800; color: var(--primary); }
+.sum-equation { display: flex; justify-content: center; align-items: center; gap: 14px; font-size: clamp(40px, 9vw, 64px); font-weight: 800; margin: 8px 0; }
+.sum-equation.oops { animation: wiggle .4s ease 2; }
+.sum-slot { display: inline-block; min-width: 1.4em; text-align: center; border-bottom: 6px dashed var(--primary); }
+.sum-slot.filled { border-bottom-style: solid; color: #1e8e4e; }
+.word-choice.sign { min-width: 120px; font-size: 64px; background: #e17055; box-shadow: 0 6px 0 #b8553d; }
+.word-choice.equation { font-size: clamp(30px, 6vw, 44px); }

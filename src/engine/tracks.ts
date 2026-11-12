@@ -67,7 +67,11 @@ export const TRACKS: TrackDef[] = [
     id: 'compare2d', subject: 'math', name: 'More or fewer', emoji: '⚖️', playable: true,
     levels: [L('far apart, boxes of 10', 100, 'pictorial', 'far', true), L('close numbers, boxes of 10', 100, 'pictorial', 'near', true), L('close numbers, numbers only', 100, 'abstract', 'near', false)],
   },
-  { id: 'wordProblems', subject: 'math', name: 'Story sums', emoji: '📖', playable: false, levels: [L('one step', 20, 'pictorial', 'far', true)] },
+  {
+    // Level = format: 0 pick the answer (pictures), 1 pick the number sentence, 2 build it (+/− then answer).
+    id: 'wordProblems', subject: 'math', name: 'Story sums', emoji: '📖', playable: true,
+    levels: [L('get more / take away to 10, pictures', 10, 'pictorial', 'far', true), L('pick the number sentence, to 20', 20, 'abstract', 'near', false), L('build the number sentence, to 20', 20, 'abstract', 'near', false)],
+  },
   { id: 'money', subject: 'math', name: 'Money', emoji: '🪙', playable: false, levels: [L('pay exact', 20, 'concrete', 'far', true)] },
   { id: 'time', subject: 'math', name: 'Clock', emoji: '🕐', playable: false, levels: [L('hour and half hour', 12, 'pictorial', 'far', true)] },
   { id: 'grouping', subject: 'math', name: 'Groups', emoji: '🧺', playable: false, levels: [L('equal groups', 20, 'concrete', 'far', true)] },
