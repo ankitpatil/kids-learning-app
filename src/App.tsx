@@ -12,6 +12,7 @@ import { WORD_TRACKS, type WordTrack } from './games/wordDetective/generator';
 import { listProfiles, createProfile, touchProfile, addStars, addSticker, requestPersistence, setTrackLevels, setPlaced, getSkillStates, getSkillState, type Profile } from './store/db';
 import { LevelSelect } from './screens/LevelSelect';
 import { StickerVault } from './screens/StickerVault';
+import { VoicePicker } from './screens/VoicePicker';
 import { ProfilePicker, CreateProfile } from './screens/Profiles';
 import { startupProfileId } from './engine/profiles';
 import { pickSticker } from './engine/stickers';
@@ -34,7 +35,8 @@ type Screen =
   | { name: 'startpoint'; subject: Subject }
   | { name: 'placement'; subject: Subject }
   | { name: 'profiles' }
-  | { name: 'newProfile' };
+  | { name: 'newProfile' }
+  | { name: 'voice' };
 
 const SUBJECT_OF = (g: Game): Subject => (g === 'count' || g === 'missing' || g === 'placeValue' || g === 'compare2d' || g === 'wordProblems' || isHopTrack(g) ? 'math' : 'reading');
 const isWordTrack = (g: string): g is WordTrack => (WORD_TRACKS as readonly string[]).includes(g);
@@ -156,6 +158,10 @@ export default function App() {
     );
   }
 
+  if (screen.name === 'voice') {
+    return <VoicePicker onBack={() => setScreen({ name: 'home' })} />;
+  }
+
   if (screen.name === 'vault') {
     const from = screen.from;
     return <StickerVault owned={profile.stickers ?? {}} onBack={() => setScreen(from ?? { name: 'home' })} />;
@@ -274,6 +280,7 @@ export default function App() {
       <div className="parent-links">
         <button className="link-btn" onClick={() => setScreen({ name: 'levels', subject: 'math' })}>🗺️ Math levels</button>
         <button className="link-btn" onClick={() => setScreen({ name: 'levels', subject: 'reading' })}>🗺️ Reading levels</button>
+        <button className="link-btn" onClick={() => setScreen({ name: 'voice' })}>🗣️ Voice</button>
       </div>
     </div>
   );
