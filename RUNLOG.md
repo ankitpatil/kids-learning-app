@@ -23,3 +23,4 @@
 2026-11-12 12:45 PT — request — round-end celebration: confetti rain + synthesized trumpet fanfare and applause, praise speech waits for it; 193 tests pass, build ok — done (interactive session)
 2026-11-12 12:50 PT — request — crowd cheer (noise roar + woo-hoo voices) with the round-end applause; 194 tests pass, build ok — done (interactive session)
 2026-11-12 12:50 PT — request — added backlog item S1 (recorded CC0 celebration sounds, after I1/I2) + 'Needs Ankit' download step with clip shortlist — done (interactive session)
+2026-11-12 13:05 PT — request — reprioritised: Claude build-time content (C1, C2) and live child helpers (AI1–AI4) moved to the top of Next; SPEC 'AI features' + CLAUDE.md rules; API key/proxy deploy under Needs Ankit; parent 'explain this week' parked — done (interactive session)

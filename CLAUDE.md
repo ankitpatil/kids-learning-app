@@ -13,4 +13,5 @@ Each run:
 8. Commit with a clear message and push to `main`.
 
 Keep runs small: one item, done well. If blocked or an item is in "Needs Ankit", skip it, note why in RUNLOG.md, and take the next.
-Never: deploy publicly, spend money, add analytics/trackers, add a backend that stores child data.
+Never: deploy publicly, spend money, add analytics/trackers, add a backend that stores child data, or put an API key in the repo or the client.
+AI items: follow SPEC.md "AI features". Build and test them with the `mock` provider; the family proxy code lives in `proxy/` and is deployed only by Ankit.

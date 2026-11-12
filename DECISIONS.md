@@ -2,6 +2,11 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-12 — Claude in the app: priorities (with Ankit)
+- Ankit picked build-time content (C1, C2) and live child helpers (AI1–AI4) as the top priority, ahead of icons (I1/I2), sounds (S1) and money (#21). The parent "explain this week" summary is parked until the parent dashboard (#23).
+- Live helpers are off by default, parent-gated, go through a stateless family proxy that Ankit deploys (API key never in the repo or the client), send no identifying data, and every output is checked in code with a silent fallback to built-in content. Written into SPEC.md "AI features" and CLAUDE.md.
+- Read-aloud coach starts as a write-up (AI4) because browser speech recognition in Chrome sends audio to Google, which needs Ankit's decision.
+
 ## 2026-11-12 — Round-end celebration: confetti, trumpet, applause (Ankit request)
 - Every finished round now opens the reward screen with a full-screen paper-confetti rain (~90 strips and dots in 7 colours, 2.4–4 s fall, click-through) plus a trumpet fanfare ("ta-ta-ta-taaa, ta-TAAA", ~1.8 s) followed by ~2 s of applause.
 - Sounds are synthesized with Web Audio like the other effects (brass = detuned saws through an opening low-pass with vibrato; applause = band-passed noise "claps" that thin out). No audio files, no cost, works offline, and respects the 🔊 mute toggle.

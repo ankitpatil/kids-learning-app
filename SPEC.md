@@ -68,3 +68,13 @@ Avatar/pet fed with stars, world map (island per skill), soft streaks (pause, do
 
 ## Parent area
 Parent gate (hold 3s or simple multiplication), dashboard: time, skills mastered, weak spots, screen-time cap.
+
+## AI features (added 2026-11-12, approved by Ankit)
+Two uses of Claude, in priority order:
+1. **Build-time content**: build runs (Claude) write stories, word problems and sentences as static data; tests check them (decodability, true math facts, length). No runtime AI, no data leaves the device.
+2. **Live helpers for the child** (personalized stories, "Why?" explanations): optional, **off by default**, switched on by a parent behind the parent gate.
+   - The browser never holds an API key. Requests go to a small **family proxy** (Cloudflare Worker, code in `proxy/`) that holds the key, checks a family passcode, rate-limits, fixes the model and system prompt server-side, and **never logs or stores request bodies**. Ankit deploys it; build runs never do.
+   - Requests carry only learning context (level, unlocked patterns, topic, the current item) — never the child's nickname, profile id, recordings or anything identifying.
+   - Every AI output is checked in code before a child sees it (decodable at level, length limits, kid-safe word list, math correctness, hints don't reveal answers). On any failure, timeout or offline: silently use built-in content. The child never waits on the network for more than ~2 s.
+   - Model: fast, low-cost model for child-facing calls (e.g. `claude-haiku-5-5`).
+   - Good outputs are cached on the device so they work offline.
