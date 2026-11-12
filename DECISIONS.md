@@ -2,6 +2,12 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-12 — Natural voices + voice picker (option A, Ankit request)
+- Auto voice choice ranks installed voices: Premium > Siri > Natural > Enhanced > neural/WaveNet > Google, American English first (narrator decision), then Indian, British, other English. macOS novelty voices (Bahh, Bells, Zarvox, Albert…) are excluded. On-device voices beat online ones (online voices fail offline and send the text out).
+- Parents pick a voice from "🗣️ Voice" on the home screen (not behind a gate yet — AI1's parent gate can cover it). Each voice has a ▶️ sample; the choice is stored per device and falls back to the best voice if it is uninstalled.
+- When no natural voice is installed, the picker shows free download steps for Mac, iPad and Android. The app can't download voices itself.
+- Next step (option B, not yet in the backlog): pre-recorded Kokoro clips for fixed text.
+
 ## 2026-11-12 — Read-along never stalls (bug fix, interactive session)
 - Found while testing Stories in the desktop app's browser pane: the speech engine accepted sentences but never fired start/end/error, and the safety timer only started on `onstart`, so the story froze on line 1. Chrome on tablets can hang the same way.
 - `sayAlong` now has a 1.5 s start watchdog: if speech hasn't started, it highlights words on the estimated timing and moves on (silently), with a short 0.4 s tail instead of the 2.5 s slack used for real audio. It also calls `speechSynthesis.resume()` after `cancel()` (a known Chrome unstick). Tests use a fake, never-starting engine.
