@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { makeConfetti, CONFETTI_COLORS } from './confetti';
+import { makeConfetti, CONFETTI_COLORS } from './confettiPieces';
 import { clapTimes, FANFARE } from '../audio/sfx';
 
 function seeded(seed = 1) {

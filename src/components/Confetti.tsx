@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { makeConfetti } from './confetti';
+import { makeConfetti } from './confettiPieces';
 
 /** Full-screen, click-through confetti rain. Remount (new `key`) to play again. */
 export function Confetti({ count = 90 }: { count?: number }) {
