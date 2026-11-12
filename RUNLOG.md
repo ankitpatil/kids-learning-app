@@ -22,3 +22,4 @@
 2026-11-12 12:37 PT — request — added backlog items I1 (bundled Fluent Emoji icons + self-hosted fonts) and I2 (OpenMoji gap-fill + picture variants) ahead of #21 — done (interactive session)
 2026-11-12 12:45 PT — request — round-end celebration: confetti rain + synthesized trumpet fanfare and applause, praise speech waits for it; 193 tests pass, build ok — done (interactive session)
 2026-11-12 12:50 PT — request — crowd cheer (noise roar + woo-hoo voices) with the round-end applause; 194 tests pass, build ok — done (interactive session)
+2026-11-12 12:50 PT — request — added backlog item S1 (recorded CC0 celebration sounds, after I1/I2) + 'Needs Ankit' download step with clip shortlist — done (interactive session)
