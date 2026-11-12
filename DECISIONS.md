@@ -2,6 +2,13 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-12 — Round-end celebration: confetti, trumpet, applause (Ankit request)
+- Every finished round now opens the reward screen with a full-screen paper-confetti rain (~90 strips and dots in 7 colours, 2.4–4 s fall, click-through) plus a trumpet fanfare ("ta-ta-ta-taaa, ta-TAAA", ~1.8 s) followed by ~2 s of applause.
+- Sounds are synthesized with Web Audio like the other effects (brass = detuned saws through an opening low-pass with vibrato; applause = band-passed noise "claps" that thin out). No audio files, no cost, works offline, and respects the 🔊 mute toggle.
+- Every round counts as a success (the round always ends with stars), so the celebration plays on every round; it doesn't scale with the score, to keep failure gentle.
+- The spoken "Great job! You got a … sticker!" now waits ~1.9 s for the fanfare to finish, and is cancelled if the child leaves the reward screen first. The old sparkle sound on the reward screen is dropped (too much at once); it still plays for in-game level-ups.
+- Confetti is hidden for `prefers-reduced-motion`. The per-answer emoji burst during games is unchanged.
+
 ## 2026-11-12 — Story sums: word problems (#20)
 - New game "Story sums" for the `wordProblems` track (now playable, 3 levels, last in the math sequence after More or fewer). 8-item rounds with the usual round mix (review = level below, stretch = level above; its own single-track group).
 - Story kinds (Common Core 1.OA.1 / NCERT Class 1–2): add to and take from (result unknown) from level 1; put together ("in all") from level 2. Change-unknown ("how many more did she get?") and compare stories are left out for now — the Missing number track covers a + __ = c; could be a 4th level later.

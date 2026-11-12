@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FeedMonster } from './games/feedMonster/FeedMonster';
 import { PhonicsPop } from './games/phonicsPop/PhonicsPop';
 import { WordDetective } from './games/wordDetective/WordDetective';
@@ -16,7 +16,8 @@ import { ProfilePicker, CreateProfile } from './screens/Profiles';
 import { startupProfileId } from './engine/profiles';
 import { pickSticker } from './engine/stickers';
 import type { Sticker } from './content/stickers';
-import { playSparkle } from './audio/sfx';
+import { playCelebration } from './audio/sfx';
+import { Confetti } from './components/Confetti';
 import { levelsFromCheckpoint, masteredFromCheckpoint } from './engine/placement';
 import { pickTrack } from './engine/tracks';
 import { Placement, StartPoint } from './screens/Placement';
@@ -42,6 +43,11 @@ export default function App() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [profiles, setProfiles] = useState<Profile[] | null>(null);
   const [screen, setScreen] = useState<Screen>({ name: 'home' });
+  const praiseTimer = useRef<number | undefined>(undefined);
+  // Leaving the reward screen early cancels the delayed spoken praise.
+  useEffect(() => {
+    if (screen.name !== 'reward') window.clearTimeout(praiseTimer.current);
+  }, [screen.name]);
   const [muted, setMutedState] = useState(isMuted());
 
   useEffect(() => {
@@ -99,8 +105,9 @@ export default function App() {
     const updated = await addSticker(profile!.id, sticker.id);
     setProfile({ ...updated, stars: total });
     setScreen({ name: 'reward', game, stars, leveledUp: r.leveledUp, sticker, isNew });
-    setTimeout(playSparkle, 600);
-    say(`${r.leveledUp ? 'Amazing! A harder level is unlocked!' : 'Great job!'} You got a ${sticker.name} sticker!`);
+    // Trumpet fanfare + applause, then the spoken praise once it quietens down.
+    const quietIn = playCelebration();
+    praiseTimer.current = window.setTimeout(() => say(`${r.leveledUp ? 'Amazing! A harder level is unlocked!' : 'Great job!'} You got a ${sticker.name} sticker!`), quietIn);
   }
 
   async function launch(subject: Subject) {
@@ -209,6 +216,7 @@ export default function App() {
   if (screen.name === 'reward') {
     return (
       <div className="screen center reward">
+        <Confetti />
         <div className="burst">{'⭐'.repeat(screen.stars)}</div>
         {screen.leveledUp && <div className="unlock">🔓</div>}
         <button className={`sticker-reveal ${screen.sticker.rarity}`} onClick={() => setScreen({ name: 'vault', from: screen })} aria-label={`New sticker: ${screen.sticker.name}. Open sticker book`}>
