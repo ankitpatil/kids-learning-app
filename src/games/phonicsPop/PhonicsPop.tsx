@@ -19,7 +19,7 @@ interface Props {
 }
 
 function prompt(item: PhonicsItem) {
-  return `Pop the letter that ${item.word} starts with!`;
+  return `Pop the letter | that ${item.word} starts with!`;
 }
 
 export function PhonicsPop({ profileId, onDone, onExit }: Props) {
@@ -59,7 +59,7 @@ export function PhonicsPop({ profileId, onDone, onExit }: Props) {
     setWiggle(null);
     started.current = Date.now();
     busy.current = false;
-    setTimeout(() => say((sl.kind === 'stretch' ? 'Bonus challenge! ' : '') + prompt(it)), 250);
+    setTimeout(() => say((sl.kind === 'stretch' ? 'Bonus challenge! || ' : '') + prompt(it)), 250);
   }
 
   async function choose(letter: string) {
@@ -84,7 +84,7 @@ export function PhonicsPop({ profileId, onDone, onExit }: Props) {
     if (correct) {
       setPopped(letter);
       if (!hintUsed) correctCount.current += 1;
-      say(out.change === 'up' ? `Pop! ${item.word} starts with ${letter}. You learned new letters!` : `Pop! ${item.word} starts with ${letter}!`);
+      say(out.change === 'up' ? `Pop! | ${item.word} starts with ${letter.toUpperCase()}! || You learned new letters!` : `Pop! | ${item.word} starts with ${letter.toUpperCase()}!`);
       setTimeout(() => {
         const nextIndex = index + 1;
         if (nextIndex >= ROUND_LENGTH) {
@@ -98,7 +98,7 @@ export function PhonicsPop({ profileId, onDone, onExit }: Props) {
       setWiggle(letter);
       setTried((t) => [...t, letter]);
       const info = LETTERS[letter];
-      say(`That's ${letter}, like ${info?.word ?? letter}. ${prompt(item)}`);
+      say(`That's ${letter.toUpperCase()}, | like ${info?.word ?? letter}. || ${prompt(item)}`);
       setTimeout(() => {
         setWiggle(null);
         busy.current = false;

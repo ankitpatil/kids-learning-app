@@ -117,7 +117,7 @@ export function makeQuestion(story: Story, qi: number, rng: Rng = Math.random, e
 export function questionSpeech(item: QuestionItem, level: number): string {
   if (level > 0) return item.q;
   const names = item.choices.map((c) => c.text);
-  return `${item.q} ${names.slice(0, -1).join(', ')} or ${names[names.length - 1]}?`;
+  return `${item.q} | ${names.slice(0, -1).join(', | ')}, | or ${names[names.length - 1]}?`;
 }
 
 export const STORIES_PER_ROUND = 2;

@@ -7,6 +7,9 @@ import { maxLevel } from '../../engine/tracks';
 import { getSkillState, getSkillStates, saveSkillState, logAttempt } from '../../store/db';
 import { say, sayAlong } from '../../audio/speech';
 import { fresh } from '../../engine/recent';
+
+/** Silence between story lines when reading aloud: a breath, so each sentence lands. */
+const LINE_PAUSE_MS = 650;
 import { feedback } from '../../components/Feedback';
 
 const QUESTIONS_PER_STORY = 2;
@@ -88,7 +91,7 @@ export function StoryChoose({ profileId, onDone, onExit }: Props) {
       }
       inner = sayAlong(s.lines[i].text, {
         onWord: (w) => setHi({ line: i, word: w }),
-        onEnd: () => later(() => readLine(i + 1), 250),
+        onEnd: () => later(() => readLine(i + 1), LINE_PAUSE_MS),
       });
     };
     readLine(from);
@@ -113,7 +116,7 @@ export function StoryChoose({ profileId, onDone, onExit }: Props) {
       say(`${s.title}.`);
       later(() => token === step.current && readLines(s, 0, s.lines.length - 1, () => later(() => token === step.current && startQuestions(s), 600)), 1500);
     } else {
-      later(() => say(m === 'button' ? 'Read the story. Tap a word, or the speaker, for help. Tap the green tick when you are done.' : 'Read the story yourself! Tap a word if you need help. Then tap the green tick.'), 250);
+      later(() => say(m === 'button' ? 'Read the story. | Tap a word, or the speaker, for help. | Tap the green tick when you are done.' : 'Read the story yourself! | Tap a word if you need help. | Then tap the green tick.'), 250);
     }
   }
 
@@ -174,7 +177,7 @@ export function StoryChoose({ profileId, onDone, onExit }: Props) {
       if (!hinted.current) correctCount.current += 1;
       setMood('yay');
       setHi({ line: question.line, word: null });
-      say(`${out.change === 'up' ? 'Super reading! New stories unlocked! ' : 'Yes! '}${story.lines[question.line].text}`);
+      say(`${out.change === 'up' ? 'Super reading! | New stories unlocked!' : 'Yes!'} || ${story.lines[question.line].text}`);
       const n = answered + 1;
       later(() => {
         setAnswered(n);

@@ -19,7 +19,7 @@ interface Props {
 }
 
 function prompt(it: EndingItem) {
-  return it.readAloud ? `Pick the ending. ${promptSentence(it)}` : 'Read the sentence. Pick the ending!';
+  return it.readAloud ? `Pick the ending. || ${promptSentence(it)}` : 'Read the sentence. | Then pick the ending!';
 }
 
 export function WordBuilder({ profileId, onDone, onExit }: Props) {
@@ -61,7 +61,7 @@ export function WordBuilder({ profileId, onDone, onExit }: Props) {
     setMood('idle');
     started.current = Date.now();
     busy.current = false;
-    setTimeout(() => say((sl.kind === 'stretch' ? 'Bonus challenge! ' : '') + prompt(it)), 250);
+    setTimeout(() => say((sl.kind === 'stretch' ? 'Bonus challenge! || ' : '') + prompt(it)), 250);
   }
 
   async function record(correct: boolean) {
@@ -87,7 +87,7 @@ export function WordBuilder({ profileId, onDone, onExit }: Props) {
       feedback(out.change === 'up' ? 'levelup' : 'correct');
       if (!hinted.current) correctCount.current += 1;
       setMood('yay');
-      say(`${out.change === 'up' ? 'Super! New endings unlocked! ' : 'Yes! '}${sentenceWith(item, item.word)}`);
+      say(`${out.change === 'up' ? 'Super! | New endings unlocked!' : 'Yes!'} || ${sentenceWith(item, item.word)}`);
       setTimeout(() => {
         const ni = index + 1;
         if (ni >= ROUND_LENGTH) {
@@ -105,7 +105,7 @@ export function WordBuilder({ profileId, onDone, onExit }: Props) {
     setTried((t) => [...t, e]);
     setMood('oops');
     // Hint: let them hear their version so the mismatch with the time clue is obvious.
-    say(`${sentenceWith(item, item.base + e)} Hmm, does that sound right?`);
+    say(`${sentenceWith(item, item.base + e)} || Hmm, | does that sound right?`);
     setTimeout(() => {
       setShown(null);
       setMood('idle');

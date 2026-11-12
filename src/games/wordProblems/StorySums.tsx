@@ -19,7 +19,7 @@ interface Props {
 }
 
 const ask = (it: WordProblem) =>
-  `${spokenStory(it)} ${it.mode === 'equation' ? 'Which number sentence fits the story?' : it.mode === 'build' ? 'Plus or minus?' : ''}`.trim();
+  `${spokenStory(it)}${it.mode === 'equation' ? ' || Which number sentence fits the story?' : it.mode === 'build' ? ' || Plus, | or minus?' : ''}`;
 
 function Pictures({ it }: { it: WordProblem }) {
   const e = it.thing.emoji;
@@ -91,7 +91,7 @@ export function StorySums({ profileId, onDone, onExit }: Props) {
     setMood('idle');
     started.current = Date.now();
     busy.current = false;
-    setTimeout(() => say((sl.kind === 'stretch' ? 'Bonus challenge! ' : '') + ask(it)), 250);
+    setTimeout(() => say((sl.kind === 'stretch' ? 'Bonus challenge! || ' : '') + ask(it)), 250);
   }
 
   async function record(correct: boolean) {
@@ -115,7 +115,7 @@ export function StorySums({ profileId, onDone, onExit }: Props) {
     if (!hinted.current) correctCount.current += 1;
     setMood('yay');
     const fact: Equation = { a: it.a, op: it.op, b: it.b, result: it.answer };
-    say(`${out.change === 'up' ? 'Super! Harder stories unlocked! ' : 'Yes! '}${eqSpoken(fact)}.`);
+    say(`${out.change === 'up' ? 'Super! | Harder stories unlocked!' : 'Yes!'} || ${eqSpoken(fact)}.`);
     setTimeout(() => {
       const ni = index + 1;
       if (ni >= ROUND_LENGTH) {
@@ -146,7 +146,7 @@ export function StorySums({ profileId, onDone, onExit }: Props) {
     if (!item || busy.current || tried.includes(`n${n}`)) return;
     busy.current = true;
     if (n === item.answer) return win();
-    return miss(`n${n}`, `Not ${numberWord(n)}. ${hintFor(item)}`);
+    return miss(`n${n}`, `Not ${numberWord(n)}. || ${hintFor(item)}`);
   }
 
   async function pickEquation(e: Equation) {
@@ -154,7 +154,7 @@ export function StorySums({ profileId, onDone, onExit }: Props) {
     busy.current = true;
     if (e.a === item.a && e.b === item.b && e.op === item.op) return win();
     // Wrong sign → explain the action; right sign, wrong number → look at the story's numbers.
-    const hint = e.op !== item.op ? signHint(item) : `Look at the numbers in the story. ${item.spokenLines.join(' ')}`;
+    const hint = e.op !== item.op ? signHint(item) : `Look at the numbers in the story. || ${item.spokenLines.join(' | ')}`;
     return miss(eqText(e), hint, false);
   }
 
@@ -163,7 +163,7 @@ export function StorySums({ profileId, onDone, onExit }: Props) {
     busy.current = true;
     if (op === item.op) {
       setSign(op);
-      say(`Yes, ${op === '+' ? 'plus' : 'minus'}! ${numberWord(item.a)} ${op === '+' ? 'plus' : 'minus'} ${numberWord(item.b)} equals?`);
+      say(`Yes, ${op === '+' ? 'plus' : 'minus'}! || ${numberWord(item.a)} ${op === '+' ? 'plus' : 'minus'} ${numberWord(item.b)} equals?`);
       busy.current = false;
       return;
     }

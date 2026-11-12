@@ -38,21 +38,21 @@ function promptFor(it: GameItem) {
     return `Feed me ${w(it.total)} cookies!${guide}`;
   }
   if (it.have === 0) return `Feed the monster ${w(it.total)} cookie${it.total === 1 ? '' : 's'}!`;
-  if (it.mode === 'choose') return `I have ${w(it.have)}. How many more make ${w(it.total)}?`;
-  return `I have ${w(it.have)} cookies. Feed me until I have ${w(it.total)}!`;
+  if (it.mode === 'choose') return `I have ${w(it.have)}. | How many more make ${w(it.total)}?`;
+  return `I have ${w(it.have)} cookies. | Feed me until I have ${w(it.total)}!`;
 }
 
 /** Gentle, specific hint for a tens & ones mistake. */
 function placeValueHint(it: PlaceValueItem, pv: ReturnType<typeof checkPlaceValue> | null, boxes: number, loose: number, given: number) {
   const want = `I want ${w(it.total)}: ${tensOnesWords(it.tens, it.ones)}.`;
   if (it.mode === 'choose') {
-    return `Hmm, ${w(given)} is ${tensOnesWords(Math.floor(given / 10), given % 10)}. ${want} Try again!`;
+    return `Hmm, ${w(given)} is ${tensOnesWords(Math.floor(given / 10), given % 10)}. || ${want} | Try again!`;
   }
   const got = `That's ${w(boxes * 10 + loose)}.`;
-  if (pv === 'swapped') return `${got} Oops, the boxes and cookies swapped! ${want}`;
-  if (pv === 'tens') return `${got} The cookies are right! Now count the boxes. I want ${w(it.tens)} box${it.tens === 1 ? '' : 'es'}.`;
-  if (pv === 'ones') return `${got} The boxes are right! Now count the cookies. I want ${w(it.ones)} cookie${it.ones === 1 ? '' : 's'}.`;
-  return `${got} ${want}`;
+  if (pv === 'swapped') return `${got} || Oops, the boxes and cookies swapped! | ${want}`;
+  if (pv === 'tens') return `${got} || The cookies are right! | Now count the boxes. I want ${w(it.tens)} box${it.tens === 1 ? '' : 'es'}.`;
+  if (pv === 'ones') return `${got} || The boxes are right! | Now count the cookies. I want ${w(it.ones)} cookie${it.ones === 1 ? '' : 's'}.`;
+  return `${got} || ${want}`;
 }
 
 /** Ten-frame belly: 2×5 grids. Pre-filled cookies are solid, fed ones bounce in, ghosts show the gap. */
@@ -117,7 +117,7 @@ export function FeedMonster({ profileId, trackId, onDone, onExit }: Props) {
     setWrongPick(null);
     started.current = Date.now();
     busy.current = false;
-    setTimeout(() => say((sl.kind === 'stretch' ? 'Bonus challenge! ' : '') + promptFor(it)), 250);
+    setTimeout(() => say((sl.kind === 'stretch' ? 'Bonus challenge! || ' : '') + promptFor(it)), 250);
   }
 
   function feed() {
@@ -166,7 +166,7 @@ export function FeedMonster({ profileId, trackId, onDone, onExit }: Props) {
       }
       if (!hintUsed) correctCount.current += 1;
       const sum = isCompare(item) ? comparePraise(item) + ' ' : isPlaceValue(item) ? `${tensOnesWords(item.tens, item.ones)} make ${w(item.total)}! ` : item.have > 0 ? `${w(item.have)} and ${w(item.need)} make ${w(item.total)}! ` : '';
-      say(sum + (out.change === 'up' ? 'Yum yum! You are getting so good!' : 'Yum yum! Thank you!'));
+      say(sum + (sum ? '|| ' : '') + (out.change === 'up' ? 'Yum yum! | You are getting so good!' : 'Yum yum! | Thank you!'));
       setTimeout(() => {
         const nextIndex = index + 1;
         if (nextIndex >= ROUND_LENGTH) {
@@ -187,14 +187,14 @@ export function FeedMonster({ profileId, trackId, onDone, onExit }: Props) {
         if (item.mode === 'choose') setWrongPick(given);
       } else if (item.mode === 'choose') {
         setWrongPick(given);
-        say(`Hmm, ${w(item.have)} and ${w(given)} make ${w(item.have + given)}. I want ${w(item.total)}. Try again!`);
+        say(`Hmm, | ${w(item.have)} and ${w(given)} make ${w(item.have + given)}. | I want ${w(item.total)}. | Try again!`);
       } else {
         const now = item.have + given;
         const diff = Math.abs(item.total - now);
         say(
           verdict === 'too-few'
-            ? `That's ${w(now)}. I want ${w(item.total)}. Can you give me ${w(diff)} more?`
-            : `Oh, that's too many! I want ${w(item.total)}. Take ${w(diff)} back.`,
+            ? `That's ${w(now)}. | I want ${w(item.total)}. | Can you give me ${w(diff)} more?`
+            : `Oh, that's too many! | I want ${w(item.total)}. | Take ${w(diff)} back.`,
         );
       }
       setTimeout(() => {

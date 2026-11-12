@@ -23,7 +23,7 @@ import { levelsFromCheckpoint, masteredFromCheckpoint } from './engine/placement
 import { pickTrack } from './engine/tracks';
 import { Placement, StartPoint } from './screens/Placement';
 import type { Subject } from './engine/tracks';
-import { say, isMuted, setMuted } from './audio/speech';
+import { say, isMuted, setMuted, stopSpeech } from './audio/speech';
 
 type Game = 'count' | 'missing' | 'placeValue' | 'compare2d' | HopTrack | 'phonics' | WordTrack | 'sightWords' | 'endings' | 'stories' | 'wordProblems';
 type Screen =
@@ -63,7 +63,7 @@ export default function App() {
   }, []);
 
   function choose(p: Profile) {
-    window.speechSynthesis?.cancel();
+    stopSpeech();
     setProfile(p);
     touchProfile(p.id);
     setScreen({ name: 'home' });
@@ -109,7 +109,7 @@ export default function App() {
     setScreen({ name: 'reward', game, stars, leveledUp: r.leveledUp, sticker, isNew });
     // Trumpet fanfare + applause, then the spoken praise once it quietens down.
     const quietIn = playCelebration();
-    praiseTimer.current = window.setTimeout(() => say(`${r.leveledUp ? 'Amazing! A harder level is unlocked!' : 'Great job!'} You got a ${sticker.name} sticker!`), quietIn);
+    praiseTimer.current = window.setTimeout(() => say(`${r.leveledUp ? 'Amazing! | A harder level is unlocked!' : 'Great job!'} || You got a ${sticker.name} sticker!`), quietIn);
   }
 
   async function launch(subject: Subject) {
@@ -133,7 +133,7 @@ export default function App() {
   }
 
   const toLevels = (subject: Subject) => {
-    window.speechSynthesis?.cancel();
+    stopSpeech();
     setScreen({ name: 'levels', subject });
   };
 

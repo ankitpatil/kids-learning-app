@@ -14,7 +14,7 @@ interface PickerProps {
 /** "Who's playing?" — one big button per child (avatar + nickname + stars), plus ➕ for a new child. */
 export function ProfilePicker({ profiles, currentId, onPick, onNew, onBack }: PickerProps) {
   useEffect(() => {
-    say("Who's playing? Tap your animal!");
+    say("Who's playing? | Tap your animal!");
   }, []);
   const canAdd = profiles.length < MAX_PROFILES;
   return (

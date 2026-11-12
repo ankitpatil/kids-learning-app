@@ -67,3 +67,41 @@ describe('sayAlong', () => {
     expect(words).toEqual([0]);
   });
 });
+
+describe('say (phrase queue)', () => {
+  it('speaks phrases one at a time, waiting for each to end plus its pause', async () => {
+    const { say } = await import('./speech');
+    const { PAUSE } = await import('./readAlong');
+    say('Great job! || Pick the next one?');
+    expect(spoken.map((u) => u.text)).toEqual(['Great job!']);
+    spoken[0].onend?.();
+    vi.advanceTimersByTime(PAUSE.long - 1);
+    expect(spoken).toHaveLength(1); // still in the pause
+    vi.advanceTimersByTime(1);
+    expect(spoken.map((u) => u.text)).toEqual(['Great job!', 'Pick the next one?']);
+  });
+
+  it('a new prompt cancels the rest of the old one', async () => {
+    const { say } = await import('./speech');
+    say('One. Two. Three.');
+    say('Hello!');
+    spoken[0].onend?.(); // the old first phrase finishing must not resume the old queue
+    vi.advanceTimersByTime(20000);
+    expect(spoken.map((u) => u.text)).toEqual(['One.', 'Hello!']);
+  });
+
+  it('moves on even if the engine never reports the end of a phrase', async () => {
+    const { say } = await import('./speech');
+    say('Look. Listen.');
+    vi.advanceTimersByTime(20000);
+    expect(spoken.map((u) => u.text)).toEqual(['Look.', 'Listen.']);
+  });
+
+  it('stopSpeech stops queued phrases', async () => {
+    const { say, stopSpeech } = await import('./speech');
+    say('One. Two.');
+    stopSpeech();
+    vi.advanceTimersByTime(20000);
+    expect(spoken.map((u) => u.text)).toEqual(['One.']);
+  });
+});

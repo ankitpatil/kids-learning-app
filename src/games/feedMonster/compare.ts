@@ -98,8 +98,8 @@ export function compareAnswer(it: Pick<CompareItem, 'left' | 'right' | 'ask'>): 
 
 export function comparePrompt(it: CompareItem): string {
   return it.ask === 'more'
-    ? `I'm so hungry! Which plate has more cookies? ${w(it.left)} or ${w(it.right)}?`
-    : `I'm nearly full. Which plate has fewer cookies? ${w(it.left)} or ${w(it.right)}?`;
+    ? `I'm so hungry! | Which plate has more cookies? | ${w(it.left)}, | or ${w(it.right)}?`
+    : `I'm nearly full. | Which plate has fewer cookies? | ${w(it.left)}, | or ${w(it.right)}?`;
 }
 
 /** Tens first, then ones — the place-value way to compare. */
@@ -119,7 +119,7 @@ export function compareReason(it: Pick<CompareItem, 'left' | 'right' | 'ask'>): 
 
 /** Spoken after a wrong pick. */
 export function compareHint(it: CompareItem): string {
-  return `Hmm, let's check. ${compareReason(it)} Try again!`;
+  return `Hmm, let's check. | ${compareReason(it)} | Try again!`;
 }
 
 /** Spoken after a right pick. */

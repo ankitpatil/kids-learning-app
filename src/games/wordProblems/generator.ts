@@ -184,18 +184,18 @@ export function makeWordProblem(level: number, rng: Rng = Math.random, ease = fa
 /** Spoken strategy hint after a wrong answer (never says the answer). */
 export function hintFor(it: WordProblem): string {
   const a = numberWord(it.a), b = numberWord(it.b);
-  if (it.kind === 'takeFrom') return `Start at ${a}, and count back ${b}.`;
-  return it.showPictures ? `Count all the ${it.thing.many}. Or start at ${a}, and count on ${b}.` : `Start at ${a}, and count on ${b}.`;
+  if (it.kind === 'takeFrom') return `Start at ${a}, | and count back ${b}.`;
+  return it.showPictures ? `Count all the ${it.thing.many}. | Or, start at ${a}, | and count on ${b}.` : `Start at ${a}, | and count on ${b}.`;
 }
 
 /** Spoken hint after the wrong sign (or wrong equation): what the story's action means. */
 export function signHint(it: WordProblem): string {
-  if (it.kind === 'takeFrom') return `Some ${it.thing.many} go away, so there are fewer. Going away means take away. Minus!`;
-  if (it.kind === 'putTogether') return `We put ${it.person.name}'s and ${it.other.name}'s ${it.thing.many} together. Together means plus!`;
-  return `${it.thing.comes ? 'More come' : `${it.person.name} gets more`}, so there are more. Getting more means plus!`;
+  if (it.kind === 'takeFrom') return `Some ${it.thing.many} go away, so there are fewer. | Going away means take away. | Minus!`;
+  if (it.kind === 'putTogether') return `We put ${it.person.name}'s and ${it.other.name}'s ${it.thing.many} together. | Together means plus!`;
+  return `${it.thing.comes ? 'More come' : `${it.person.name} gets more`}, so there are more. | Getting more means plus!`;
 }
 
 /** The full story + question, spoken. */
 export function spokenStory(it: WordProblem): string {
-  return [...it.spokenLines, it.spokenQuestion].join(' ');
+  return `${it.spokenLines.join(' | ')} || ${it.spokenQuestion}`;
 }

@@ -29,9 +29,9 @@ function firstStep(it: HopItem): Step {
 
 function promptFor(it: HopItem, step: Step) {
   const q = `${w(it.a)} ${opWord(it)} ${w(it.b)}.`;
-  if (step === 'hop') return `${q} Start at ${w(it.a)}. Hop ${w(it.b)} time${it.b === 1 ? '' : 's'} ${it.op === '+' ? 'forward' : 'back'}!`;
-  if (step === 'split') return `${q} How many hops to get to ten?`;
-  if (step === 'land') return `${w(it.b)} is ${w(it.toTen)} and ${w(it.rest)}. Now hop ${w(it.rest)} more from ten. Where does the frog land?`;
+  if (step === 'hop') return `${q} | Start at ${w(it.a)}. | Hop ${w(it.b)} time${it.b === 1 ? '' : 's'} ${it.op === '+' ? 'forward' : 'back'}!`;
+  if (step === 'split') return `${q} | How many hops to get to ten?`;
+  if (step === 'land') return `${w(it.b)} is ${w(it.toTen)} and ${w(it.rest)}. | Now hop ${w(it.rest)} more from ten. | Where does the frog land?`;
   return `What is ${w(it.a)} ${opWord(it)} ${w(it.b)}?`;
 }
 
@@ -94,7 +94,7 @@ export function NumberLineHop({ profileId, trackId, onDone, onExit }: Props) {
     setTried([]);
     started.current = Date.now();
     busy.current = false;
-    setTimeout(() => say((sl.kind === 'stretch' ? 'Bonus challenge! ' : '') + promptFor(it, s)), 250);
+    setTimeout(() => say((sl.kind === 'stretch' ? 'Bonus challenge! || ' : '') + promptFor(it, s)), 250);
   }
 
   function hop() {
@@ -133,7 +133,7 @@ export function NumberLineHop({ profileId, trackId, onDone, onExit }: Props) {
     setMood('yay');
     setFrog(it.answer);
     if (!hintUsed) correctCount.current += 1;
-    say(`${w(it.a)} ${opWord(it)} ${w(it.b)} is ${w(it.answer)}! ${out.change === 'up' ? 'You are a super hopper!' : 'Hop hop hooray!'}`);
+    say(`${w(it.a)} ${opWord(it)} ${w(it.b)} is ${w(it.answer)}! || ${out.change === 'up' ? 'You are a super hopper!' : 'Hop hop hooray!'}`);
     setTimeout(() => {
       const nextIndex = index + 1;
       if (nextIndex >= ROUND_LENGTH) {
@@ -179,17 +179,17 @@ export function NumberLineHop({ profileId, trackId, onDone, onExit }: Props) {
         setFrog(10);
         setTried([]);
         setStep('land');
-        say(`Yes! ${w(item.a)} ${opWord(item)} ${w(n)} is ten. ${promptFor(item, 'land')}`);
+        say(`Yes! | ${w(item.a)} ${opWord(item)} ${w(n)} is ten. || ${promptFor(item, 'land')}`);
         setTimeout(() => (busy.current = false), 600);
         return;
       }
       setTried((t) => [...t, n]);
-      return wrong(`Let's count the hops from ${w(item.a)} to ten. Try again!`);
+      return wrong(`Let's count the hops from ${w(item.a)} to ten. | Try again!`);
     }
     if (n === item.answer) return finishCorrect();
     setTried((t) => [...t, n]);
-    if (step === 'land') return wrong(`Start at ten and hop ${w(item.rest)} ${item.op === '+' ? 'forward' : 'back'}. Try again!`);
-    return wrong(`Hmm, start at ${w(item.a)} on the line and hop ${w(item.b)} ${item.op === '+' ? 'forward' : 'back'}. Try again!`);
+    if (step === 'land') return wrong(`Start at ten and hop ${w(item.rest)} ${item.op === '+' ? 'forward' : 'back'}. | Try again!`);
+    return wrong(`Hmm, | start at ${w(item.a)} on the line and hop ${w(item.b)} ${item.op === '+' ? 'forward' : 'back'}. | Try again!`);
   }
 
   if (!item || !state) return <div className="screen center">Loading…</div>;

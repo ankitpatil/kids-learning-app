@@ -2,6 +2,14 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-12 — Natural pauses in all speech (Ankit request)
+- Problem: every prompt went to the speech engine as one utterance, so voices ran sentences, praise and the next question together with almost no gap.
+- `say()` now splits text into phrases (`speechChunks`) and speaks them one at a time with real silence between: 380 ms after . / !, 520 ms after ?, 320 ms after a colon ("Catch the word: said"), 280 ms between spelled letters. Prompts can add `|` (450 ms beat) or `||` (850 ms, between parts such as praise → next question, story → question). A new prompt or `stopSpeech()` cancels the rest of the queue; a watchdog moves on if the engine drops `onend`.
+- Content pass over all ~70 spoken lines: beats between praise and the next prompt, between story lines and the question, and between answer choices ("a hat, | a cup, | or a bag?"); run-ons with dashes rewritten; hints split into "what happened | what I want | try again".
+- Spelled-out letters and Phonics Pop letter names are now upper-case so the voice says the letter name ("A"), not "uh".
+- Read-along stories: 650 ms between lines (was 250 ms).
+- Guard test: every phrase in story sums and hints is ≤ 12 words, and level-1 story questions speak each choice separately.
+
 ## 2026-11-12 — Natural voices + voice picker (option A, Ankit request)
 - Auto voice choice ranks installed voices: Premium > Siri > Natural > Enhanced > neural/WaveNet > Google, American English first (narrator decision), then Indian, British, other English. macOS novelty voices (Bahh, Bells, Zarvox, Albert…) are excluded. On-device voices beat online ones (online voices fail offline and send the text out).
 - Parents pick a voice from "🗣️ Voice" on the home screen (not behind a gate yet — AI1's parent gate can cover it). Each voice has a ▶️ sample; the choice is stored per device and falls back to the best voice if it is uninstalled.

@@ -19,7 +19,7 @@ interface Props {
 
 function promptFor(it: WordItem) {
   if (it.kind === 'sentence') return 'Read the sentence. Which word fits?';
-  if (it.kind === 'read') return it.magic ? 'Look for the magic e! Read the word, then tap its picture.' : 'Read the word, then tap its picture!';
+  if (it.kind === 'read') return it.magic ? 'Look for the magic e! | Read the word, | then tap its picture.' : 'Read the word, | then tap its picture!';
   return `Build the word ${it.word}!`;
 }
 
@@ -74,7 +74,7 @@ export function WordDetective({ profileId, trackId, onDone, onExit }: Props) {
     }
     started.current = Date.now();
     busy.current = false;
-    setTimeout(() => say((sl.kind === 'stretch' ? 'Bonus challenge! ' : '') + promptFor(it)), 250);
+    setTimeout(() => say((sl.kind === 'stretch' ? 'Bonus challenge! || ' : '') + promptFor(it)), 250);
   }
 
   async function record(correct: boolean) {
@@ -113,7 +113,7 @@ export function WordDetective({ profileId, trackId, onDone, onExit }: Props) {
         : it.kind === 'read' && it.magic
           ? `Yes! ${it.magic.short}, add a magic e, ${it.magic.long}!`
           : `Yes! ${it.word}!`;
-    say(out.change === 'up' ? `${praise} You're a word detective — new words unlocked!` : praise);
+    say(out.change === 'up' ? `${praise} || You're a word detective! | New words unlocked!` : praise);
     setTimeout(() => advance(out.state.level), 1700);
   }
 
@@ -127,7 +127,7 @@ export function WordDetective({ profileId, trackId, onDone, onExit }: Props) {
     setTried((t) => [...t, emoji]);
     setMood('oops');
     // Hint: name the picture they tapped and sound out the word by its letters.
-    say(`That's ${word}. Look again: ${item.word.split('').join(', ')}.`);
+    say(`That's ${word}. || Look again: ${item.word.split('').join(', ')}.`);
     setTimeout(() => {
       setMood('idle');
       busy.current = false;
@@ -145,7 +145,7 @@ export function WordDetective({ profileId, trackId, onDone, onExit }: Props) {
     setTried((t) => [...t, word]);
     setMood('oops');
     // Hint: read the sentence with their word so they can hear it doesn't make sense.
-    say(`${fillSentence(item, word)} Hmm, does that make sense? Try again.`);
+    say(`${fillSentence(item, word)} || Hmm, does that make sense? | Try again.`);
     setTimeout(() => {
       setMood('idle');
       busy.current = false;
@@ -187,7 +187,7 @@ export function WordDetective({ profileId, trackId, onDone, onExit }: Props) {
     hinted.current = true;
     setBad(wrong);
     setMood('oops');
-    say(`Almost! Fix the red one${wrong.length > 1 ? 's' : ''}. ${it.word}.`);
+    say(`Almost! | Fix the red one${wrong.length > 1 ? 's' : ''}. || ${it.word}.`);
     setTimeout(() => {
       // Pop the wrong tiles back out so the child only fixes those.
       setPlaced((cur) => cur.map((x, i) => (wrong.includes(i) ? null : x)));

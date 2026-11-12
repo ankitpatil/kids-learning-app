@@ -58,7 +58,7 @@ export function SightWordCatch({ profileId, onDone, onExit }: Props) {
     setMood('idle');
     started.current = Date.now();
     busy.current = false;
-    setTimeout(() => say((sl.kind === 'stretch' ? 'Bonus challenge! ' : '') + prompt(it)), 250);
+    setTimeout(() => say((sl.kind === 'stretch' ? 'Bonus challenge! || ' : '') + prompt(it)), 250);
   }
 
   async function record(correct: boolean) {
@@ -84,7 +84,7 @@ export function SightWordCatch({ profileId, onDone, onExit }: Props) {
       if (!hinted.current) correctCount.current += 1;
       setMood('yay');
       // Use the word in a sentence so it carries meaning, not just a shape.
-      say(`${out.change === 'up' ? 'Wow, new tricky words unlocked! ' : 'Got it! '}${item.word}. ${item.example}`);
+      say(`${out.change === 'up' ? 'Wow! | New tricky words unlocked!' : 'Got it!'} | ${item.word}. || ${item.example}`);
       setTimeout(() => {
         const ni = index + 1;
         if (ni >= ROUND_LENGTH) {
@@ -101,7 +101,7 @@ export function SightWordCatch({ profileId, onDone, onExit }: Props) {
     hinted.current = true;
     setTried((t) => [...t, word]);
     setMood('oops');
-    say(`That one says ${word}. Find ${item.word}: ${item.word.split('').join(', ')}.`);
+    say(`That one says ${word}. || Find ${item.word}: ${item.word.split('').join(', ')}.`);
     setTimeout(() => {
       setMood('idle');
       busy.current = false;

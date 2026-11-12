@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { startPlacement, answer, isDone, currentCheckpoint, PRESETS, type StartingPoint } from '../engine/placement';
 import { makeQuickItem, type QuickItem } from '../engine/quickItems';
 import type { Subject } from '../engine/tracks';
-import { say } from '../audio/speech';
+import { say, stopSpeech } from '../audio/speech';
 import { fresh } from '../engine/recent';
 
 interface Props {
@@ -50,7 +50,7 @@ export function Placement({ subject, onDone, onExit }: Props) {
 
   useEffect(() => {
     if (isDone(state)) {
-      say('All done! Great job. Let\'s play!');
+      say('All done! | Great job. || Let\'s play!');
       const t = setTimeout(() => onDone(state.best), 1500);
       return () => clearTimeout(t);
     }
@@ -89,7 +89,7 @@ export function Placement({ subject, onDone, onExit }: Props) {
         <button
           className="back-btn"
           onClick={() => {
-            window.speechSynthesis?.cancel();
+            stopSpeech();
             onExit();
           }}
           aria-label="Back, quit the quick check"
