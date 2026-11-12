@@ -45,6 +45,9 @@ export function say(text: string, opts: { rate?: number } = {}) {
  * highlighting. Uses the browser's word-boundary events when it sends them, otherwise an estimated
  * timer. Returns a cancel function. When muted (or no speech), calls onEnd right away.
  */
+/** If speech hasn't started by now, assume the engine is stuck and time the words ourselves. */
+export const SPEECH_START_WATCHDOG_MS = 1500;
+
 export function sayAlong(
   text: string,
   { onWord, onEnd, rate = 0.85 }: { onWord: (index: number) => void; onEnd: () => void; rate?: number },
@@ -64,6 +67,7 @@ export function sayAlong(
     onEnd();
   };
   window.speechSynthesis.cancel();
+  window.speechSynthesis.resume?.(); // Chrome can get stuck "paused"; resume unsticks it
   const u = new SpeechSynthesisUtterance(text);
   u.rate = rate;
   u.pitch = 1.1;
@@ -74,15 +78,23 @@ export function sayAlong(
     gotBoundary = true;
     onWord(wordIndexAt(tokens, e.charIndex));
   };
-  u.onstart = () => {
+  // Run the estimated word timings plus a safety finish. Started by `onstart`, or by a watchdog if the
+  // speech engine hangs and never starts (seen in Chrome/Electron): the story then still highlights
+  // word by word and moves on, silently, instead of stalling on the first line.
+  let timing = false;
+  const startTiming = () => {
+    if (timing || done) return;
+    timing = true;
     estimateWordStarts(text, rate).forEach((ms, i) =>
       timers.push(setTimeout(() => !done && !gotBoundary && onWord(i), ms)),
     );
     // Some browsers drop `onend`; never leave the story stuck.
     timers.push(setTimeout(finish, estimateDuration(text, rate) + 2500));
   };
+  u.onstart = startTiming;
   u.onend = finish;
   u.onerror = finish;
+  timers.push(setTimeout(startTiming, SPEECH_START_WATCHDOG_MS));
   onWord(0);
   window.speechSynthesis.speak(u);
   return () => {
