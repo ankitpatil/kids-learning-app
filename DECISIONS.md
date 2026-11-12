@@ -2,6 +2,17 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-11 — Story Choose (#19)
+- New game for the `stories` track (now playable, 3 levels, last in the reading sequence after Sentences). A round = 2 stories × 2 questions = 4 answers (stories take longer than single items, so 4 keeps the round at ~3–5 min).
+- 14 hand-written stories (4–5 lines, ≤ 9 words a line, one picture per line): 5 CVC, 3 digraphs, 2 blends, 2 magic e, 2 ee/ai/oa. Names mix Indian and US (Raj, Dev, Jai, Neel, Chen, Sam, Meg, Kate…). Content is data in `content/stories.ts`.
+- "Only unlocked patterns": a test checks every story word is either a tricky word from the Sight-Word Catch lists (or its -s form) or decodable at the story's pattern, using a small regex-based checker (`wordPattern`). At play time, a pattern counts as unlocked once the child is past level 1 of that Word Detective track (or has high mastery); CVC is always open. The story level also caps the pattern: L1 = CVC only, L2 = up to blends, L3 = everything. Picks lean (60%) to the hardest allowed pattern.
+- Read-along: L1 reads the story aloud automatically with word-by-word highlighting, then asks; L2 the child reads first with a "read to me" button (🔊📖); L3 read it yourself. On every level any word can be tapped to hear it (decoding help, not counted as a hint). Using "read to me" on L2 counts as a hint for that story's questions.
+- Highlighting uses the browser's speech word-boundary events when available, otherwise an estimated per-word timer (many Android/Chrome voices never send boundary events); a safety timeout moves on if `onend` never fires. Helpers in `audio/readAlong.ts`, `sayAlong` in `audio/speech.ts`.
+- Questions are always spoken (it's comprehension, not decoding the question); on L1 the choices are read out too. Choices are picture + short phrase. The story stays on screen (smaller) during questions so the child can look back.
+- Wrong answer: choice fades, "Let's look at the story again" and the line with the answer is read aloud and highlighted. Easing (2 misses): next question has 2 choices with the answer line pre-highlighted; a new story after easing is CVC and read aloud.
+- No round mix (review/stretch) here: with 2 stories a round there aren't enough slots; noted for later if wanted.
+- Question text ("What colour…") uses Indian/UK spelling to match the ₹-first default.
+
 ## 2026-11-11 — Compare 2-digit numbers in Feed the Monster (#15b)
 - Mechanic: two plates with a number each; the monster says "I'm so hungry! Which plate has more cookies?" or "I'm nearly full. Which plate has fewer cookies?" → tap a plate. Both "more" and "fewer" are asked (~50/50) so the child can't just always tap the bigger number. Uses "more/fewer" (K–1 language) in the question and "more than / less than" in the feedback.
 - Track `compare2d` (renamed "More or fewer") is now playable and has 3 levels instead of 2: 0 = far apart (tens differ by ≥ 2) with the tens & ones picture (📦 boxes + 🍪) under each number; 1 = close numbers with the picture; 2 = close numbers, numbers only. Saved progress at old level 0/1 stays valid (level 1 is now "close numbers with the picture", slightly easier than before).

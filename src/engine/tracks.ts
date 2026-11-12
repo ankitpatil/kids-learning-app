@@ -93,7 +93,11 @@ export const TRACKS: TrackDef[] = [
     levels: [L('the, you, where', 0, 'abstract', 'far', false), L('was, they, said', 1, 'abstract', 'near', false), L('of, could, once', 2, 'abstract', 'near', false)],
   },
   { id: 'sentences', subject: 'reading', name: 'Sentences', emoji: '💬', playable: true, levels: [L('finish it, with a picture', 0, 'pictorial', 'far', true), L('finish it, look-alike words', 0, 'abstract', 'near', false)] },
-  { id: 'stories', subject: 'reading', name: 'Stories', emoji: '📚', playable: false, levels: [L('short stories', 0, 'abstract', 'far', true)] },
+  {
+    // range = hardest phonics pattern allowed (index into content/stories PATTERNS: 0 cvc … 4 vowel teams).
+    id: 'stories', subject: 'reading', name: 'Stories', emoji: '📚', playable: true,
+    levels: [L('short-word stories, read to you', 0, 'pictorial', 'far', true), L('sh, ch, blends: you read, help on tap', 2, 'pictorial', 'near', true), L('magic e, ee ai oa: read it yourself', 4, 'abstract', 'near', false)],
+  },
 ];
 
 const BY_ID = new Map(TRACKS.map((t) => [t.id, t]));

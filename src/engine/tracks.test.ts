@@ -62,8 +62,8 @@ describe('pickTrack', () => {
     const m = { level: 9, mastery: 0.95 };
     expect(pickTrack('math', { count: m, add10: m, sub10: m, missing: m, add20: m, sub20: m, placeValue: m, compare2d: m })).toBe('compare2d');
     expect(pickTrack('reading', { phonics: { level: 6, mastery: 0.95 } })).toBe('cvc');
-    const allRead = Object.fromEntries(['phonics', 'cvc', 'digraphs', 'blends', 'silentE', 'vowelTeams', 'endings', 'sightWords', 'sentences'].map((id) => [id, { level: 9, mastery: 0.95 }]));
-    expect(pickTrack('reading', allRead)).toBe('sentences');
+    const allRead = Object.fromEntries(['phonics', 'cvc', 'digraphs', 'blends', 'silentE', 'vowelTeams', 'endings', 'sightWords', 'sentences', 'stories'].map((id) => [id, { level: 9, mastery: 0.95 }]));
+    expect(pickTrack('reading', allRead)).toBe('stories');
   });
   it('after ee/ai/oa words and tricky words a reader moves on to finishing sentences (#16)', () => {
     const done = Object.fromEntries(['phonics', 'cvc', 'digraphs', 'blends', 'silentE', 'vowelTeams', 'endings', 'sightWords'].map((id) => [id, { level: 9, mastery: 0.95 }]));
