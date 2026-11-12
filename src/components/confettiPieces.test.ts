@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { makeConfetti, CONFETTI_COLORS } from './confettiPieces';
-import { clapTimes, FANFARE } from '../audio/sfx';
+import { clapTimes, cheerVoices, FANFARE } from '../audio/sfx';
 
 function seeded(seed = 1) {
   return () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
@@ -48,5 +48,23 @@ describe('applause and fanfare', () => {
     expect(last[0]).toBe(Math.max(...FANFARE.map((n) => n[0])));
     expect(last[2]).toBe(Math.max(...FANFARE.map((n) => n[2])));
     expect(last[1] + last[2]).toBeLessThan(2);
+  });
+});
+
+describe('crowd cheer', () => {
+  it('voices start inside the window, sorted, rising in pitch, with kid and adult ranges', () => {
+    const v = cheerVoices(12, 1.6, seeded(11));
+    expect(v).toHaveLength(12);
+    v.forEach((x, i) => {
+      expect(x.at).toBeGreaterThanOrEqual(0);
+      expect(x.at).toBeLessThan(1.6);
+      if (i) expect(x.at).toBeGreaterThanOrEqual(v[i - 1].at);
+      expect(x.rise).toBeGreaterThan(1);
+      expect(x.pitch).toBeGreaterThanOrEqual(170);
+      expect(x.pitch).toBeLessThanOrEqual(500);
+      expect(Math.abs(x.pan)).toBeLessThanOrEqual(1);
+    });
+    expect(v.some((x) => x.pitch >= 330)).toBe(true);
+    expect(v.some((x) => x.pitch < 330)).toBe(true);
   });
 });

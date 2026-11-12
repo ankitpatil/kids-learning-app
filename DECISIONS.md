@@ -7,6 +7,7 @@ Judgment calls made during autonomous runs. Newest first. Ankit reviews and can 
 - Sounds are synthesized with Web Audio like the other effects (brass = detuned saws through an opening low-pass with vibrato; applause = band-passed noise "claps" that thin out). No audio files, no cost, works offline, and respects the 🔊 mute toggle.
 - Every round counts as a success (the round always ends with stars), so the celebration plays on every round; it doesn't scale with the score, to keep failure gentle.
 - The spoken "Great job! You got a … sticker!" now waits ~1.9 s for the fanfare to finish, and is cancelled if the child leaves the reward screen first. The old sparkle sound on the reward screen is dropped (too much at once); it still plays for in-game level-ups.
+- Crowd cheer added (Ankit request): a swelling filtered-noise "roar" plus 12 synthesized "woo-hoo!"/"yay!" voices (sawtooth through moving vowel formants, kid and adult pitches, panned left/right), starting with the applause after the fanfare. Praise speech now waits ~2.3 s.
 - Confetti is hidden for `prefers-reduced-motion`. The per-answer emoji burst during games is unchanged.
 
 ## 2026-11-12 — Story sums: word problems (#20)

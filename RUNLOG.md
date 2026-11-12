@@ -21,3 +21,4 @@
 2026-11-12 05:00 PT — item #20 — Story sums: spoken 1-step word problems (add to / take from / put together, Indian + US names), 3 levels (pick answer with pictures to 10 → pick the number sentence to 20 → build it: +/− then answer), true-fact equation choices, wrong-op distractors, count-on/back and sign hints, round mix; 189 tests pass, build ok — done
 2026-11-12 12:37 PT — request — added backlog items I1 (bundled Fluent Emoji icons + self-hosted fonts) and I2 (OpenMoji gap-fill + picture variants) ahead of #21 — done (interactive session)
 2026-11-12 12:45 PT — request — round-end celebration: confetti rain + synthesized trumpet fanfare and applause, praise speech waits for it; 193 tests pass, build ok — done (interactive session)
+2026-11-12 12:50 PT — request — crowd cheer (noise roar + woo-hoo voices) with the round-end applause; 194 tests pass, build ok — done (interactive session)

@@ -140,9 +140,108 @@ export function playApplause(seconds = 2.2) {
   }
 }
 
-/** Round finished: trumpet fanfare, then applause. Returns ms until it's quiet enough to speak. */
+export interface CheerVoice {
+  at: number;    // s after the cheer starts
+  dur: number;   // s
+  pitch: number; // Hz at the start of the "woo"
+  rise: number;  // pitch multiplier at the top of the glide
+  vowel: 0 | 1;  // 0 = "oo" → "ah", 1 = "ay"
+  pan: number;   // -1 (left) … 1 (right)
+}
+
+/** A small crowd of "woo-hoo!" / "yay!" voices, mostly early in the cheer. `rand` is injectable for tests. */
+export function cheerVoices(count = 12, seconds = 1.6, rand: () => number = Math.random): CheerVoice[] {
+  return Array.from({ length: count }, () => {
+    const child = rand() < 0.5;
+    return {
+      at: rand() * rand() * seconds,
+      dur: 0.35 + rand() * 0.45,
+      pitch: child ? 330 + rand() * 170 : 170 + rand() * 110,
+      rise: 1.25 + rand() * 0.45,
+      vowel: rand() < 0.5 ? 0 : 1,
+      pan: rand() * 2 - 1,
+    } satisfies CheerVoice;
+  }).sort((a, b) => a.at - b.at);
+}
+
+/** Vowel formants (Hz): [start F1, start F2, end F1, end F2]. */
+const FORMANTS: Record<0 | 1, [number, number, number, number]> = {
+  0: [350, 800, 750, 1150], // "oo" opening to "ah"  → "woo-ah!"
+  1: [600, 1700, 450, 2100], // "ay"                  → "yay!"
+};
+
+function cheerVoice(ac: AudioContext, v: CheerVoice, peak: number) {
+  const t0 = ac.currentTime + v.at;
+  const end = t0 + v.dur;
+  const osc = ac.createOscillator();
+  osc.type = 'sawtooth';
+  osc.frequency.setValueAtTime(v.pitch, t0);
+  osc.frequency.exponentialRampToValueAtTime(v.pitch * v.rise, t0 + v.dur * 0.45);
+  osc.frequency.exponentialRampToValueAtTime(v.pitch * v.rise * 0.8, end);
+  const vib = ac.createOscillator();
+  const vibGain = ac.createGain();
+  vib.frequency.value = 6 + Math.random() * 2;
+  vibGain.gain.value = v.pitch * 0.02;
+  vib.connect(vibGain).connect(osc.frequency);
+  const out = ac.createGain();
+  out.gain.setValueAtTime(0.0001, t0);
+  out.gain.exponentialRampToValueAtTime(peak, t0 + 0.06);
+  out.gain.exponentialRampToValueAtTime(peak * 0.6, t0 + v.dur * 0.7);
+  out.gain.exponentialRampToValueAtTime(0.0001, end);
+  const [f1a, f2a, f1b, f2b] = FORMANTS[v.vowel];
+  for (const [fa, fb, q] of [[f1a, f1b, 6], [f2a, f2b, 9]] as const) {
+    const bp = ac.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.Q.value = q;
+    bp.frequency.setValueAtTime(fa, t0);
+    bp.frequency.exponentialRampToValueAtTime(fb, t0 + v.dur * 0.5);
+    osc.connect(bp).connect(out);
+  }
+  const panner = ac.createStereoPanner ? ac.createStereoPanner() : null;
+  if (panner) {
+    panner.pan.value = v.pan;
+    out.connect(panner).connect(ac.destination);
+  } else out.connect(ac.destination);
+  osc.start(t0);
+  vib.start(t0);
+  osc.stop(end + 0.05);
+  vib.stop(end + 0.05);
+}
+
+/** Crowd cheer: a swelling, band-passed noise "roar" under a dozen woo-hoo voices. */
+export function playCheer(seconds = 2.4) {
+  const ac = audio();
+  if (!ac) return;
+  const t0 = ac.currentTime;
+  const buf = ac.createBuffer(1, Math.floor(ac.sampleRate * seconds), ac.sampleRate);
+  const d = buf.getChannelData(0);
+  let last = 0;
+  for (let i = 0; i < d.length; i++) {
+    last = 0.97 * last + 0.03 * (Math.random() * 2 - 1); // soften white noise toward a crowd rumble
+    d[i] = last * 6;
+  }
+  const roar = ac.createBufferSource();
+  roar.buffer = buf;
+  const band = ac.createBiquadFilter();
+  band.type = 'bandpass';
+  band.frequency.value = 900;
+  band.Q.value = 0.6;
+  const roarGain = ac.createGain();
+  roarGain.gain.setValueAtTime(0.0001, t0);
+  roarGain.gain.exponentialRampToValueAtTime(0.09, t0 + 0.35);
+  roarGain.gain.exponentialRampToValueAtTime(0.05, t0 + seconds * 0.6);
+  roarGain.gain.exponentialRampToValueAtTime(0.0001, t0 + seconds);
+  roar.connect(band).connect(roarGain).connect(ac.destination);
+  roar.start(t0);
+  for (const v of cheerVoices(12, seconds * 0.65)) cheerVoice(ac, v, 0.035);
+}
+
+/** Round finished: trumpet fanfare, then crowd cheer + applause. Returns ms until it's quiet enough to speak. */
 export function playCelebration(): number {
   playFanfare();
-  setTimeout(() => playApplause(), 700);
-  return 1900;
+  setTimeout(() => {
+    playCheer();
+    playApplause(2.6);
+  }, 700);
+  return 2300;
 }
