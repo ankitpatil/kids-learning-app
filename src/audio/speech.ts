@@ -82,19 +82,20 @@ export function sayAlong(
   // speech engine hangs and never starts (seen in Chrome/Electron): the story then still highlights
   // word by word and moves on, silently, instead of stalling on the first line.
   let timing = false;
-  const startTiming = () => {
+  const startTiming = (fromEngine: boolean) => {
     if (timing || done) return;
     timing = true;
     estimateWordStarts(text, rate).forEach((ms, i) =>
       timers.push(setTimeout(() => !done && !gotBoundary && onWord(i), ms)),
     );
-    // Some browsers drop `onend`; never leave the story stuck.
-    timers.push(setTimeout(finish, estimateDuration(text, rate) + 2500));
+    // Some browsers drop `onend`; never leave the story stuck. With real audio, allow slack for slow
+    // voices; with a stuck engine (silent), move on as soon as the estimated words are shown.
+    timers.push(setTimeout(finish, estimateDuration(text, rate) + (fromEngine ? 2500 : 400)));
   };
-  u.onstart = startTiming;
+  u.onstart = () => startTiming(true);
   u.onend = finish;
   u.onerror = finish;
-  timers.push(setTimeout(startTiming, SPEECH_START_WATCHDOG_MS));
+  timers.push(setTimeout(() => startTiming(false), SPEECH_START_WATCHDOG_MS));
   onWord(0);
   window.speechSynthesis.speak(u);
   return () => {

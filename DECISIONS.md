@@ -2,6 +2,10 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-12 — Read-along never stalls (bug fix, interactive session)
+- Found while testing Stories in the desktop app's browser pane: the speech engine accepted sentences but never fired start/end/error, and the safety timer only started on `onstart`, so the story froze on line 1. Chrome on tablets can hang the same way.
+- `sayAlong` now has a 1.5 s start watchdog: if speech hasn't started, it highlights words on the estimated timing and moves on (silently), with a short 0.4 s tail instead of the 2.5 s slack used for real audio. It also calls `speechSynthesis.resume()` after `cancel()` (a known Chrome unstick). Tests use a fake, never-starting engine.
+
 ## 2026-11-12 — More decodable stories (C1, interactive session)
 - Added 29 stories (14 → 43): CVC 11, digraphs 8, blends 8, magic e 8, ee/ai/oa 8. Fewer than the ~40 the item suggested: every word has to pass the decodability checker, which rules out many everyday words (e.g. *be, no, so, day, too, eat, star, moon, cricket*), so quality over count. More can come with AI2's checked, generated stories.
 - Themes: cricket (Ash hits a six), monsoon (stuck van, puddles, red coat, late train), Diwali-style lamps without the word (*Diwali* isn't decodable), space, camping, beach, cooking, pets, farm.
