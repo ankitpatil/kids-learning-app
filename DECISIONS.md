@@ -2,6 +2,13 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-12 — More decodable stories (C1, interactive session)
+- Added 29 stories (14 → 43): CVC 11, digraphs 8, blends 8, magic e 8, ee/ai/oa 8. Fewer than the ~40 the item suggested: every word has to pass the decodability checker, which rules out many everyday words (e.g. *be, no, so, day, too, eat, star, moon, cricket*), so quality over count. More can come with AI2's checked, generated stories.
+- Themes: cricket (Ash hits a six), monsoon (stuck van, puddles, red coat, late train), Diwali-style lamps without the word (*Diwali* isn't decodable), space, camping, beach, cooking, pets, farm.
+- Names must be decodable too, so Indian names are short ones that fit a pattern (Ved, Dev, Ram, Tej → CVC; Shan, Ash → digraphs; Jai, Neel, Gail → ee/ai/oa) alongside US names (Kim, Pam, Jen, Beth, Chad, Fran, Brad, Glen, Trish, Jane, Pete, Rose, Kate, Mike).
+- Exclamations like "Ha!" fail the checker (no final consonant), so stories use "Look!" / "Yes!" instead.
+- New test: at least 6 stories per pattern and unique titles. Themes are not a data field yet (no screen uses them); AI2's topic picker can add one.
+
 ## 2026-11-12 — Claude in the app: priorities (with Ankit)
 - Ankit picked build-time content (C1, C2) and live child helpers (AI1–AI4) as the top priority, ahead of icons (I1/I2), sounds (S1) and money (#21). The parent "explain this week" summary is parked until the parent dashboard (#23).
 - Live helpers are off by default, parent-gated, go through a stateless family proxy that Ankit deploys (API key never in the repo or the client), send no identifying data, and every output is checked in code with a silent fallback to built-in content. Written into SPEC.md "AI features" and CLAUDE.md.

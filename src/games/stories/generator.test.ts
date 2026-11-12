@@ -42,6 +42,10 @@ describe('story content (#19)', () => {
       }
     }
   });
+  it('content breadth: at least 6 stories per pattern, titles unique', () => {
+    for (const p of PATTERNS) expect([p, STORIES.filter((s) => s.pattern === p).length >= 6]).toEqual([p, true]);
+    expect(new Set(STORIES.map((s) => s.title)).size).toBe(STORIES.length);
+  });
   it('stories are short (≤ 5 lines, ≤ 9 words a line)', () => {
     for (const s of STORIES) {
       expect(s.lines.length).toBeLessThanOrEqual(5);
