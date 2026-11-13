@@ -1,0 +1,14 @@
+# Cloudflare Worker config for the Little Learners family proxy.
+# Secrets (ANTHROPIC_API_KEY, FAMILY_PASSCODE) are set with `wrangler secret put`, never here.
+name = "little-learners-proxy"
+main = "src/worker.js"
+compatibility_date = "2026-11-01"
+workers_dev = true
+
+# Request logging off: the proxy must never keep request bodies.
+[observability]
+enabled = false
+
+[vars]
+# Set to the address you open the app at (e.g. http://192.168.1.20:5173 or your private URL).
+ALLOWED_ORIGIN = "*"

@@ -13,6 +13,8 @@ import { listProfiles, createProfile, touchProfile, addStars, addSticker, reques
 import { LevelSelect } from './screens/LevelSelect';
 import { StickerVault } from './screens/StickerVault';
 import { VoicePicker } from './screens/VoicePicker';
+import { ParentGate } from './screens/ParentGate';
+import { Settings } from './screens/Settings';
 import { ProfilePicker, CreateProfile } from './screens/Profiles';
 import { startupProfileId } from './engine/profiles';
 import { pickSticker } from './engine/stickers';
@@ -36,7 +38,9 @@ type Screen =
   | { name: 'placement'; subject: Subject }
   | { name: 'profiles' }
   | { name: 'newProfile' }
-  | { name: 'voice' };
+  | { name: 'voice' }
+  | { name: 'gate' }
+  | { name: 'settings' };
 
 const SUBJECT_OF = (g: Game): Subject => (g === 'count' || g === 'missing' || g === 'placeValue' || g === 'compare2d' || g === 'wordProblems' || isHopTrack(g) ? 'math' : 'reading');
 const isWordTrack = (g: string): g is WordTrack => (WORD_TRACKS as readonly string[]).includes(g);
@@ -159,7 +163,15 @@ export default function App() {
   }
 
   if (screen.name === 'voice') {
-    return <VoicePicker onBack={() => setScreen({ name: 'home' })} />;
+    return <VoicePicker onBack={() => setScreen({ name: 'settings' })} />;
+  }
+
+  if (screen.name === 'gate') {
+    return <ParentGate onPass={() => setScreen({ name: 'settings' })} onBack={() => setScreen({ name: 'home' })} />;
+  }
+
+  if (screen.name === 'settings') {
+    return <Settings onBack={() => setScreen({ name: 'home' })} onVoice={() => setScreen({ name: 'voice' })} />;
   }
 
   if (screen.name === 'vault') {
@@ -280,7 +292,7 @@ export default function App() {
       <div className="parent-links">
         <button className="link-btn" onClick={() => setScreen({ name: 'levels', subject: 'math' })}>🗺️ Math levels</button>
         <button className="link-btn" onClick={() => setScreen({ name: 'levels', subject: 'reading' })}>🗺️ Reading levels</button>
-        <button className="link-btn" onClick={() => setScreen({ name: 'voice' })}>🗣️ Voice</button>
+        <button className="link-btn" onClick={() => setScreen({ name: 'gate' })}>⚙️ Grown-ups</button>
       </div>
     </div>
   );

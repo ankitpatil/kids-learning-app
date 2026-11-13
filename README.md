@@ -32,6 +32,7 @@ To play on a tablet on the same Wi-Fi: `npm run dev -- --host`, then open the pr
 - **🗺️ Math levels / 🗺️ Reading levels**: jump to any game and level directly. Tap ▶️ for the current level or a number to pick one.
 - **Avatar (top left)**: switch or create child profiles. Each child has their own levels, stars and stickers.
 - **📒 Sticker book**: one sticker per round, with rare ones for level-ups and perfect rounds.
+- **⚙️ Grown-ups** (hold 3 s, then answer a multiplication): reading voice and the optional **✨ Claude helpers** (off by default). Helpers need the family proxy in `proxy/` — see [proxy/README.md](proxy/README.md).
 
 Games: Feed the Monster (counting, missing number, tens & ones, compare), Number Line Hop, Story sums, Phonics Pop, Word Detective, Sight-Word Catch, Word Builder and Story Choose.
 
