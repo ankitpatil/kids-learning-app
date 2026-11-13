@@ -61,16 +61,19 @@ export function unlockedPattern(states: States): number {
   return best;
 }
 
-/** Stories playable at a level: pattern ≤ the level's cap and ≤ what's unlocked. Easing → CVC only. */
-export function storiesFor(level: number, unlocked: number, ease = false): Story[] {
+/**
+ * Stories playable at a level: pattern ≤ the level's cap and ≤ what's unlocked. Easing → CVC only.
+ * `extra` = stories cached on this device (AI2), which join the pool on the same terms.
+ */
+export function storiesFor(level: number, unlocked: number, ease = false, extra: Story[] = []): Story[] {
   const cap = ease ? 0 : Math.min(getLevel(TRACK, level).range, unlocked);
-  const pool = STORIES.filter((s) => PATTERNS.indexOf(s.pattern) <= cap);
+  const pool = [...STORIES, ...extra].filter((s) => PATTERNS.indexOf(s.pattern) <= cap);
   return pool.length ? pool : STORIES.filter((s) => s.pattern === 'cvc');
 }
 
 /** Prefer stories at the top of the allowed range (the new pattern), but mix in easier ones. */
-export function pickStory(level: number, unlocked: number, rng: Rng = Math.random, ease = false, avoid: string[] = []): Story {
-  const pool = storiesFor(level, unlocked, ease);
+export function pickStory(level: number, unlocked: number, rng: Rng = Math.random, ease = false, avoid: string[] = [], extra: Story[] = []): Story {
+  const pool = storiesFor(level, unlocked, ease, extra);
   const fresh = pool.filter((s) => !avoid.includes(s.id));
   const from = fresh.length ? fresh : pool;
   const top = Math.max(...from.map((s) => PATTERNS.indexOf(s.pattern)));

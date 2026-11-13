@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { clearAiStories, listAiStories } from '../store/db';
 import { loadAiSettings, normalizeProxyUrl, saveAiSettings, type AiSettings } from '../ai/settings';
 import { createProxyProvider } from '../ai/client';
 import { ai } from '../ai/app';
@@ -11,6 +12,15 @@ export function Settings({ onBack, onVoice }: { onBack: () => void; onVoice: () 
   const [urlText, setUrlText] = useState(s.proxyUrl);
   const [test, setTest] = useState<Test>({ state: 'idle' });
   const urlOk = normalizeProxyUrl(urlText) !== null;
+  const [saved, setSaved] = useState<number | null>(null);
+  useEffect(() => {
+    listAiStories().then((l) => setSaved(l.length), () => setSaved(0));
+  }, []);
+  const clearSaved = async () => {
+    if (!window.confirm('Delete all saved Claude stories on this device?')) return;
+    await clearAiStories();
+    setSaved(0);
+  };
 
   const update = (next: AiSettings) => {
     setS(next);
@@ -76,6 +86,13 @@ export function Settings({ onBack, onVoice }: { onBack: () => void; onVoice: () 
           <span className="voice-sub" role="status">
             {test.state === 'testing' ? 'Checking…' : test.state === 'ok' ? '✅ Connected' : test.state === 'fail' ? `❌ ${test.why}` : ''}
           </span>
+        </div>
+
+        <div className="test-row">
+          <span className="voice-sub">📚 Saved Claude stories on this device: {saved ?? '…'}</span>
+          <button className="link-btn strong" disabled={!saved} onClick={clearSaved}>
+            Clear
+          </button>
         </div>
 
         <p className="voice-sub">

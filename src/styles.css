@@ -390,3 +390,10 @@ button { font: inherit; cursor: pointer; touch-action: manipulation; }
 .test-row { display: flex; align-items: center; gap: 12px; }
 .link-btn.strong { opacity: 1; font-weight: 700; color: var(--primary); }
 .link-btn:disabled { opacity: .35; }
+/* AI2: ✨ new story topic picker + writing screen */
+.topic-grid { display: grid; grid-template-columns: repeat(3, minmax(96px, 160px)); gap: 20px; justify-content: center; margin: auto; }
+.topic-btn { aspect-ratio: 1; border: none; border-radius: 28px; background: #fff; box-shadow: 0 6px 0 #0002; font-size: clamp(48px, 12vw, 80px); cursor: pointer; }
+.topic-btn:active { transform: translateY(3px); box-shadow: 0 3px 0 #0002; }
+.story-writing { margin: auto; display: flex; flex-direction: column; align-items: center; gap: 12px; font-size: clamp(48px, 12vw, 80px); }
+.story-writing-pen { display: inline-block; animation: wiggle .6s ease infinite; }
+@media (prefers-reduced-motion: reduce) { .story-writing-pen { animation: none; } }

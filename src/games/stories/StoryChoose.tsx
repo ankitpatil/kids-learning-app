@@ -6,7 +6,11 @@ import { updateSkill, type SkillState } from '../../engine/adaptive';
 import { maxLevel } from '../../engine/tracks';
 import { getSkillState, getSkillStates, saveSkillState, logAttempt } from '../../store/db';
 import { say, sayAlong } from '../../audio/speech';
-import { fresh } from '../../engine/recent';
+import { fresh, remember } from '../../engine/recent';
+import { ai } from '../../ai/app';
+import { STORY_TOPICS, type StoryTopic } from '../../ai/request';
+import { listAiStories, saveAiStory } from '../../store/db';
+import { newStory, patternCap, playableCached, fallbackStory, TOPIC_ICONS } from './aiStory';
 
 /** Silence between story lines when reading aloud: a breath, so each sentence lands. */
 const LINE_PAUSE_MS = 650;
@@ -34,6 +38,12 @@ export function StoryChoose({ profileId, onDone, onExit }: Props) {
   const [tried, setTried] = useState<string[]>([]);
   const [mood, setMood] = useState<'idle' | 'yay' | 'oops'>('idle');
   const [answered, setAnswered] = useState(0);
+  /** ✨ New story: only when Claude helpers are on, set up and online. */
+  const [live] = useState(() => ai.isLive());
+  const [picker, setPicker] = useState(false);
+  const [writing, setWriting] = useState(false);
+  const cached = useRef<Story[]>([]);
+  const alive = useRef(true);
   const storyNo = useRef(0);
   const qi = useRef(0);
   const unlocked = useRef(0);
@@ -58,13 +68,16 @@ export function StoryChoose({ profileId, onDone, onExit }: Props) {
   }
 
   useEffect(() => {
-    Promise.all([getSkillState(profileId, TRACK), getSkillStates(profileId)]).then(([s, states]) => {
+    alive.current = true;
+    Promise.all([getSkillState(profileId, TRACK), getSkillStates(profileId), listAiStories().catch(() => [])]).then(([s, states, saved]) => {
+      cached.current = playableCached(saved);
       unlocked.current = unlockedPattern(states);
       level.current = s.level;
       setState(s);
       beginStory(s.level);
     });
     return () => {
+      alive.current = false;
       cancel.current();
       timers.current.forEach(clearTimeout);
     };
@@ -97,10 +110,11 @@ export function StoryChoose({ profileId, onDone, onExit }: Props) {
     readLine(from);
   }
 
-  function beginStory(lv: number) {
+  function beginStory(lv: number, given?: Story) {
     const token = ++step.current;
     const easy = ease.current;
-    const s = fresh(TRACK, () => pickStory(lv, unlocked.current, Math.random, easy), (x) => x.id);
+    const s = given ?? fresh(TRACK, () => pickStory(lv, unlocked.current, Math.random, easy, [], cached.current), (x) => x.id);
+    if (given) remember(TRACK, given.id);
     const m = readMode(lv, easy);
     qi.current = 0;
     readHelp.current = false;
@@ -118,6 +132,32 @@ export function StoryChoose({ profileId, onDone, onExit }: Props) {
     } else {
       later(() => say(m === 'button' ? 'Read the story. | Tap a word, or the speaker, for help. | Tap the green tick when you are done.' : 'Read the story yourself! | Tap a word if you need help. | Then tap the green tick.'), 250);
     }
+  }
+
+  function openPicker() {
+    if (phase !== 'read' || writing) return;
+    step.current++; // cancel the pending auto read-along
+    stop();
+    setHi(null);
+    setPicker(true);
+    say('What should your story be about?');
+  }
+
+  async function pickTopic(topic: StoryTopic) {
+    setPicker(false);
+    setWriting(true);
+    say('Writing a new story for you!');
+    const lv = level.current;
+    const easy = ease.current;
+    const res = await newStory(lv, patternCap(lv, unlocked.current, easy), topic, {
+      client: ai,
+      fallback: () => fresh(TRACK, () => fallbackStory(lv, unlocked.current, cached.current, Math.random, easy), (x) => x.id),
+      save: (st, t) => saveAiStory(st, t),
+    });
+    if (!alive.current) return;
+    if (res.source === 'claude' && !cached.current.some((c) => c.id === res.story.id)) cached.current = [res.story, ...cached.current];
+    setWriting(false);
+    beginStory(lv, res.story);
   }
 
   function readToMe() {
@@ -205,6 +245,35 @@ export function StoryChoose({ profileId, onDone, onExit }: Props) {
 
   if (!story || !state) return <div className="screen center">Loading…</div>;
 
+  if (picker || writing) {
+    return (
+      <div className="screen game stories">
+        <div className="topbar">
+          <button className="back-btn" onClick={() => {
+              setPicker(false);
+              beginStory(level.current, story);
+            }} disabled={writing} aria-label="Back to the story">⬅️</button>
+          <span />
+          <span style={{ width: 64 }} />
+        </div>
+        {writing ? (
+          <div className="story-writing" role="status" aria-label="Writing a new story">
+            <span className="story-writing-pen" aria-hidden="true">✏️</span>
+            <span aria-hidden="true">✨📖✨</span>
+          </div>
+        ) : (
+          <div className="topic-grid">
+            {STORY_TOPICS.map((t) => (
+              <button key={t} className="topic-btn" onClick={() => pickTopic(t)} aria-label={t}>
+                <span aria-hidden="true">{TOPIC_ICONS[t]}</span>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="screen game stories">
       <div className="topbar">
@@ -259,6 +328,9 @@ export function StoryChoose({ profileId, onDone, onExit }: Props) {
 
       {phase === 'read' ? (
         <div className="story-actions">
+          {live && (
+            <button className="btn secondary" onClick={openPicker} aria-label="New story">✨📖</button>
+          )}
           {mode === 'button' && (
             <button className="btn secondary" onClick={readToMe} disabled={reading} aria-label="Read it to me">🔊📖</button>
           )}

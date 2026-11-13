@@ -2,6 +2,7 @@ import Dexie, { type Table } from 'dexie';
 import { newSkillState, type SkillState } from '../engine/adaptive';
 import type { Subject } from '../engine/tracks';
 import { resolveNickname, sortProfiles, MAX_PROFILES } from '../engine/profiles';
+import type { Story } from '../content/stories';
 
 export interface Profile {
   id: string;
@@ -31,10 +32,19 @@ export interface Attempt {
   mix?: 'current' | 'review' | 'stretch';
 }
 
+/** A Claude story that passed every check (AI2). Content only: no profile id, nothing about the child. */
+export interface CachedStory {
+  id: string;
+  topic: string;
+  story: Story;
+  createdAt: number;
+}
+
 export class AppDB extends Dexie {
   profiles!: Table<Profile, string>;
   attempts!: Table<Attempt, number>;
   skillStates!: Table<SkillState, [string, string]>;
+  aiStories!: Table<CachedStory, string>;
 
   constructor(name = 'little-learners') {
     super(name);
@@ -43,6 +53,7 @@ export class AppDB extends Dexie {
       attempts: '++id, profileId, skillId, at, [profileId+skillId]',
       skillStates: '[profileId+skillId], profileId',
     });
+    this.version(2).stores({ aiStories: 'id, createdAt' });
   }
 }
 
@@ -225,4 +236,44 @@ export function touchProfile(id: string, d: AppDB = db): Promise<void> {
   const m = mem.profiles.get(id);
   if (m) mem.profiles.set(id, { ...m, lastPlayedAt: at });
   return safe(async () => void (await d.profiles.update(id, { lastPlayedAt: at })), () => undefined);
+}
+
+// ---- Claude stories cached on this device (AI2) ----------------------------------------------
+
+/** Oldest stories are dropped beyond this many. */
+export const MAX_CACHED_STORIES = 60;
+const memStories = new Map<string, CachedStory>();
+
+export function saveAiStory(story: Story, topic: string, d: AppDB = db, at: number = Date.now()): Promise<void> {
+  const rec: CachedStory = { id: story.id, topic, story, createdAt: at };
+  memStories.set(rec.id, rec);
+  return safe(
+    async () => {
+      await d.transaction('rw', d.aiStories, async () => {
+        await d.aiStories.put(rec);
+        const n = await d.aiStories.count();
+        if (n > MAX_CACHED_STORIES) {
+          const old = await d.aiStories.orderBy('createdAt').limit(n - MAX_CACHED_STORIES).primaryKeys();
+          await d.aiStories.bulkDelete(old);
+        }
+      });
+    },
+    () => {
+      const all = [...memStories.values()].sort((a, b) => a.createdAt - b.createdAt);
+      all.slice(0, Math.max(0, all.length - MAX_CACHED_STORIES)).forEach((r) => memStories.delete(r.id));
+    },
+  );
+}
+
+/** Newest first. */
+export function listAiStories(d: AppDB = db): Promise<CachedStory[]> {
+  return safe(
+    async () => (await d.aiStories.orderBy('createdAt').reverse().toArray()),
+    () => [...memStories.values()].sort((a, b) => b.createdAt - a.createdAt),
+  );
+}
+
+export function clearAiStories(d: AppDB = db): Promise<void> {
+  memStories.clear();
+  return safe(async () => void (await d.aiStories.clear()), () => undefined);
 }

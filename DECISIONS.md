@@ -2,6 +2,15 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-13 — AI2: personalized stories from Claude (scheduled run)
+- **Where**: a ✨📖 button next to ✅ while a story is on screen, shown only when `ai.isLive()` (helpers on, proxy + passcode set, online). Tapping it opens six big topic icons (🏏 🐾 🚀 🍎 👪 🪔, spoken prompt "What should your story be about?"); the new story replaces the current one, so a round is still 2 stories.
+- **Wait time — deviation from SPEC's ~2 s, please review**: generating a 4–5 line story with 2 questions takes a fast model a few seconds, so a 2 s cap would nearly always fall back. Story requests use 5 s per attempt and an 8 s total budget (no retry if < 1 s is left), with a wiggling ✏️ "writing" screen. The child asked for the story, so it is not a silent stall; every other live call keeps the 2 s default. Easy to change: `STORY_TIMEOUT_MS` / `STORY_BUDGET_MS` in `games/stories/aiStory.ts`.
+- **Checks** (`checkAiStory`), all in code: 3–5 lines, ≤ 7 words per line; every line word decodable at the child's pattern cap (same checker as built-in stories; the cap is the same rule as the built-in pool, so easing = CVC only); title/lines/questions/choices free of markup, links and digits; exactly 2 questions ending in "?", each with 2 distinct wrong choices and an answer whose words all appear in the line it points at (plural -s tolerated: nap/naps). Titles are not decodability-checked (the app reads them aloud) but are blocklist-checked. Bad emoji are replaced with the topic icon rather than failing the story.
+- **Kid-safe list** (`content/kidSafe.ts`): whole-word match with plural/-ed/-ing endings, covering violence, scary, unkind, adult and swear words. Everyday words a story needs are allowed on purpose (hit/kick for cricket and football, bite, drink, lost, fire, monster). All built-in stories pass it (tested).
+- **Fallback**: invalid or failed → one retry → a built-in (or cached) story from the normal pool, silently. Offline/off → no request at all.
+- **Cache**: Dexie v2 table `aiStories` (id = hash of the content, topic, story, createdAt — nothing about the child), newest 60 kept. Cached stories are re-checked on load and join the normal Story Choose pool at their own pattern, so they come back offline for every child on the device. Parents see the count and a **Clear** button in ⚙️ Grown-ups.
+- Proxy prompt tightened to match the checks (3–N lines, numbers as words, questions end with "?", answers copied from the line, "a program checks every word"). Not deployed.
+
 ## 2026-11-13 — AI1: Claude helpers plumbing, parent gate, family proxy (scheduled run)
 - **Parent gate**: hold a 🔒 button for 3 s (progress ring; releasing early resets), then type the answer to a×b with both factors 3–9. Typed, not multiple choice, so a child can't guess 1-in-4. A wrong answer gives a new question.
 - Home's "🗣️ Voice" link became "⚙️ Grown-ups" (gate → Settings). The voice picker now lives inside Settings, as planned in the natural-voices decision.
