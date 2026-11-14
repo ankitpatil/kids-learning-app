@@ -37,15 +37,15 @@ export const STORIES: Story[] = [
   {
     id: 'sam-cat', title: 'Sam and the Cat', emoji: '🐱', pattern: 'cvc',
     lines: [
-      { text: 'Sam has a cat.' },
-      { text: 'The cat is fat.' },
-      { text: 'Sam got a red hat.' },
+      { text: 'Sam has a fat cat.' },
+      { text: 'Sam got a big red hat.' },
       { text: 'The cat sat in the hat!' },
-      { text: 'Sam can not get his hat.' },
+      { text: 'Sam put on the hat.' },
+      { text: 'Yes! Sam has a hat and a cat!' },
     ],
     questions: [
-      { q: 'What did Sam get?', line: 2, answer: C('a hat'), wrong: [C('a cup'), C('a bag')] },
-      { q: 'Where did the cat sit?', line: 3, answer: C('in the hat'), wrong: [C('in the box'), C('on the bed')] },
+      { q: 'What did Sam get?', line: 1, answer: C('a hat'), wrong: [C('a cup'), C('a bag')] },
+      { q: 'Where did the cat sit?', line: 2, answer: C('in the hat'), wrong: [C('in the box'), C('on the bed')] },
     ],
   },
   {
@@ -54,8 +54,8 @@ export const STORIES: Story[] = [
       { text: 'Raj got on the bus.' },
       { text: 'The bus is big and red.' },
       { text: 'A pig got on the bus!' },
-      { text: 'The pig sat on Raj.' },
-      { text: 'Raj had fun.' },
+      { text: 'The fat pig sat on Raj.' },
+      { text: 'The pig got off at the mud!' },
     ],
     questions: [
       { q: 'Who got on the bus with Raj?', line: 2, answer: C('a pig'), wrong: [C('a dog'), C('a cat')] },
@@ -68,8 +68,8 @@ export const STORIES: Story[] = [
       { text: 'Meg has a pup.' },
       { text: 'The pup can dig.' },
       { text: 'The pup dug in the mud.' },
-      { text: 'Meg got the pup in the tub.' },
-      { text: 'The pup is wet. Meg is wet!' },
+      { text: 'Meg put the pup in the tub.' },
+      { text: 'The pup hops out. Meg is in the tub!' },
     ],
     questions: [
       { q: 'What did the pup dig in?', line: 2, answer: C('mud'), wrong: [C('a box'), C('a bed')] },
@@ -80,9 +80,10 @@ export const STORIES: Story[] = [
     id: 'fox-box', title: 'The Fox and the Box', emoji: '🦊', pattern: 'cvc',
     lines: [
       { text: 'A fox sat on a log.' },
-      { text: 'The fox can see a box.' },
+      { text: 'The fox can see a big box.' },
       { text: 'The fox got in the box.' },
-      { text: 'Is the fox in the box? Yes!' },
+      { text: 'The box hops and hops!' },
+      { text: 'It is not a box. It is a fox!' },
     ],
     questions: [
       { q: 'What did the fox sit on?', line: 0, answer: C('a log'), wrong: [C('a bus'), C('a bed')] },
@@ -96,153 +97,21 @@ export const STORIES: Story[] = [
       { text: 'Ben has a big hat.' },
       { text: 'Ben sips from a cup.' },
       { text: 'Then Ben naps in the sun.' },
+      { text: 'Ben gets up. Six cats nap on him!' },
     ],
     questions: [
       { q: 'Was it hot or cold?', line: 0, answer: C('hot'), wrong: [C('cold')] },
-      { q: 'What did Ben do at the end?', line: 3, answer: C('nap'), wrong: [C('run'), C('dig')] },
-    ],
-  },
-
-  // ---------- Digraphs (sh ch th ck, ll ss ff) ----------
-  {
-    id: 'josh-ship', title: 'The Big Ship', emoji: '🚢', pattern: 'digraphs',
-    lines: [
-      { text: 'Josh is on a ship.' },
-      { text: 'The ship is big.' },
-      { text: 'Josh can see a fish.' },
-      { text: 'The fish has a red fin.' },
-      { text: 'Josh gets a shell.' },
-    ],
-    questions: [
-      { q: 'Where is Josh?', line: 0, answer: C('on a ship'), wrong: [C('on a bus'), C('in a shop')] },
-      { q: 'What did Josh get?', line: 4, answer: C('a shell'), wrong: [C('a fish'), C('a rock')] },
+      { q: 'What did Ben do in the sun?', line: 3, answer: C('nap'), wrong: [C('run'), C('dig')] },
     ],
   },
   {
-    id: 'chen-chick', title: 'Chen and the Chick', emoji: '🐥', pattern: 'digraphs',
-    lines: [
-      { text: 'Chen has a chick.' },
-      { text: 'The chick can peck.' },
-      { text: 'The chick pecks at the dish.' },
-      { text: 'Chen fills the dish.' },
-      { text: 'Then the chick naps.' },
-    ],
-    questions: [
-      { q: 'What does Chen have?', line: 0, answer: C('a chick'), wrong: [C('a duck'), C('a fish')] },
-      { q: 'What did the chick peck at?', line: 2, answer: C('the dish'), wrong: [C('the bell'), C('the shell')] },
-    ],
-  },
-  {
-    id: 'duck-path', title: 'Duck on the Path', emoji: '🦆', pattern: 'digraphs',
-    lines: [
-      { text: 'A duck is on the path.' },
-      { text: 'The duck can get a bug.' },
-      { text: 'Then the duck sits in the shed.' },
-      { text: 'The duck naps in the shed.' },
-    ],
-    questions: [
-      { q: 'What did the duck get?', line: 1, answer: C('a bug'), wrong: [C('a fish'), C('a chip')] },
-      { q: 'Where did the duck sit?', line: 2, answer: C('in the shed'), wrong: [C('on a ship'), C('in the bath')] },
-    ],
-  },
-
-  // ---------- Blends ----------
-  {
-    id: 'frog-pond', title: 'The Frog in the Pond', emoji: '🐸', pattern: 'blends',
-    lines: [
-      { text: 'A frog sits on a log in the pond.' },
-      { text: 'The frog can jump and swim.' },
-      { text: 'The frog spots a bug.' },
-      { text: 'Snap! The frog gets the bug.' },
-      { text: 'The frog is glad.' },
-    ],
-    questions: [
-      { q: 'Where is the frog?', line: 0, answer: C('on a log'), wrong: [C('in a tree'), C('on a bus')] },
-      { q: 'What did the frog get?', line: 3, answer: C('a bug'), wrong: [C('a fish'), C('an egg')] },
-    ],
-  },
-  {
-    id: 'dev-drum', title: 'Dev and the Drum', emoji: '🥁', pattern: 'blends',
-    lines: [
-      { text: 'Dev has a drum.' },
-      { text: 'Dev hits the drum. Bam! Bam!' },
-      { text: 'His dad has a big brass bell.' },
-      { text: 'Dev and his dad clap and sing.' },
-      { text: 'The band is the best!' },
-    ],
-    questions: [
-      { q: 'What does Dev have?', line: 0, answer: C('a drum'), wrong: [C('a bell'), C('a flag')] },
-      { q: 'What does Dad have?', line: 2, answer: C('a bell'), wrong: [C('a drum'), C('a cup')] },
-    ],
-  },
-
-  // ---------- Magic e ----------
-  {
-    id: 'kate-kite', title: 'Kate and the Kite', emoji: '🪁', pattern: 'silentE',
-    lines: [
-      { text: 'Kate has a kite.' },
-      { text: 'The kite is red and white.' },
-      { text: 'Kate runs up the hill.' },
-      { text: 'The wind takes the kite up, up, up!' },
-      { text: 'Kate smiles.' },
-    ],
-    questions: [
-      { q: 'What does Kate have?', line: 0, answer: C('a kite'), wrong: [C('a bike'), C('a cake')] },
-      { q: 'Where did Kate run?', line: 2, answer: C('up the hill'), wrong: [C('to the lake'), C('to the shop')] },
-    ],
-  },
-  {
-    id: 'mike-bike', title: 'A Bike Ride', emoji: '🚲', pattern: 'silentE',
-    lines: [
-      { text: 'Mike has a red bike.' },
-      { text: 'Mike rides his bike to the lake.' },
-      { text: 'At the lake, Mike spots a duck.' },
-      { text: 'Mike has a bit of cake.' },
-      { text: 'The duck wants a bite of the cake!' },
-    ],
-    questions: [
-      { q: 'Where did Mike ride?', line: 1, answer: C('to the lake'), wrong: [C('to the shop'), C('up the hill')] },
-      { q: 'What does the duck want?', line: 4, answer: C('cake'), wrong: [C('a bug'), C('a bike')] },
-    ],
-  },
-
-  // ---------- Vowel teams (ee ai oa) ----------
-  {
-    id: 'goat-rain', title: 'The Goat in the Rain', emoji: '🐐', pattern: 'vowelTeams',
-    lines: [
-      { text: 'A goat is in the rain.' },
-      { text: 'The goat is wet. It wants a coat.' },
-      { text: 'Jai gets the goat a coat.' },
-      { text: 'The goat is not wet. It feels snug.' },
-    ],
-    questions: [
-      { q: 'What was the goat in?', line: 0, answer: C('the rain'), wrong: [C('the sun'), C('the mud')] },
-      { q: 'What did Jai get for the goat?', line: 2, answer: C('a coat'), wrong: [C('a hat'), C('a boat')] },
-    ],
-  },
-  {
-    id: 'neel-boat', title: 'Sail the Boat', emoji: '⛵', pattern: 'vowelTeams',
-    lines: [
-      { text: 'Neel and his dad sail in a boat.' },
-      { text: 'The boat floats on the lake.' },
-      { text: 'Neel can see a big fish.' },
-      { text: 'Then the rain comes. Neel and Dad sail back.' },
-    ],
-    questions: [
-      { q: 'Who is in the boat with Neel?', line: 0, answer: C('Dad'), wrong: [C('Mom'), C('a goat')] },
-      { q: 'What did Neel see?', line: 2, answer: C('a big fish'), wrong: [C('a frog'), C('a ship')] },
-    ],
-  },
-  // ---------- More stories (C1, 2026-11-12) ----------
-  // ---------- CVC ----------
-  {
-    id: 'ved-jam', title: 'Ved and the Jam', emoji: '🍯', pattern: 'cvc',
+    id: 'ved-jam', title: 'Ved and the Jam', emoji: '🍞', pattern: 'cvc',
     lines: [
       { text: 'Ved has a bun.' },
       { text: 'Mom got jam.' },
       { text: 'Ved put jam on the bun.' },
       { text: 'A big bug sat on the jam!' },
-      { text: 'Ved and the bug had the bun.' },
+      { text: 'Ved had the bun. The bug had the jam!' },
     ],
     questions: [
       { q: 'What did Mom get?', line: 1, answer: C('jam'), wrong: [C('a cup'), C('a hat')] },
@@ -255,12 +124,12 @@ export const STORIES: Story[] = [
       { text: 'Kim has a hen.' },
       { text: 'The hen is red.' },
       { text: 'Kim fed the hen.' },
-      { text: 'The hen ran to Kim.' },
-      { text: 'Kim and the hen nap in the sun.' },
+      { text: 'The hen hops on the bus.' },
+      { text: 'Kim ran and ran. The hen had a nap!' },
     ],
     questions: [
       { q: 'What colour is the hen?', line: 1, answer: C('red'), wrong: [C('blue'), C('green')] },
-      { q: 'Where do Kim and the hen nap?', line: 4, answer: C('in the sun'), wrong: [C('in the mud'), C('on a bus')] },
+      { q: 'Where does the hen hop?', line: 3, answer: C('on the bus'), wrong: [C('in the mud'), C('on a log')] },
     ],
   },
   {
@@ -270,7 +139,7 @@ export const STORIES: Story[] = [
       { text: 'Dev got in the van.' },
       { text: 'It is wet. The van is in mud!' },
       { text: 'Dev and Dad dig and dig.' },
-      { text: 'Yes! The van can go.' },
+      { text: 'The van can go. Dev and Dad are mud!' },
     ],
     questions: [
       { q: 'What colour is the van?', line: 0, answer: C('tan'), wrong: [C('red'), C('pink')] },
@@ -281,24 +150,24 @@ export const STORIES: Story[] = [
     id: 'pam-pig', title: 'Pam and the Pig', emoji: '🐷', pattern: 'cvc',
     lines: [
       { text: 'Pam has a pet pig.' },
-      { text: 'The pig can sit.' },
       { text: 'Pam got a big tub.' },
       { text: 'The pig hid in the tub!' },
-      { text: 'Pam had to hug the pig.' },
+      { text: 'Pam got the pig a cup.' },
+      { text: 'The pig sits in the tub and sips pop!' },
     ],
     questions: [
       { q: 'What pet does Pam have?', line: 0, answer: C('a pig'), wrong: [C('a cat'), C('a dog')] },
-      { q: 'Where did the pig hide?', line: 3, answer: C('in the tub'), wrong: [C('in a box'), C('in the van')] },
+      { q: 'Where did the pig hide?', line: 2, answer: C('in the tub'), wrong: [C('in a box'), C('in the van')] },
     ],
   },
   {
-    id: 'ram-rug', title: 'The Big Rug', emoji: '🟥', pattern: 'cvc',
+    id: 'ram-rug', title: 'The Big Rug', emoji: '🧶', pattern: 'cvc',
     lines: [
       { text: 'Ram has a big rug.' },
       { text: 'Mom said, Sit on the rug.' },
       { text: 'Ram and his cat sit.' },
-      { text: 'The cat got a nap.' },
-      { text: 'Ram got a nap.' },
+      { text: 'Zip, zip! The rug zips up and off!' },
+      { text: 'Mom said, Ram, the rug is not a jet!' },
     ],
     questions: [
       { q: 'Who sat with Ram?', line: 2, answer: C('his cat'), wrong: [C('his dog'), C('a hen')] },
@@ -311,15 +180,86 @@ export const STORIES: Story[] = [
       { text: 'Jen had a cup of pop.' },
       { text: 'Bam! The pop is on the mat.' },
       { text: 'Jen got a mop.' },
-      { text: 'Jen can mop and mop.' },
-      { text: 'Mom said, Jen is the top kid!' },
+      { text: 'The dog got the pop. Lap, lap!' },
+      { text: 'Jen said, Dog, you are a mop!' },
     ],
     questions: [
       { q: 'What did Jen have?', line: 0, answer: C('a cup of pop'), wrong: [C('a bun'), C('a hat')] },
       { q: 'What did Jen get?', line: 2, answer: C('a mop'), wrong: [C('a pen'), C('a box')] },
     ],
   },
-  // ---------- Digraphs ----------
+  {
+    id: 'gus-wig', title: 'Gus and the Wig', emoji: '🐕', pattern: 'cvc',
+    lines: [
+      { text: 'Gus has a big red wig.' },
+      { text: 'Gus put the wig on his dog.' },
+      { text: 'The dog ran to the bus.' },
+      { text: 'The kids on the bus sat up.' },
+      { text: 'Is that a dog in a wig? Yes!' },
+    ],
+    questions: [
+      { q: 'What colour is the wig?', line: 0, answer: C('red'), wrong: [C('blue'), C('green')] },
+      { q: 'Where did the dog run?', line: 2, answer: C('to the bus'), wrong: [C('to the bed'), C('to the van')] },
+    ],
+  },
+  {
+    id: 'pip-yak', title: 'Pip the Yak', emoji: '🐂', pattern: 'cvc',
+    lines: [
+      { text: 'Pip is a big yak.' },
+      { text: 'Pip got a pot and a lid.' },
+      { text: 'Bam! Bam! Pip hit the pot.' },
+      { text: 'The kids ran to see.' },
+      { text: 'The kids sat. The yak did a jig!' },
+    ],
+    questions: [
+      { q: 'What did Pip get?', line: 1, answer: C('a pot and a lid'), wrong: [C('a cup'), C('a mop')] },
+      { q: 'What did the yak do?', line: 4, answer: C('a jig'), wrong: [C('a nap'), C('a hop')] },
+    ],
+  },
+
+  // ---------- Digraphs (sh ch th ck, ll ss ff) ----------
+  {
+    id: 'josh-ship', title: 'The Big Ship', emoji: '🚢', pattern: 'digraphs',
+    lines: [
+      { text: 'Josh is on a ship.' },
+      { text: 'Josh can see a fish.' },
+      { text: 'The fish has a red fin.' },
+      { text: 'Josh gets a shell.' },
+      { text: 'The shell can sing! Ding, dong, ding!' },
+    ],
+    questions: [
+      { q: 'Where is Josh?', line: 0, answer: C('on a ship'), wrong: [C('on a bus'), C('in a shop')] },
+      { q: 'What did Josh get?', line: 3, answer: C('a shell'), wrong: [C('a fish'), C('a rock')] },
+    ],
+  },
+  {
+    id: 'chen-chick', title: 'Chen and the Chick', emoji: '🐥', pattern: 'digraphs',
+    lines: [
+      { text: 'Chen has a chick.' },
+      { text: 'The chick can peck.' },
+      { text: 'The chick pecks at the dish.' },
+      { text: 'Chen fills the dish.' },
+      { text: 'Peck! The chick pecks Chen on the chin!' },
+    ],
+    questions: [
+      { q: 'What does Chen have?', line: 0, answer: C('a chick'), wrong: [C('a duck'), C('a fish')] },
+      { q: 'What did the chick peck at?', line: 2, answer: C('the dish'), wrong: [C('the bell'), C('the shell')] },
+    ],
+  },
+  {
+    id: 'duck-path', title: 'Duck on the Path', emoji: '🦆', pattern: 'digraphs',
+    lines: [
+      { text: 'A duck is on the path.' },
+      { text: 'The duck can get a bug.' },
+      { text: 'Then the duck sits in the shed.' },
+      { text: 'Then Dad gets in the shed.' },
+      { text: 'The duck yells, Dad! This is my shed!' },
+    ],
+    questions: [
+      { q: 'What did the duck get?', line: 1, answer: C('a bug'), wrong: [C('a fish'), C('a chip')] },
+      { q: 'Where did the duck sit?', line: 2, answer: C('in the shed'), wrong: [C('on a ship'), C('in the bath')] },
+    ],
+  },
   {
     id: 'ash-ball', title: 'Ash Hits the Ball', emoji: '🏏', pattern: 'digraphs',
     lines: [
@@ -327,7 +267,7 @@ export const STORIES: Story[] = [
       { text: 'Dad will toss the ball.' },
       { text: 'Ash hit the ball. Whack!' },
       { text: 'The ball is up on the hill.' },
-      { text: 'Ash and Dad yell, Six!' },
+      { text: 'The dog gets the ball and yells, Six!' },
     ],
     questions: [
       { q: 'Who will toss the ball?', line: 1, answer: C('Dad'), wrong: [C('Mom'), C('a duck')] },
@@ -338,10 +278,10 @@ export const STORIES: Story[] = [
     id: 'beth-fish', title: 'Beth at the Fish Shop', emoji: '🐟', pattern: 'digraphs',
     lines: [
       { text: 'Beth and Mom go to the shop.' },
-      { text: 'The shop has fish.' },
+      { text: 'The shop has pet fish.' },
       { text: 'Beth can see a big red fish.' },
-      { text: 'Mom got the fish and a dish.' },
-      { text: 'Fish and chips! Yum!' },
+      { text: 'Mom got the fish in a dish.' },
+      { text: 'Then the fish sings in the bath!' },
     ],
     questions: [
       { q: 'Where did Beth and Mom go?', line: 0, answer: C('the shop'), wrong: [C('the bus'), C('the hill')] },
@@ -355,7 +295,7 @@ export const STORIES: Story[] = [
       { text: 'Where is the sock?' },
       { text: 'It is not in the shed.' },
       { text: 'Look! The pup has the sock.' },
-      { text: 'Chad and the pup tug and tug.' },
+      { text: 'Rip! Chad has a sock. The pup has one!' },
     ],
     questions: [
       { q: 'What colour is the sock?', line: 0, answer: C('red'), wrong: [C('blue'), C('green')] },
@@ -369,7 +309,7 @@ export const STORIES: Story[] = [
       { text: 'The ring fell in the well!' },
       { text: 'A duck sat on the well.' },
       { text: 'The duck got the ring.' },
-      { text: 'The king said, Thank you, Duck!' },
+      { text: 'The duck put on the ring. Yes, King Duck!' },
     ],
     questions: [
       { q: 'Where did the ring fall?', line: 1, answer: C('in the well'), wrong: [C('in the bath'), C('in the shop')] },
@@ -383,14 +323,71 @@ export const STORIES: Story[] = [
       { text: 'His pal Shan has six chips.' },
       { text: 'Seth will give Shan two.' },
       { text: 'Then the two pals sit and chat.' },
-      { text: 'Yum! Chips with a pal!' },
+      { text: 'Then a big duck gets all the chips!' },
     ],
     questions: [
       { q: 'How many chips does Seth have?', line: 0, answer: C('ten'), wrong: [C('six'), C('two')] },
       { q: 'What do the pals do?', line: 3, answer: C('sit and chat'), wrong: [C('run and jump'), C('nap')] },
     ],
   },
+  {
+    id: 'chip-nap', title: 'The Long Nap', emoji: '🐶', pattern: 'digraphs',
+    lines: [
+      { text: 'Chip the dog had a nap.' },
+      { text: 'It was a long, long nap.' },
+      { text: 'The cat rang a bell. Ding!' },
+      { text: 'Chip did not get up.' },
+      { text: 'Then Beth said, Chips! Up got Chip!' },
+    ],
+    questions: [
+      { q: 'What did the cat ring?', line: 2, answer: C('a bell'), wrong: [C('a bus'), C('a dish')] },
+      { q: 'What did Beth say?', line: 4, answer: C('Chips'), wrong: [C('Fish'), C('Ball')] },
+    ],
+  },
+  {
+    id: 'yak-bath', title: 'Bath for a Yak', emoji: '🛁', pattern: 'digraphs',
+    lines: [
+      { text: 'Ash has a pet yak.' },
+      { text: 'The yak has much mud on it.' },
+      { text: 'Ash gets the yak in the bath.' },
+      { text: 'Rub, rub, rub! The mud is off.' },
+      { text: 'Then the yak runs back in the mud!' },
+    ],
+    questions: [
+      { q: 'What pet does Ash have?', line: 0, answer: C('a yak'), wrong: [C('a fish'), C('a duck')] },
+      { q: 'Where does Ash put the yak?', line: 2, answer: C('in the bath'), wrong: [C('in the shed'), C('on a ship')] },
+    ],
+  },
+
   // ---------- Blends ----------
+  {
+    id: 'frog-pond', title: 'The Frog in the Pond', emoji: '🐸', pattern: 'blends',
+    lines: [
+      { text: 'A frog sits on a log in the pond.' },
+      { text: 'The frog can jump and swim.' },
+      { text: 'The frog spots a bug.' },
+      { text: 'Snap! The frog gets the bug.' },
+      { text: 'Yuck! The bug is a twig!' },
+    ],
+    questions: [
+      { q: 'Where is the frog?', line: 0, answer: C('on a log'), wrong: [C('in a tree'), C('on a bus')] },
+      { q: 'What was the bug, at the end?', line: 4, answer: C('a twig'), wrong: [C('a fish'), C('a drum')] },
+    ],
+  },
+  {
+    id: 'dev-drum', title: 'Dev and the Drum', emoji: '🥁', pattern: 'blends',
+    lines: [
+      { text: 'Dev has a drum.' },
+      { text: 'Dev hits the drum. Bam! Bam!' },
+      { text: 'His dad has a big brass bell.' },
+      { text: 'Dev and his dad clap and sing.' },
+      { text: 'The dog sings, Ruff! The band is a hit!' },
+    ],
+    questions: [
+      { q: 'What does Dev have?', line: 0, answer: C('a drum'), wrong: [C('a bell'), C('a flag')] },
+      { q: 'What does Dad have?', line: 2, answer: C('a bell'), wrong: [C('a drum'), C('a cup')] },
+    ],
+  },
   {
     id: 'fran-tent', title: 'The Camp Trip', emoji: '⛺', pattern: 'blends',
     lines: [
@@ -398,7 +395,7 @@ export const STORIES: Story[] = [
       { text: 'They set up a tent.' },
       { text: 'Fran had a plum and a snack.' },
       { text: 'At dusk, frogs sang.' },
-      { text: 'Fran slept in the tent.' },
+      { text: 'Then Dad sang. The frogs got up and left!' },
     ],
     questions: [
       { q: 'What did they set up?', line: 1, answer: C('a tent'), wrong: [C('a shop'), C('a swing')] },
@@ -412,11 +409,11 @@ export const STORIES: Story[] = [
       { text: 'Trish and Brad jump and splash.' },
       { text: 'Brad slips in the mud.' },
       { text: 'Trish helps him up.' },
-      { text: 'Then Mom gets them a hot drink.' },
+      { text: 'Splat! Mom slips in the mud and grins!' },
     ],
     questions: [
       { q: 'What do Trish and Brad do?', line: 1, answer: C('jump and splash'), wrong: [C('sit and nap'), C('run to the bus')] },
-      { q: 'Who slips in the mud?', line: 2, answer: C('Brad'), wrong: [C('Trish'), C('Mom')] },
+      { q: 'Who helps Brad up?', line: 3, answer: C('Trish'), wrong: [C('Mom'), C('Dad')] },
     ],
   },
   {
@@ -439,12 +436,12 @@ export const STORIES: Story[] = [
       { text: 'Fran is on the sand.' },
       { text: 'A crab runs past.' },
       { text: 'The crab can snap!' },
-      { text: 'Fran jumps back.' },
-      { text: 'The crab hid in the sand.' },
+      { text: 'The crab grabs a hat.' },
+      { text: 'The crab struts off in the hat!' },
     ],
     questions: [
       { q: 'What runs past Fran?', line: 1, answer: C('a crab'), wrong: [C('a frog'), C('a duck')] },
-      { q: 'Where did the crab hide?', line: 4, answer: C('in the sand'), wrong: [C('in a box'), C('in a cup')] },
+      { q: 'What did the crab grab?', line: 3, answer: C('a hat'), wrong: [C('a cup'), C('a drum')] },
     ],
   },
   {
@@ -454,7 +451,7 @@ export const STORIES: Story[] = [
       { text: 'Dev lit ten lamps.' },
       { text: 'Ten lamps glint. It is grand!' },
       { text: 'Dad brings a big box of snacks.' },
-      { text: 'Yum! Dev and Mom munch and munch.' },
+      { text: 'Dad lifts the lid. The cat has the snacks!' },
     ],
     questions: [
       { q: 'How many lamps did Dev light?', line: 1, answer: C('ten'), wrong: [C('two'), C('six')] },
@@ -468,14 +465,71 @@ export const STORIES: Story[] = [
       { text: 'Brad will swim.' },
       { text: 'Mom held his hand.' },
       { text: 'Brad kicks and kicks.' },
-      { text: 'Brad can swim! Mom claps.' },
+      { text: 'Splash! Mom is wet. Brad can swim!' },
     ],
     questions: [
       { q: 'Where did Brad and Mom go?', line: 0, answer: C('the pond'), wrong: [C('the shop'), C('the bus')] },
       { q: 'What did Mom hold?', line: 2, answer: C('his hand'), wrong: [C('his cap'), C('a drum')] },
     ],
   },
-  // ---------- Magic e ----------
+  {
+    id: 'pig-dress', title: 'Pig in a Pink Dress', emoji: '👗', pattern: 'blends',
+    lines: [
+      { text: 'Pig has a pink dress.' },
+      { text: 'Pig has a pink hat.' },
+      { text: 'Pig gets in the mud. Splat!' },
+      { text: 'The pink dress is mud!' },
+      { text: 'Pig grins. Mud is the best dress!' },
+    ],
+    questions: [
+      { q: 'What colour is the dress?', line: 0, answer: C('pink'), wrong: [C('red'), C('blue')] },
+      { q: 'Where does Pig get in?', line: 2, answer: C('in the mud'), wrong: [C('in the bath'), C('on the bus')] },
+    ],
+  },
+  {
+    id: 'stan-gift', title: 'The Big Gift', emoji: '🎁', pattern: 'blends',
+    lines: [
+      { text: 'Stan has a gift for Gran.' },
+      { text: 'It is in a big box.' },
+      { text: 'Gran lifts the lid.' },
+      { text: 'Pop! A frog jumps out!' },
+      { text: 'Gran grins and said, Can it sing?' },
+    ],
+    questions: [
+      { q: 'Who is the gift for?', line: 0, answer: C('Gran'), wrong: [C('Mom'), C('Dad')] },
+      { q: 'What jumps out?', line: 3, answer: C('a frog'), wrong: [C('a cat'), C('a duck')] },
+    ],
+  },
+
+  // ---------- Silent e ----------
+  {
+    id: 'kate-kite', title: 'Kate and the Kite', emoji: '🪁', pattern: 'silentE',
+    lines: [
+      { text: 'Kate has a kite.' },
+      { text: 'The kite is red and white.' },
+      { text: 'Kate runs up the hill.' },
+      { text: 'The wind takes the kite up, up, up!' },
+      { text: 'Look! A duck rides on the kite!' },
+    ],
+    questions: [
+      { q: 'What does Kate have?', line: 0, answer: C('a kite'), wrong: [C('a bike'), C('a cake')] },
+      { q: 'Where did Kate run?', line: 2, answer: C('up the hill'), wrong: [C('to the lake'), C('to the shop')] },
+    ],
+  },
+  {
+    id: 'mike-bike', title: 'A Bike Ride', emoji: '🚲', pattern: 'silentE',
+    lines: [
+      { text: 'Mike has a red bike.' },
+      { text: 'Mike rides his bike to the lake.' },
+      { text: 'At the lake, Mike spots a duck.' },
+      { text: 'Mike has a bit of cake.' },
+      { text: 'The duck takes the cake and rides off!' },
+    ],
+    questions: [
+      { q: 'Where did Mike ride?', line: 1, answer: C('to the lake'), wrong: [C('to the shop'), C('up the hill')] },
+      { q: 'What does the duck take?', line: 4, answer: C('the cake'), wrong: [C('a bug'), C('a kite')] },
+    ],
+  },
   {
     id: 'jane-cake', title: 'Jane Bakes a Cake', emoji: '🎂', pattern: 'silentE',
     lines: [
@@ -483,7 +537,7 @@ export const STORIES: Story[] = [
       { text: 'She has a pan and a plate.' },
       { text: 'Pete came to help.' },
       { text: 'The cake is huge!' },
-      { text: 'They ate it. Yum!' },
+      { text: 'It is as big as Pete!' },
     ],
     questions: [
       { q: 'What will Jane bake?', line: 0, answer: C('a cake'), wrong: [C('a bun'), C('a pie')] },
@@ -497,7 +551,7 @@ export const STORIES: Story[] = [
       { text: 'Rose and Kate skip in the lane.' },
       { text: 'Mike came and said, Can I?' },
       { text: 'Rose said, Yes! Hop in, Mike.' },
-      { text: 'Rose, Kate and Mike skip and smile.' },
+      { text: 'Mike skips and the rope wraps Mike up!' },
     ],
     questions: [
       { q: 'What does Rose have?', line: 0, answer: C('a rope'), wrong: [C('a kite'), C('a cake')] },
@@ -510,8 +564,8 @@ export const STORIES: Story[] = [
       { text: 'Pete made a ship from a tube.' },
       { text: 'Pete and Jane ride in space.' },
       { text: 'They wave at the big sun.' },
-      { text: 'Then they see a cute pup.' },
-      { text: 'Pete and Jane race home.' },
+      { text: 'Then they see a pup in a cape!' },
+      { text: 'The pup said, Can I ride home with you?' },
     ],
     questions: [
       { q: 'What did Pete make?', line: 0, answer: C('a ship'), wrong: [C('a cake'), C('a kite')] },
@@ -519,7 +573,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'kate-lime', title: 'Grapes and a Lime', emoji: '🍇', pattern: 'silentE',
+    id: 'kate-lime', title: 'Grapes and a Lime', emoji: '🍋', pattern: 'silentE',
     lines: [
       { text: 'Mom has grapes and a lime.' },
       { text: 'Kate likes grapes.' },
@@ -539,7 +593,7 @@ export const STORIES: Story[] = [
       { text: 'Pete hides in the shed.' },
       { text: 'Jane hides in a crate.' },
       { text: 'Mike looks and looks.' },
-      { text: 'Yes! Mike spots Jane in the crate.' },
+      { text: 'Mike spots Jane. Pete naps in the shed!' },
     ],
     questions: [
       { q: 'Where does Pete hide?', line: 1, answer: C('in the shed'), wrong: [C('in the crate'), C('on the bike')] },
@@ -553,14 +607,71 @@ export const STORIES: Story[] = [
       { text: 'The sun sets.' },
       { text: 'Mike and Rose ride home on bikes.' },
       { text: 'Mom has a plate of rice.' },
-      { text: 'Mike and Rose dine at nine.' },
+      { text: 'Mike, Rose and the cat dine at nine!' },
     ],
     questions: [
       { q: 'How do Mike and Rose get home?', line: 2, answer: C('on bikes'), wrong: [C('on a bus'), C('in a van')] },
       { q: 'What is on the plate?', line: 3, answer: C('rice'), wrong: [C('cake'), C('grapes')] },
     ],
   },
-  // ---------- ee / ai / oa ----------
+  {
+    id: 'snake-cake', title: 'The Snake and the Cake', emoji: '🐍', pattern: 'silentE',
+    lines: [
+      { text: 'Jake bakes a cake.' },
+      { text: 'He sets it on a plate.' },
+      { text: 'A snake slides up to the cake.' },
+      { text: 'The snake takes a bite.' },
+      { text: 'Then the snake has a cake shape!' },
+    ],
+    questions: [
+      { q: 'What does Jake bake?', line: 0, answer: C('a cake'), wrong: [C('a pie'), C('a bun')] },
+      { q: 'What slides up to the cake?', line: 2, answer: C('a snake'), wrong: [C('a duck'), C('a pup')] },
+    ],
+  },
+  {
+    id: 'mule-flute', title: 'Duke and the Flute', emoji: '🎵', pattern: 'silentE',
+    lines: [
+      { text: 'Duke the mule has a flute.' },
+      { text: 'Duke can make a tune.' },
+      { text: 'The tune is fine. The tune is cute.' },
+      { text: 'The pigs come to the gate.' },
+      { text: 'Five pigs hum the tune with Duke!' },
+    ],
+    questions: [
+      { q: 'What does Duke have?', line: 0, answer: C('a flute'), wrong: [C('a kite'), C('a bike')] },
+      { q: 'Who comes to the gate?', line: 3, answer: C('the pigs'), wrong: [C('the ducks'), C('the cats')] },
+    ],
+  },
+
+  // ---------- Vowel teams (ee ai oa) ----------
+  {
+    id: 'goat-rain', title: 'The Goat in the Rain', emoji: '🐐', pattern: 'vowelTeams',
+    lines: [
+      { text: 'A goat is in the rain.' },
+      { text: 'The goat is wet. It wants a coat.' },
+      { text: 'Jai gets the goat a coat.' },
+      { text: 'The goat is snug in the coat.' },
+      { text: 'The goat is not wet. Jai is wet!' },
+    ],
+    questions: [
+      { q: 'What was the goat in?', line: 0, answer: C('the rain'), wrong: [C('the sun'), C('the mud')] },
+      { q: 'What did Jai get for the goat?', line: 2, answer: C('a coat'), wrong: [C('a hat'), C('a boat')] },
+    ],
+  },
+  {
+    id: 'neel-boat', title: 'Sail the Boat', emoji: '⛵', pattern: 'vowelTeams',
+    lines: [
+      { text: 'Neel and his dad sail in a boat.' },
+      { text: 'The boat floats on the lake.' },
+      { text: 'Neel can see a big fish.' },
+      { text: 'The fish jumps in the boat!' },
+      { text: 'Then the fish sails the boat home!' },
+    ],
+    questions: [
+      { q: 'Who is in the boat with Neel?', line: 0, answer: C('Dad'), wrong: [C('Mom'), C('a goat')] },
+      { q: 'What did Neel see?', line: 2, answer: C('a big fish'), wrong: [C('a frog'), C('a ship')] },
+    ],
+  },
   {
     id: 'jai-train', title: 'Jai and the Train', emoji: '🚆', pattern: 'vowelTeams',
     lines: [
@@ -568,11 +679,11 @@ export const STORIES: Story[] = [
       { text: 'The train is late.' },
       { text: 'It rains and rains.' },
       { text: 'Then the train is here!' },
-      { text: 'Jai sits and waves.' },
+      { text: 'A goat steps off the train and waves!' },
     ],
     questions: [
       { q: 'What are Jai and Mom waiting for?', line: 0, answer: C('the train'), wrong: [C('the bus'), C('a boat')] },
-      { q: 'What does Jai do on the train?', line: 4, answer: C('waves'), wrong: [C('naps'), C('jumps')] },
+      { q: 'Who steps off the train?', line: 4, answer: C('a goat'), wrong: [C('a cat'), C('a pig')] },
     ],
   },
   {
@@ -581,8 +692,8 @@ export const STORIES: Story[] = [
       { text: 'Neel has a green tree.' },
       { text: 'A bee sits on the tree.' },
       { text: 'Neel sees three seeds.' },
-      { text: 'He plants the seeds.' },
-      { text: 'In one week, a green sprig!' },
+      { text: 'He plants the seeds in the bath.' },
+      { text: 'In one week, a tree is in the bath!' },
     ],
     questions: [
       { q: 'What sits on the tree?', line: 1, answer: C('a bee'), wrong: [C('a goat'), C('a cat')] },
@@ -594,9 +705,9 @@ export const STORIES: Story[] = [
     lines: [
       { text: 'Gail has a pet snail.' },
       { text: 'The snail sits on a pail.' },
-      { text: 'Gail paints the pail.' },
-      { text: 'The snail waits and waits.' },
-      { text: 'Then the snail slides off the pail.' },
+      { text: 'Gail paints the pail green.' },
+      { text: 'The snail slides off the pail.' },
+      { text: 'Look! The snail is green!' },
     ],
     questions: [
       { q: 'What pet does Gail have?', line: 0, answer: C('a snail'), wrong: [C('a goat'), C('a frog')] },
@@ -609,8 +720,8 @@ export const STORIES: Story[] = [
       { text: 'Neel wakes up.' },
       { text: 'He makes toast for Dad.' },
       { text: 'He puts jam on the toast.' },
-      { text: 'Dad sees the toast.' },
-      { text: 'Dad and Neel munch. Sweet!' },
+      { text: 'Then ten bees see the jam.' },
+      { text: 'Dad and ten bees munch. Sweet!' },
     ],
     questions: [
       { q: 'What does Neel make?', line: 1, answer: C('toast'), wrong: [C('tea'), C('soup')] },
@@ -624,7 +735,7 @@ export const STORIES: Story[] = [
       { text: 'He and Mom go on the road.' },
       { text: 'It rains! Drip, drop!' },
       { text: 'Jai keeps snug in his coat.' },
-      { text: 'Mom gets wet. Jai gives Mom the coat!' },
+      { text: 'Mom hops in the coat with Jai!' },
     ],
     questions: [
       { q: 'What colour is the coat?', line: 0, answer: C('red'), wrong: [C('green'), C('blue')] },
@@ -637,12 +748,40 @@ export const STORIES: Story[] = [
       { text: 'Gail and Neel feed the sheep.' },
       { text: 'The sheep need oats.' },
       { text: 'Neel fills a pail with oats.' },
-      { text: 'One sheep jumps and runs.' },
-      { text: 'Gail and Neel chase the sheep!' },
+      { text: 'One sheep jumps in the pail!' },
+      { text: 'Then the sheep sleeps in the pail!' },
     ],
     questions: [
       { q: 'What do the sheep need?', line: 1, answer: C('oats'), wrong: [C('cake'), C('fish')] },
       { q: 'What does Neel fill?', line: 2, answer: C('a pail'), wrong: [C('a boat'), C('a cup')] },
+    ],
+  },
+  {
+    id: 'toad-boat', title: 'Toad on a Boat', emoji: '🐸', pattern: 'vowelTeams',
+    lines: [
+      { text: 'A toad gets on a boat.' },
+      { text: 'The toad has a coat and a pail.' },
+      { text: 'Rain! The toad sails and sails.' },
+      { text: 'A goat swims up to the boat.' },
+      { text: 'The goat said, Help! I can not float!' },
+    ],
+    questions: [
+      { q: 'What does the toad get on?', line: 0, answer: C('a boat'), wrong: [C('a train'), C('a bus')] },
+      { q: 'Who swims up to the boat?', line: 3, answer: C('a goat'), wrong: [C('a sheep'), C('a fish')] },
+    ],
+  },
+  {
+    id: 'dee-sheep', title: 'Dee Can Not Sleep', emoji: '🐑', pattern: 'vowelTeams',
+    lines: [
+      { text: 'Dee the sheep can not sleep.' },
+      { text: 'She sees goats jump a gate.' },
+      { text: 'One goat, two goats, three goats.' },
+      { text: 'Then the goats sleep on the grass.' },
+      { text: 'Dee is still up! Sleep, Dee!' },
+    ],
+    questions: [
+      { q: 'What does Dee see?', line: 1, answer: C('goats'), wrong: [C('pigs'), C('cats')] },
+      { q: 'Where do the goats sleep?', line: 3, answer: C('on the grass'), wrong: [C('in a boat'), C('on a train')] },
     ],
   },
 ];

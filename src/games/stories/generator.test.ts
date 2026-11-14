@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { STORIES, PATTERNS } from '../../content/stories';
+import { blockedWords } from '../../content/kidSafe';
 import {
   undecodable,
   wordPattern,
@@ -45,6 +46,21 @@ describe('story content (#19)', () => {
   it('content breadth: at least 6 stories per pattern, titles unique', () => {
     for (const p of PATTERNS) expect([p, STORIES.filter((s) => s.pattern === p).length >= 6]).toEqual([p, true]);
     expect(new Set(STORIES.map((s) => s.title)).size).toBe(STORIES.length);
+  });
+  it('silly stories (C3): every last line is a punchline ending in ! or ?, ≥ 50 stories', () => {
+    expect(STORIES.length).toBeGreaterThanOrEqual(50);
+    for (const s of STORIES) expect([s.id, /[!?]$/.test(s.lines[s.lines.length - 1].text.trim())]).toEqual([s.id, true]);
+  });
+  it('built-in stories pass the kid-safe word list', () => {
+    for (const s of STORIES) expect([s.id, blockedWords([s.title, ...s.lines.map((l) => l.text)].join(' '))]).toEqual([s.id, []]);
+  });
+  it('words only: no pictures in titles, lines or answer choices', () => {
+    const pic = /\p{Extended_Pictographic}/u;
+    for (const s of STORIES) {
+      expect([s.id, pic.test(s.title)]).toEqual([s.id, false]);
+      for (const l of s.lines) expect([s.id, pic.test(l.text)]).toEqual([s.id, false]);
+      for (const q of s.questions) for (const c of [q.answer, ...q.wrong]) expect([s.id, pic.test(c.text), 'picture' in c]).toEqual([s.id, false, false]);
+    }
   });
   it('stories are short (≤ 5 lines, ≤ 9 words a line)', () => {
     for (const s of STORIES) {

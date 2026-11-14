@@ -2,6 +2,13 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-14 — C3 silly stories
+- Rewrote 41 of the 43 built-in stories so each has a silly situation and a punchline last line (a pig gets off the bus "at the mud", the dog yells "Six!", a goat steps off the train). Kept "Glen Has a Plan" (box rocket → "Glen, lunch!") and "Grapes and a Lime" as they were already funny; small tweaks elsewhere. Story ids kept so saved "recent stories" still match.
+- Added 10 new stories, 2 per pattern (Gus and the Wig, Pip the Yak, The Long Nap, Bath for a Yak, Pig in a Pink Dress, The Big Gift, The Snake and the Cake, Duke and the Flute, Toad on a Boat, Dee Can Not Sleep): 53 total, 10–13 per pattern.
+- Where a new punchline made an old question ambiguous (e.g. Mom now also slips in the mud), the question was changed rather than the joke.
+- The decodability rules make many funny words off-limits ("no", "me", "oops", "quack", apostrophes like "Raj's"), so jokes lean on situations and on decodable sounds (Bam, Ding, Splat, Yuck, Ruff).
+- Added tests: last line ends in "!" or "?", ≥ 50 stories, no pictures in titles/lines/choices, built-in stories pass the kid-safe word list.
+
 ## 2026-11-14 — Story answers: words only (Ankit request, interactive session)
 - Ankit chose to remove the pictures from Story Choose answer choices too (257 choices). Answers are now words only; on level 1 the choices are still read aloud, so pre-readers answer by listening. This supersedes the "kept pictures on the answer choices" point below.
 - Only Stories changed. Other reading games keep pictures where the picture is the task or a level-1 clue: Word Detective "Read it" (read the word, tap the picture), Phonics Pop, Word Builder and finish-the-sentence clues.
