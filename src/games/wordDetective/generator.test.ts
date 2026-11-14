@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { NEAR_TILE, splitGraphemes, makeReadItem, makeBuildItem, makeWordItem, makeMagicItem, makeSentenceItem, fillSentence, wrongSlots, PICTURE_TRACKS, MAGIC_E_LEVEL } from './generator';
+import { NEAR_TILE, splitGraphemes, makeReadItem, makeBuildItem, makeWordItem, makeMagicItem, makeSentenceItem, fillSentence, wrongSlots, PICTURE_TRACKS, MAGIC_E_LEVEL, EASY_SENTENCE_PATTERN } from './generator';
+import { wordPattern, isSightWord, tokenizeWords } from '../stories/generator';
+import { PATTERNS } from '../../content/stories';
+import { blockedWords } from '../../content/kidSafe';
 import { WORDS, MAGIC_E, SENTENCES } from '../../content/words';
 
 describe('splitGraphemes', () => {
@@ -153,5 +156,42 @@ describe('finish the sentence (#16)', () => {
   it('avoid skips the previous sentence; the sentences track always makes sentence items', () => {
     for (let k = 0; k < 50; k++) expect(makeSentenceItem(0, Math.random, false, 'mud').word).not.toBe('mud');
     for (let i = 0; i < 4; i++) expect(makeWordItem('sentences', 0, i).kind).toBe('sentence');
+  });
+});
+
+describe('finish the sentence: C2 bank', () => {
+  const wordsOf = (s: (typeof SENTENCES)[number]) => [...tokenizeWords(s.text.replace('_', ' ')), s.answer, ...s.near];
+  it('has about three times the original 13 sentences, spread over every pattern', () => {
+    expect(SENTENCES.length).toBeGreaterThanOrEqual(39);
+    for (const p of PATTERNS) expect(SENTENCES.filter((s) => s.pattern === p).length).toBeGreaterThanOrEqual(4);
+    expect(new Set(SENTENCES.map((s) => s.text)).size).toBe(SENTENCES.length);
+  });
+  it('every word (sentence, answer, look-alikes) is a tricky word or decodable at the sentence level', () => {
+    for (const s of SENTENCES) {
+      const cap = PATTERNS.indexOf(s.pattern);
+      const bad = wordsOf(s).filter((w) => !isSightWord(w) && !(wordPattern(w) >= 0 && wordPattern(w) <= cap));
+      expect(bad, s.text).toEqual([]);
+    }
+  });
+  it('the declared pattern is the hardest one used (not over-labelled)', () => {
+    for (const s of SENTENCES) {
+      const hardest = Math.max(...wordsOf(s).filter((w) => !isSightWord(w)).map(wordPattern));
+      expect(PATTERNS[hardest], s.text).toBe(s.pattern);
+    }
+  });
+  it('answers are decodable words, not tricky words; everything is kid-safe', () => {
+    for (const s of SENTENCES) {
+      expect(wordPattern(s.answer), s.answer).toBeGreaterThanOrEqual(0);
+      expect(blockedWords(wordsOf(s).join(' ')), s.text).toEqual([]);
+      expect(s.emoji).toBeTruthy();
+    }
+  });
+  it('easing only uses short-vowel / blend sentences', () => {
+    for (let k = 0; k < 300; k++) {
+      const it = makeSentenceItem(1, Math.random, true);
+      const s = SENTENCES.find((x) => x.answer === it.word)!;
+      expect(PATTERNS.indexOf(s.pattern)).toBeLessThanOrEqual(EASY_SENTENCE_PATTERN);
+    }
+    expect(SENTENCES.filter((s) => PATTERNS.indexOf(s.pattern) <= EASY_SENTENCE_PATTERN).length).toBeGreaterThanOrEqual(15);
   });
 });

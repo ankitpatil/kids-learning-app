@@ -1,7 +1,10 @@
 // Story sums (backlog #20): spoken one-step word problems → pick the answer, pick the equation,
 // or build it (pick + / −, then the answer). Story kinds follow Common Core 1.OA.1 / NCERT Class 1–2:
 // add to (result unknown), take from (result unknown), put together (total unknown).
-import { PEOPLE, THINGS, noun, type Person, type Thing } from '../../content/wordProblems';
+import {
+  PEOPLE, THINGS, noun, settingsFor, START, START_COMES, ADD_TO, ADD_TO_COMES, ADD_TO_Q, ADD_TO_COMES_Q,
+  TAKE_FROM, TAKE_FROM_Q, TAKE_FROM_HAVE_Q, PUT_TOGETHER, PUT_TOGETHER_Q, type Person, type Thing, type Setting,
+} from '../../content/wordProblems';
 import { getLevel, maxLevel } from '../../engine/tracks';
 import { numberWord } from '../../engine/numberWords';
 import type { Rng } from '../feedMonster/generator';
@@ -28,6 +31,8 @@ export interface WordProblem {
   /** Second person (friend who gives, or the other child in put-together stories). */
   other: Person;
   thing: Thing;
+  /** Scene opening, if any. */
+  setting?: Setting;
   /** Story lines shown on screen (digits). */
   lines: string[];
   question: string;
@@ -87,22 +92,44 @@ export function numbersFor(kind: Kind, range: number, rng: Rng): { a: number; b:
   return { a, b };
 }
 
-/** Story text with a number formatter, so the same story can be shown (digits) and spoken (words). */
-export function storyText(kind: Kind, a: number, b: number, p: Person, o: Person, t: Thing, variant: number, N: (n: number) => string): { lines: string[]; question: string } {
-  const has = (who: Person, n: number) => `${who.name} has ${N(n)} ${noun(t, n)}.`;
+/** Fill a story frame (see content/wordProblems.ts for the placeholders). */
+export function fillFrame(frame: string, a: number, b: number, p: Person, o: Person, t: Thing, N: (n: number) => string): string {
+  const his = p.he === 'he' ? 'his' : 'her';
+  const vals: Record<string, string> = {
+    P: p.name, O: o.name, he: p.he, He: cap(p.he), him: p.him, his, His: cap(his),
+    a: N(a), b: N(b), A: `${N(a)} ${noun(t, a)}`, B: `${N(b)} ${noun(t, b)}`, bn: noun(t, b),
+    many: t.many, place: t.place ?? '',
+  };
+  return frame
+    .replace(/\{([ab])\?([^|}]*)\|([^}]*)\}/g, (_, k: string, one: string, more: string) => ((k === 'a' ? a : b) === 1 ? one : more))
+    .replace(/\{(\w+)\}/g, (m, k: string) => vals[k] ?? m);
+}
+
+const at = <T,>(arr: readonly T[], i: number) => arr[i % arr.length];
+
+/**
+ * Story text with a number formatter, so the same story can be shown (digits) and spoken (words).
+ * `variant` picks the frames (0 = the classic wording); `setting` adds a scene opening.
+ */
+export function storyText(kind: Kind, a: number, b: number, p: Person, o: Person, t: Thing, variant: number, N: (n: number) => string, setting?: Setting): { lines: string[]; question: string } {
+  const f = (frame: string) => fillFrame(frame, a, b, p, o, t, N);
+  const scene = (line: string) => (setting ? `${setting.at}, ${line}` : line);
+  const pickQ = (qs: string[], n: number) => f(at(qs, Math.floor(variant / n)));
   if (kind === 'putTogether') {
-    return { lines: [has(p, a), has(o, b)], question: `How many ${t.many} do they have in all?` };
+    const [l1, l2] = at(PUT_TOGETHER, variant);
+    return { lines: [scene(f(l1)), f(l2)], question: pickQ(PUT_TOGETHER_Q, PUT_TOGETHER.length) };
   }
-  const start = t.comes ? `${p.name} sees ${N(a)} ${noun(t, a)} in a tree.` : has(p, a);
+  const starts = t.comes ? START_COMES : START;
+  const sIdx = Math.floor(variant / 7);
+  const start = t.comes ? f(at(starts, sIdx)) : scene(f(at(starts, sIdx)));
   if (kind === 'addTo') {
-    if (t.comes) return { lines: [start, `${N(b)} more ${noun(t, b)} ${b === 1 ? 'comes' : 'come'}.`], question: `How many ${t.many} are there now?` };
-    const more = [`${cap(p.he)} gets ${N(b)} more.`, `${o.name} gives ${p.him} ${N(b)} more.`, `${cap(p.he)} finds ${N(b)} more.`][variant % 3];
-    return { lines: [start, more], question: `How many ${t.many} does ${p.name} have now?` };
+    const frames = t.comes ? ADD_TO_COMES : ADD_TO;
+    return { lines: [start, f(at(frames, variant))], question: pickQ(t.comes ? ADD_TO_COMES_Q : ADD_TO_Q, frames.length) };
   }
   // takeFrom
-  if (t.leave === 'eat') return { lines: [start, `${cap(p.he)} eats ${N(b)}.`], question: `How many ${t.many} are left?` };
-  if (t.leave === 'fly') return { lines: [start, `${N(b)} ${noun(t, b)} ${b === 1 ? 'flies' : 'fly'} away.`], question: `How many ${t.many} are left?` };
-  return { lines: [start, `${cap(p.he)} gives ${N(b)} to ${o.name}.`], question: `How many ${t.many} does ${p.name} have now?` };
+  const frames = TAKE_FROM[t.leave];
+  const qs = t.leave === 'give' ? TAKE_FROM_HAVE_Q : TAKE_FROM_Q;
+  return { lines: [start, f(at(frames, variant))], question: pickQ(qs, frames.length) };
 }
 
 /** The result of using the wrong operation (the most telling mistake), or null if it isn't a valid count. */
@@ -160,14 +187,17 @@ export function makeWordProblem(level: number, rng: Rng = Math.random, ease = fa
     const { a, b } = numbersFor(kind, range, rng);
     const op = opOf(kind);
     const answer = solve({ a, op, b });
-    const variant = int(rng, 0, 2);
-    const shown = storyText(kind, a, b, person, other, thing, variant, String);
-    const spoken = storyText(kind, a, b, person, other, thing, variant, numberWord);
+    const variant = int(rng, 0, 999);
+    // About half the stories open with a scene that fits the thing ("At the market, …").
+    const places = settingsFor(thing);
+    const setting = places.length && rng() < 0.5 ? pick(places, rng) : undefined;
+    const shown = storyText(kind, a, b, person, other, thing, variant, String, setting);
+    const spoken = storyText(kind, a, b, person, other, thing, variant, numberWord, setting);
     const base = { a, b, op };
     const near = cfg.distractors === 'near' && !ease;
     it = {
       id: `wp-${kind}-${thing.one}-${a}-${b}`,
-      kind, a, b, op, answer, person, other, thing,
+      kind, a, b, op, answer, person, other, thing, setting,
       lines: shown.lines.map(cap),
       question: shown.question,
       spokenLines: spoken.lines.map(cap),

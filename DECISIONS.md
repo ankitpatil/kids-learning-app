@@ -2,6 +2,14 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-13 — C2: more word problems + sentences (scheduled run)
+- **Word problems are now templates as data** (`content/wordProblems.ts`): story frames with small placeholders (`{P}`, `{He}`, `{his}`, `{A}` = number + noun, `{b?comes|come}` for verb agreement), filled by `fillFrame` in the generator. The first frame of each list is the old wording, so variant 0 reads exactly as before.
+- **×3 growth**: names 14 → 44 (22 from across India, 22 US); things 15 → 54 (Indian everyday where an emoji exists: roti, momo 🥟, coconut, diya 🪔, lantern 🏮, parrot, peacock, monkey in the tree; no emoji for laddoo/samosa/idli, so left out — I1/I2 can add pictures later); story frames 8 → 37 (plus 6 opening lines); 11 scene openings ("At the mela, …", "On Diwali, …", "On the train, …") used on about half of the stories, matched to the thing's category so we never get "At the beach, … 5 diyas".
+- **Take-away verbs follow the thing**: eaten, given / lost / taken home, balls and toy cars roll away, balloons fly away or pop, animals fly / swim / hop / run away. Given-away stories ask "does X have now/left?", everything else asks "how many are left / there now?".
+- **Kept out on purpose**: "shares" (ambiguous — does she still have them?) and "takes … to play" (odd for diyas). Put-together stays two named people, so the existing "together means plus" hint still names both.
+- **Sentences 13 → 47**, each tagged with its hardest `pattern`; tests check every word in the sentence, answer and look-alikes decodes at that pattern (or is a Sight-Word Catch word) and the tag isn't higher than needed. Replaced two old look-alikes that weren't decodable (boot, soup → coat, soak).
+- **Easing in finish-the-sentence** now draws only CVC / digraph / blend sentences (no magic e or vowel teams), matching how Story Choose eases to the easiest pattern. Normal play still uses the whole bank.
+
 ## 2026-11-13 — AI2: personalized stories from Claude (scheduled run)
 - **Where**: a ✨📖 button next to ✅ while a story is on screen, shown only when `ai.isLive()` (helpers on, proxy + passcode set, online). Tapping it opens six big topic icons (🏏 🐾 🚀 🍎 👪 🪔, spoken prompt "What should your story be about?"); the new story replaces the current one, so a round is still 2 stories.
 - **Wait time — deviation from SPEC's ~2 s, please review**: generating a 4–5 line story with 2 questions takes a fast model a few seconds, so a 2 s cap would nearly always fall back. Story requests use 5 s per attempt and an 8 s total budget (no retry if < 1 s is left), with a wiggling ✏️ "writing" screen. The child asked for the story, so it is not a silent stall; every other live call keeps the 2 s default. Easy to change: `STORY_TIMEOUT_MS` / `STORY_BUDGET_MS` in `games/stories/aiStory.ts`.

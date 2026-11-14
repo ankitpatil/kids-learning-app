@@ -1,9 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import {
   makeWordProblem, modeAt, kindsAt, solve, eqText, eqSpoken, numbersFor, storyText, wrongOpResult,
-  answerChoices, equationChoices, hintFor, signHint, spokenStory, type Kind,
+  answerChoices, equationChoices, hintFor, signHint, spokenStory, fillFrame, type Kind,
 } from './generator';
-import { PEOPLE, THINGS } from '../../content/wordProblems';
+import { PEOPLE, THINGS, SETTINGS, ADD_TO, ADD_TO_COMES, TAKE_FROM, PUT_TOGETHER, settingsFor } from '../../content/wordProblems';
+import { blockedWords } from '../../content/kidSafe';
+import { numberWord } from '../../engine/numberWords';
 import { getTrack, pickTrack } from '../../engine/tracks';
 import { gameGroup, stretchOption } from '../../engine/roundMix';
 
@@ -162,5 +164,86 @@ describe('story sums: hints', () => {
       if (it.answer !== it.a && it.answer !== it.b) expect(h).not.toContain(` ${['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty'][it.answer]},`);
       expect(signHint(it)).toMatch(it.kind === 'takeFrom' ? /Minus/ : /plus/);
     }
+  });
+});
+
+describe('story sums: C2 content', () => {
+  it('has about three times the original names, things and story frames', () => {
+    expect(PEOPLE.length).toBeGreaterThanOrEqual(42);
+    expect(new Set(PEOPLE.map((p) => p.name)).size).toBe(PEOPLE.length);
+    expect(PEOPLE.filter((p) => p.region === 'in').length).toBeGreaterThanOrEqual(20);
+    expect(PEOPLE.filter((p) => p.region === 'us').length).toBeGreaterThanOrEqual(20);
+    expect(THINGS.length).toBeGreaterThanOrEqual(45);
+    expect(new Set(THINGS.map((t) => t.one)).size).toBe(THINGS.length);
+    const frames = ADD_TO.length + ADD_TO_COMES.length + Object.values(TAKE_FROM).flat().length + PUT_TOGETHER.length;
+    expect(frames).toBeGreaterThanOrEqual(24); // 8 originally
+    expect(SETTINGS.length).toBeGreaterThanOrEqual(8);
+  });
+  it('every thing has a picture; animals have a place; everything else has a category with a setting', () => {
+    for (const t of THINGS) {
+      expect(t.emoji).toBeTruthy();
+      if (t.comes) expect(t.place).toBeTruthy();
+      else expect(settingsFor(t).length).toBeGreaterThan(0);
+    }
+    for (const s of SETTINGS) expect(THINGS.filter((t) => settingsFor(t).includes(s)).length).toBeGreaterThanOrEqual(2);
+  });
+  it('every frame fills cleanly for every thing, with 1 and many', () => {
+    const p = PEOPLE[0], o = PEOPLE[1];
+    for (const t of THINGS) {
+      for (const kind of ['addTo', 'takeFrom', 'putTogether'] as Kind[]) {
+        if (kind === 'putTogether' && t.comes) continue;
+        for (let v = 0; v < 60; v++) {
+          for (const [a, b] of [[5, 1], [7, 3], [1, 1]]) {
+            if (kind === 'takeFrom' && b >= a) continue;
+            const { lines, question } = storyText(kind, a, b, p, o, t, v, String, v % 2 ? settingsFor(t)[0] : undefined);
+            const text = [...lines, question].join(' ');
+            expect(text).not.toMatch(/[{}|]/);
+            expect(text).not.toMatch(/\b1 (\w+ )?(\w+s|fish) (come|join|fly|swim|hop|run|roll|pop)\b/);
+            expect(text).not.toMatch(/\b([2-9]|1\d) (more )?\w+ (comes|joins|flies|swims|hops|runs|rolls|pops)\b/);
+            expect(blockedWords(text)).toEqual([]);
+            expect(lines[0]).toContain(String(a));
+            expect(lines[1]).toContain(String(b));
+          }
+        }
+      }
+    }
+  });
+  it('every generated equation is a true fact (story answer, equation choices, number choices)', () => {
+    const rng = seeded(77);
+    for (let level = 0; level <= 2; level++) {
+      for (let i = 0; i < 1500; i++) {
+        const it = makeWordProblem(level, rng, i % 7 === 0);
+        expect(it.answer).toBe(it.op === '+' ? it.a + it.b : it.a - it.b);
+        expect(it.answer).toBeGreaterThanOrEqual(1);
+        for (const e of it.equations) {
+          expect(e.result).toBe(e.op === '+' ? e.a + e.b : e.a - e.b);
+          expect(Math.min(e.a, e.b)).toBeGreaterThanOrEqual(1);
+          expect(e.result).toBeGreaterThanOrEqual(0);
+        }
+        if (it.setting) expect(it.lines[0].startsWith(it.setting.at + ', ')).toBe(true);
+        expect([...it.lines, it.question].join(' ')).not.toMatch(/[{}]/);
+      }
+    }
+  });
+  it('uses the variety: many frames, settings and things show up', () => {
+    const rng = seeded(4);
+    const seen = new Set<string>(), things = new Set<string>(), places = new Set<string>();
+    for (let i = 0; i < 3000; i++) {
+      const it = makeWordProblem(2, rng);
+      seen.add(it.lines[1].replace(/\d+/g, '#').replace(new RegExp(`\\b(${PEOPLE.map((p) => p.name).join('|')})\\b`, 'g'), 'X'));
+      things.add(it.thing.one);
+      if (it.setting) places.add(it.setting.at);
+    }
+    expect(things.size).toBe(THINGS.length);
+    expect(places.size).toBe(SETTINGS.length);
+    expect(seen.size).toBeGreaterThan(60);
+  });
+  it('fillFrame handles agreement and possessives', () => {
+    const riya = PEOPLE.find((p) => p.name === 'Riya')!, arjun = PEOPLE.find((p) => p.name === 'Arjun')!;
+    const fish = THINGS.find((t) => t.one === 'fish')!;
+    expect(fillFrame('There {a?is|are} {A} {place}.', 1, 1, riya, arjun, fish, String)).toBe('There is 1 fish in the pond.');
+    expect(fillFrame('{B} {b?swims|swim} away.', 4, 3, riya, arjun, fish, String)).toBe('3 fish swim away.');
+    expect(fillFrame('{His} dad gives {him} {b} more.', 4, 3, arjun, riya, fish, numberWord)).toBe('His dad gives him three more.');
+    expect(fillFrame('{His} mum gives {him} {b} more.', 4, 3, riya, arjun, fish, String)).toBe('Her mum gives her 3 more.');
   });
 });

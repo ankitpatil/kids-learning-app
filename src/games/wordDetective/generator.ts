@@ -1,4 +1,5 @@
 import { WORDS, MAGIC_E, SENTENCES, type PictureWord } from '../../content/words';
+import { PATTERNS } from '../../content/stories';
 import { getLevel } from '../../engine/tracks';
 import type { Rng } from '../feedMonster/generator';
 
@@ -168,10 +169,13 @@ export function makeMagicItem(rng: Rng = Math.random, ease = false, avoid?: stri
 
 /**
  * Finish the sentence: pick the word that fits. Level 0 = picture clue + 2 choices;
- * higher levels = no picture + 3 look-alike choices. Easing = picture + 2 choices.
+ * higher levels = no picture + 3 look-alike choices. Easing = picture + 2 choices, short-vowel / blend sentences only.
  */
+export const EASY_SENTENCE_PATTERN = PATTERNS.indexOf('blends');
+
 export function makeSentenceItem(level: number, rng: Rng = Math.random, ease = false, avoid?: string): SentenceItem {
-  const pool = SENTENCES.filter((x) => x.answer !== avoid);
+  // Easing keeps to sentences without magic e or vowel teams (C2).
+  const pool = SENTENCES.filter((x) => x.answer !== avoid && (!ease || PATTERNS.indexOf(x.pattern) <= EASY_SENTENCE_PATTERN));
   const s = pool[int(rng, 0, pool.length - 1)];
   const near = getLevel('sentences', level).distractors === 'near' && !ease;
   const decoys = shuffle(s.near, rng).slice(0, near ? 2 : 1);
