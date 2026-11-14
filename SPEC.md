@@ -39,6 +39,11 @@ Phonemic awareness → phonics → fluency → vocabulary → comprehension.
 Track mastery per sound/word (e.g. b/d confusion surfaces across games).
 Decodable stories only use unlocked sounds. Read-along word highlighting. Spaced review (1, 3, 7 days).
 
+## Stories (added 2026-11-14 by Ankit)
+- **Funny and silly first.** Every story (built-in, build-time or Claude-written) should make a 5-year-old giggle: animals doing people things (a pig on a bus, a cat in a hat), mix-ups, surprises, silly sounds and names, and a funny twist or punchline in the last line. Gentle humour only: never mean, scary or rude, and no laughing *at* a person. Decodability rules still apply, so the humour comes from the situation, not hard words.
+- **Text only in the story.** No pictures beside story lines or in the title, so a child can't match a picture to an answer and has to read (or listen) to answer. Pictures stay on the answer choices: at level 1 the choices are read aloud, and the child still has to understand the story to pick one.
+- Comprehension questions must be answerable from the text; the hint after a miss highlights the line that answers it.
+
 ## Target learner (updated 2026-11-08)
 Primary user already reads basic words and adds/subtracts (≈ US Grade 1 / CBSE Class 1–2). Family is moving to Pune, India: align with both US Common Core Grade 1–2 and NCERT *Joyful Mathematics* (Class 1–2). Use ₹ and Indian names/objects by default, with US variants available. Earlier levels stay for younger siblings.
 

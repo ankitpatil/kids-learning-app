@@ -316,7 +316,6 @@ button { font: inherit; cursor: pointer; touch-action: manipulation; }
 .story-title { margin: 0 0 8px; font-size: clamp(24px, 5vw, 36px); color: var(--primary); text-align: center; }
 .story-line { display: flex; align-items: center; gap: 14px; margin: 6px 0; padding: 6px 10px; border-radius: 18px; font-size: clamp(26px, 6vw, 44px); font-weight: 800; line-height: 1.35; transition: background .2s; }
 .story-line.lit { background: var(--soft); }
-.line-pic { font-size: 1.2em; flex: none; width: 1.4em; text-align: center; }
 .story-word { border-radius: 8px; cursor: pointer; }
 .story-word.hi { background: var(--primary); color: #fff; }
 .story-card.compact .story-line { font-size: clamp(20px, 4vw, 30px); margin: 2px 0; padding: 2px 8px; }

@@ -108,7 +108,7 @@ export function checkAiStory(raw: unknown, cap: number, topic: StoryTopic): Chec
     const text = cleanText(o.text, 80);
     if (!text) problems.push(`line-${i}`);
     else if (tokenizeWords(text).length > STORY_LIMITS.maxWordsPerLine) problems.push(`line-${i}-long`);
-    return { text: text ?? '', emoji: cleanEmoji(o.emoji, TOPIC_ICONS[topic]) };
+    return { text: text ?? '' }; // any picture Claude adds to a line is dropped: story lines are text only
   });
 
   const rawQs = Array.isArray(r.questions) ? r.questions : [];

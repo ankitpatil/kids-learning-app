@@ -76,13 +76,14 @@ export function buildMessages(req) {
     return {
       maxTokens: 900,
       user: [
-        `Write a short decodable story about ${req.topic} for a beginning reader (level ${req.level}).`,
+        `Write a short, funny, silly decodable story about ${req.topic} for a beginning reader (level ${req.level}).`,
+        'Make a 5-year-old giggle: something silly or surprising happens (a pig on a bus, a cat in a hat, a mix-up), with a funny twist in the last line. Kind, never mean or scary.',
         `Use ONLY these word types, plus very common sight words (the, a, is, to, of, said, was, he, she, we, my, you, I, and):`,
         allowed,
         `3 to ${req.maxLines} lines, each one sentence of at most ${req.maxWordsPerLine} words. Use simple names like Sam, Raj, Meg, Ved or Kim. Write numbers as words.`,
         'Add exactly 2 questions, each ending with "?". Each answer must be 1 to 3 words copied from the line it points to (0-based index). Give 2 different wrong choices per question.',
         'Every word in the lines is checked by a program; a story with any other word type is thrown away.',
-        'JSON shape: {"title": string, "lines": [{"text": string, "emoji": string}], "questions": [{"q": string, "line": number, "answer": {"text": string, "emoji": string}, "wrong": [{"text": string, "emoji": string}, {"text": string, "emoji": string}]}]}',
+        'JSON shape: {"title": string, "lines": [{"text": string}], "questions": [{"q": string, "line": number, "answer": {"text": string, "emoji": string}, "wrong": [{"text": string, "emoji": string}, {"text": string, "emoji": string}]}]}',
       ].join('\n'),
       wrap: (obj) => ({ story: obj }),
     };

@@ -294,7 +294,7 @@ export function StoryChoose({ profileId, onDone, onExit }: Props) {
 
       <div className={`story-card ${phase === 'question' ? 'compact' : ''}`}>
         <h2 className="story-title">
-          <span aria-hidden="true">{story.emoji}</span> {story.title}
+          {story.title}
         </h2>
         {story.lines.map((line, li) => {
           const toks = tokenize(line.text);
@@ -309,7 +309,6 @@ export function StoryChoose({ profileId, onDone, onExit }: Props) {
           const lit = hi?.line === li;
           return (
             <p key={li} className={`story-line ${lit ? 'lit' : ''}`}>
-              <span className="line-pic" aria-hidden="true">{line.emoji}</span>
               <span>
                 {parts.map((p, k) =>
                   typeof p === 'string' ? (

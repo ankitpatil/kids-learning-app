@@ -131,10 +131,12 @@ describe('checkAiStory', () => {
     expect(cleanEmoji('cat', '⭐')).toBe('⭐');
     expect(cleanEmoji('<img>', '⭐')).toBe('⭐');
     expect(cleanEmoji(42, '⭐')).toBe('⭐');
-    const s = clone();
-    s.lines[0].emoji = 'bat';
-    const r = checkAiStory(s, 0, 'cricket');
-    expect(r.ok && r.story.lines[0].emoji).toBe(TOPIC_ICONS.cricket);
+  });
+
+  it('drops any pictures Claude puts beside story lines (lines are text only, so pictures can’t give answers away)', () => {
+    const r = checkAiStory(GOOD, 0, 'cricket');
+    expect(r.ok).toBe(true);
+    if (r.ok) for (const l of r.story.lines) expect(Object.keys(l)).toEqual(['text']);
   });
 
   it('answerInLine matches whole words, ignoring case', () => {
@@ -271,6 +273,17 @@ describe('kid-safe word list', () => {
   it('catches plurals and endings but not innocent words that contain a blocked word', () => {
     expect(blockedWords('The guns. He died. Killing.')).toEqual(['guns', 'died', 'killing']);
     expect(blockedWords('Check the shell. Shut the van. Hit the ball.')).toEqual([]);
+  });
+
+  it('built-in story lines and titles are text only (no pictures to match against the answers)', () => {
+    const PICTO = /\p{Extended_Pictographic}/u;
+    for (const s of STORIES) {
+      for (const l of s.lines) {
+        expect(Object.keys(l), s.id).toEqual(['text']);
+        expect(PICTO.test(l.text), s.id).toBe(false);
+      }
+      expect(PICTO.test(s.title), s.id).toBe(false);
+    }
   });
 
   it('built-in stories pass it', () => {

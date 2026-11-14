@@ -2,6 +2,11 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-14 — Stories: text only, funny first (Ankit request, interactive session)
+- Removed the pictures beside every story line (210 lines) and the title picture: a child could match the line picture to the same picture on an answer choice without reading. Lines are now `{ text }` only, and Claude stories have any line pictures dropped by the checker. Tests guard both.
+- Kept pictures on the **answer choices**: on level 1 the app reads the story and the choices aloud, and pictures help a pre-reader pick; with no pictures in the story there is nothing to match them against, so they now test understanding. Easy to remove too if Ankit prefers words only.
+- SPEC "Stories" added: funny/silly first, gentle humour, punchline last line. Claude's story prompt (proxy) now asks for a silly story with a funny twist. Rewriting the 43 built-in stories is backlog item C3 (top of Next), so the next build run does it with the decodability tests.
+
 ## 2026-11-13 — C2: more word problems + sentences (scheduled run)
 - **Word problems are now templates as data** (`content/wordProblems.ts`): story frames with small placeholders (`{P}`, `{He}`, `{his}`, `{A}` = number + noun, `{b?comes|come}` for verb agreement), filled by `fillFrame` in the generator. The first frame of each list is the old wording, so variant 0 reads exactly as before.
 - **×3 growth**: names 14 → 44 (22 from across India, 22 US); things 15 → 54 (Indian everyday where an emoji exists: roti, momo 🥟, coconut, diya 🪔, lantern 🏮, parrot, peacock, monkey in the tree; no emoji for laddoo/samosa/idli, so left out — I1/I2 can add pictures later); story frames 8 → 37 (plus 6 opening lines); 11 scene openings ("At the mela, …", "On Diwali, …", "On the train, …") used on about half of the stories, matched to the thing's category so we never get "At the beach, … 5 diyas".
