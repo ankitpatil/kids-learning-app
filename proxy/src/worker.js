@@ -83,7 +83,7 @@ export function buildMessages(req) {
         `3 to ${req.maxLines} lines, each one sentence of at most ${req.maxWordsPerLine} words. Use simple names like Sam, Raj, Meg, Ved or Kim. Write numbers as words.`,
         'Add exactly 2 questions, each ending with "?". Each answer must be 1 to 3 words copied from the line it points to (0-based index). Give 2 different wrong choices per question.',
         'Every word in the lines is checked by a program; a story with any other word type is thrown away.',
-        'JSON shape: {"title": string, "lines": [{"text": string}], "questions": [{"q": string, "line": number, "answer": {"text": string, "emoji": string}, "wrong": [{"text": string, "emoji": string}, {"text": string, "emoji": string}]}]}',
+        'JSON shape: {"title": string, "lines": [{"text": string}], "questions": [{"q": string, "line": number, "answer": {"text": string}, "wrong": [{"text": string}, {"text": string}]}]}',
       ].join('\n'),
       wrap: (obj) => ({ story: obj }),
     };

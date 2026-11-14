@@ -54,17 +54,9 @@ const PICTO = /\p{Extended_Pictographic}/u;
 const cleanText = (v: unknown, max: number): string | null => {
   if (typeof v !== 'string') return null;
   const s = v.replace(/\s+/g, ' ').trim();
-  if (!s || s.length > max || FORBIDDEN_CHARS.test(s) || /\d/.test(s)) return null;
+  if (!s || s.length > max || FORBIDDEN_CHARS.test(s) || /\d/.test(s) || PICTO.test(s)) return null; // no digits, no emoji inside text
   return s;
 };
-
-/** A picture: 1–3 emoji, no letters or digits. Anything else becomes the fallback picture. */
-export function cleanEmoji(v: unknown, fallback: string): string {
-  if (typeof v !== 'string') return fallback;
-  const s = v.trim();
-  if (!s || s.length > 16 || /[\p{L}\p{N}<>]/u.test(s) || !PICTO.test(s)) return fallback;
-  return s;
-}
 
 const norm = (w: string) => w.toLowerCase().replace(/'/g, '');
 
@@ -120,7 +112,7 @@ export function checkAiStory(raw: unknown, cap: number, topic: StoryTopic): Chec
     const choice = (c: unknown): StoryChoice | null => {
       const co = (c && typeof c === 'object' ? c : {}) as Record<string, unknown>;
       const t = cleanText(co.text, STORY_LIMITS.choiceChars);
-      return t ? { text: t, emoji: cleanEmoji(co.emoji, '❓') } : null;
+      return t ? { text: t } : null; // any picture is dropped: answers are words only
     };
     const answer = choice(o.answer);
     const wrong = (Array.isArray(o.wrong) ? o.wrong : []).map(choice);
@@ -131,7 +123,7 @@ export function checkAiStory(raw: unknown, cap: number, topic: StoryTopic): Chec
     const texts = [answer, ...wrong].filter(Boolean).map((c) => norm(c!.text));
     if (new Set(texts).size !== texts.length) problems.push(`q${i}-duplicate-choice`);
     if (answer && line >= 0 && line < lines.length && !answerInLine(answer.text, lines[line].text)) problems.push(`q${i}-answer-not-in-line`);
-    return { q: text ?? '', line, answer: answer ?? { text: '', emoji: '' }, wrong: wrong.filter(Boolean) as StoryChoice[] };
+    return { q: text ?? '', line, answer: answer ?? { text: '' }, wrong: wrong.filter(Boolean) as StoryChoice[] };
   });
   if (problems.length) return { ok: false, problems };
 

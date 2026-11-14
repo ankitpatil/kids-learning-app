@@ -325,9 +325,8 @@ button { font: inherit; cursor: pointer; touch-action: manipulation; }
 .story-question { text-align: center; font-size: clamp(26px, 6vw, 42px); font-weight: 800; margin: 4px 0; }
 .story-question.oops { animation: wiggle .4s ease 2; }
 .story-choices { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; }
-.story-choice { display: flex; align-items: center; gap: 10px; min-height: 84px; min-width: 160px; padding: 8px 22px; border: none; border-radius: 24px; background: var(--primary); color: #fff; font-family: 'Andika', 'Comic Sans MS', ui-rounded, sans-serif; font-size: clamp(26px, 5vw, 38px); font-weight: 800; box-shadow: 0 6px 0 #4834d4; }
+.story-choice { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 84px; min-width: 160px; padding: 8px 22px; border: none; border-radius: 24px; background: var(--primary); color: #fff; font-family: 'Andika', 'Comic Sans MS', ui-rounded, sans-serif; font-size: clamp(26px, 5vw, 38px); font-weight: 800; box-shadow: 0 6px 0 #4834d4; }
 .story-choice:active { transform: translateY(3px); box-shadow: 0 3px 0 #4834d4; }
-.story-choice .choice-pic { font-size: 1.3em; }
 .story-choice.tried { opacity: .3; }
 .story-choice.right { background: #2ecc71; box-shadow: 0 6px 0 #1e8e4e; animation: bounce .5s ease 2; }
 @media (prefers-reduced-motion: reduce) { .story-choice.right, .story-question.oops { animation: none; } }

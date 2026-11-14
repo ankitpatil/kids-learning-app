@@ -347,7 +347,6 @@ export function StoryChoose({ profileId, onDone, onExit }: Props) {
                   onClick={() => choose(c)}
                   aria-label={c.text}
                 >
-                  <span className="choice-pic" aria-hidden="true">{c.emoji}</span>
                   <span>{c.text}</span>
                 </button>
               ))}

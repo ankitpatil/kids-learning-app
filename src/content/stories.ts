@@ -6,9 +6,9 @@
 export const PATTERNS = ['cvc', 'digraphs', 'blends', 'silentE', 'vowelTeams'] as const;
 export type Pattern = (typeof PATTERNS)[number];
 
+/** An answer choice. Words only, no picture: the child answers by reading/listening (SPEC "Stories"). */
 export interface StoryChoice {
   text: string;
-  emoji: string;
 }
 
 export interface StoryQuestion {
@@ -30,7 +30,7 @@ export interface Story {
   questions: StoryQuestion[];
 }
 
-const C = (text: string, emoji: string): StoryChoice => ({ text, emoji });
+const C = (text: string): StoryChoice => ({ text });
 
 export const STORIES: Story[] = [
   // ---------- CVC ----------
@@ -44,8 +44,8 @@ export const STORIES: Story[] = [
       { text: 'Sam can not get his hat.' },
     ],
     questions: [
-      { q: 'What did Sam get?', line: 2, answer: C('a hat', '🎩'), wrong: [C('a cup', '☕'), C('a bag', '👜')] },
-      { q: 'Where did the cat sit?', line: 3, answer: C('in the hat', '🎩'), wrong: [C('in the box', '📦'), C('on the bed', '🛏️')] },
+      { q: 'What did Sam get?', line: 2, answer: C('a hat'), wrong: [C('a cup'), C('a bag')] },
+      { q: 'Where did the cat sit?', line: 3, answer: C('in the hat'), wrong: [C('in the box'), C('on the bed')] },
     ],
   },
   {
@@ -58,8 +58,8 @@ export const STORIES: Story[] = [
       { text: 'Raj had fun.' },
     ],
     questions: [
-      { q: 'Who got on the bus with Raj?', line: 2, answer: C('a pig', '🐷'), wrong: [C('a dog', '🐶'), C('a cat', '🐱')] },
-      { q: 'What colour is the bus?', line: 1, answer: C('red', '🔴'), wrong: [C('blue', '🔵'), C('green', '🟢')] },
+      { q: 'Who got on the bus with Raj?', line: 2, answer: C('a pig'), wrong: [C('a dog'), C('a cat')] },
+      { q: 'What colour is the bus?', line: 1, answer: C('red'), wrong: [C('blue'), C('green')] },
     ],
   },
   {
@@ -72,8 +72,8 @@ export const STORIES: Story[] = [
       { text: 'The pup is wet. Meg is wet!' },
     ],
     questions: [
-      { q: 'What did the pup dig in?', line: 2, answer: C('mud', '🟫'), wrong: [C('a box', '📦'), C('a bed', '🛏️')] },
-      { q: 'Where did Meg put the pup?', line: 3, answer: C('in the tub', '🛁'), wrong: [C('on the bus', '🚌'), C('in a box', '📦')] },
+      { q: 'What did the pup dig in?', line: 2, answer: C('mud'), wrong: [C('a box'), C('a bed')] },
+      { q: 'Where did Meg put the pup?', line: 3, answer: C('in the tub'), wrong: [C('on the bus'), C('in a box')] },
     ],
   },
   {
@@ -85,8 +85,8 @@ export const STORIES: Story[] = [
       { text: 'Is the fox in the box? Yes!' },
     ],
     questions: [
-      { q: 'What did the fox sit on?', line: 0, answer: C('a log', '🪵'), wrong: [C('a bus', '🚌'), C('a bed', '🛏️')] },
-      { q: 'Where did the fox go?', line: 2, answer: C('in the box', '📦'), wrong: [C('on the bus', '🚌'), C('in the sun', '☀️')] },
+      { q: 'What did the fox sit on?', line: 0, answer: C('a log'), wrong: [C('a bus'), C('a bed')] },
+      { q: 'Where did the fox go?', line: 2, answer: C('in the box'), wrong: [C('on the bus'), C('in the sun')] },
     ],
   },
   {
@@ -98,8 +98,8 @@ export const STORIES: Story[] = [
       { text: 'Then Ben naps in the sun.' },
     ],
     questions: [
-      { q: 'Was it hot or cold?', line: 0, answer: C('hot', '🔥'), wrong: [C('cold', '🥶')] },
-      { q: 'What did Ben do at the end?', line: 3, answer: C('nap', '😴'), wrong: [C('run', '🏃'), C('dig', '⛏️')] },
+      { q: 'Was it hot or cold?', line: 0, answer: C('hot'), wrong: [C('cold')] },
+      { q: 'What did Ben do at the end?', line: 3, answer: C('nap'), wrong: [C('run'), C('dig')] },
     ],
   },
 
@@ -114,8 +114,8 @@ export const STORIES: Story[] = [
       { text: 'Josh gets a shell.' },
     ],
     questions: [
-      { q: 'Where is Josh?', line: 0, answer: C('on a ship', '🚢'), wrong: [C('on a bus', '🚌'), C('in a shop', '🏪')] },
-      { q: 'What did Josh get?', line: 4, answer: C('a shell', '🐚'), wrong: [C('a fish', '🐟'), C('a rock', '🪨')] },
+      { q: 'Where is Josh?', line: 0, answer: C('on a ship'), wrong: [C('on a bus'), C('in a shop')] },
+      { q: 'What did Josh get?', line: 4, answer: C('a shell'), wrong: [C('a fish'), C('a rock')] },
     ],
   },
   {
@@ -128,8 +128,8 @@ export const STORIES: Story[] = [
       { text: 'Then the chick naps.' },
     ],
     questions: [
-      { q: 'What does Chen have?', line: 0, answer: C('a chick', '🐥'), wrong: [C('a duck', '🦆'), C('a fish', '🐟')] },
-      { q: 'What did the chick peck at?', line: 2, answer: C('the dish', '🥣'), wrong: [C('the bell', '🔔'), C('the shell', '🐚')] },
+      { q: 'What does Chen have?', line: 0, answer: C('a chick'), wrong: [C('a duck'), C('a fish')] },
+      { q: 'What did the chick peck at?', line: 2, answer: C('the dish'), wrong: [C('the bell'), C('the shell')] },
     ],
   },
   {
@@ -141,8 +141,8 @@ export const STORIES: Story[] = [
       { text: 'The duck naps in the shed.' },
     ],
     questions: [
-      { q: 'What did the duck get?', line: 1, answer: C('a bug', '🐛'), wrong: [C('a fish', '🐟'), C('a chip', '🍟')] },
-      { q: 'Where did the duck sit?', line: 2, answer: C('in the shed', '🛖'), wrong: [C('on a ship', '🚢'), C('in the bath', '🛁')] },
+      { q: 'What did the duck get?', line: 1, answer: C('a bug'), wrong: [C('a fish'), C('a chip')] },
+      { q: 'Where did the duck sit?', line: 2, answer: C('in the shed'), wrong: [C('on a ship'), C('in the bath')] },
     ],
   },
 
@@ -157,8 +157,8 @@ export const STORIES: Story[] = [
       { text: 'The frog is glad.' },
     ],
     questions: [
-      { q: 'Where is the frog?', line: 0, answer: C('on a log', '🪵'), wrong: [C('in a tree', '🌳'), C('on a bus', '🚌')] },
-      { q: 'What did the frog get?', line: 3, answer: C('a bug', '🐛'), wrong: [C('a fish', '🐟'), C('an egg', '🥚')] },
+      { q: 'Where is the frog?', line: 0, answer: C('on a log'), wrong: [C('in a tree'), C('on a bus')] },
+      { q: 'What did the frog get?', line: 3, answer: C('a bug'), wrong: [C('a fish'), C('an egg')] },
     ],
   },
   {
@@ -171,8 +171,8 @@ export const STORIES: Story[] = [
       { text: 'The band is the best!' },
     ],
     questions: [
-      { q: 'What does Dev have?', line: 0, answer: C('a drum', '🥁'), wrong: [C('a bell', '🔔'), C('a flag', '🚩')] },
-      { q: 'What does Dad have?', line: 2, answer: C('a bell', '🔔'), wrong: [C('a drum', '🥁'), C('a cup', '☕')] },
+      { q: 'What does Dev have?', line: 0, answer: C('a drum'), wrong: [C('a bell'), C('a flag')] },
+      { q: 'What does Dad have?', line: 2, answer: C('a bell'), wrong: [C('a drum'), C('a cup')] },
     ],
   },
 
@@ -187,8 +187,8 @@ export const STORIES: Story[] = [
       { text: 'Kate smiles.' },
     ],
     questions: [
-      { q: 'What does Kate have?', line: 0, answer: C('a kite', '🪁'), wrong: [C('a bike', '🚲'), C('a cake', '🎂')] },
-      { q: 'Where did Kate run?', line: 2, answer: C('up the hill', '⛰️'), wrong: [C('to the lake', '🏞️'), C('to the shop', '🏪')] },
+      { q: 'What does Kate have?', line: 0, answer: C('a kite'), wrong: [C('a bike'), C('a cake')] },
+      { q: 'Where did Kate run?', line: 2, answer: C('up the hill'), wrong: [C('to the lake'), C('to the shop')] },
     ],
   },
   {
@@ -201,8 +201,8 @@ export const STORIES: Story[] = [
       { text: 'The duck wants a bite of the cake!' },
     ],
     questions: [
-      { q: 'Where did Mike ride?', line: 1, answer: C('to the lake', '🏞️'), wrong: [C('to the shop', '🏪'), C('up the hill', '⛰️')] },
-      { q: 'What does the duck want?', line: 4, answer: C('cake', '🎂'), wrong: [C('a bug', '🐛'), C('a bike', '🚲')] },
+      { q: 'Where did Mike ride?', line: 1, answer: C('to the lake'), wrong: [C('to the shop'), C('up the hill')] },
+      { q: 'What does the duck want?', line: 4, answer: C('cake'), wrong: [C('a bug'), C('a bike')] },
     ],
   },
 
@@ -216,8 +216,8 @@ export const STORIES: Story[] = [
       { text: 'The goat is not wet. It feels snug.' },
     ],
     questions: [
-      { q: 'What was the goat in?', line: 0, answer: C('the rain', '🌧️'), wrong: [C('the sun', '☀️'), C('the mud', '🟫')] },
-      { q: 'What did Jai get for the goat?', line: 2, answer: C('a coat', '🧥'), wrong: [C('a hat', '🎩'), C('a boat', '⛵')] },
+      { q: 'What was the goat in?', line: 0, answer: C('the rain'), wrong: [C('the sun'), C('the mud')] },
+      { q: 'What did Jai get for the goat?', line: 2, answer: C('a coat'), wrong: [C('a hat'), C('a boat')] },
     ],
   },
   {
@@ -229,8 +229,8 @@ export const STORIES: Story[] = [
       { text: 'Then the rain comes. Neel and Dad sail back.' },
     ],
     questions: [
-      { q: 'Who is in the boat with Neel?', line: 0, answer: C('Dad', '👨'), wrong: [C('Mom', '👩'), C('a goat', '🐐')] },
-      { q: 'What did Neel see?', line: 2, answer: C('a big fish', '🐟'), wrong: [C('a frog', '🐸'), C('a ship', '🚢')] },
+      { q: 'Who is in the boat with Neel?', line: 0, answer: C('Dad'), wrong: [C('Mom'), C('a goat')] },
+      { q: 'What did Neel see?', line: 2, answer: C('a big fish'), wrong: [C('a frog'), C('a ship')] },
     ],
   },
   // ---------- More stories (C1, 2026-11-12) ----------
@@ -245,8 +245,8 @@ export const STORIES: Story[] = [
       { text: 'Ved and the bug had the bun.' },
     ],
     questions: [
-      { q: 'What did Mom get?', line: 1, answer: C('jam', '🍯'), wrong: [C('a cup', '☕'), C('a hat', '🎩')] },
-      { q: 'What sat on the jam?', line: 3, answer: C('a bug', '🐞'), wrong: [C('a cat', '🐱'), C('a pig', '🐷')] },
+      { q: 'What did Mom get?', line: 1, answer: C('jam'), wrong: [C('a cup'), C('a hat')] },
+      { q: 'What sat on the jam?', line: 3, answer: C('a bug'), wrong: [C('a cat'), C('a pig')] },
     ],
   },
   {
@@ -259,8 +259,8 @@ export const STORIES: Story[] = [
       { text: 'Kim and the hen nap in the sun.' },
     ],
     questions: [
-      { q: 'What colour is the hen?', line: 1, answer: C('red', '🔴'), wrong: [C('blue', '🔵'), C('green', '🟢')] },
-      { q: 'Where do Kim and the hen nap?', line: 4, answer: C('in the sun', '☀️'), wrong: [C('in the mud', '🟫'), C('on a bus', '🚌')] },
+      { q: 'What colour is the hen?', line: 1, answer: C('red'), wrong: [C('blue'), C('green')] },
+      { q: 'Where do Kim and the hen nap?', line: 4, answer: C('in the sun'), wrong: [C('in the mud'), C('on a bus')] },
     ],
   },
   {
@@ -273,8 +273,8 @@ export const STORIES: Story[] = [
       { text: 'Yes! The van can go.' },
     ],
     questions: [
-      { q: 'What colour is the van?', line: 0, answer: C('tan', '🟤'), wrong: [C('red', '🔴'), C('pink', '🩷')] },
-      { q: 'Where is the van stuck?', line: 2, answer: C('in the mud', '🟫'), wrong: [C('in the sun', '☀️'), C('on a hill', '⛰️')] },
+      { q: 'What colour is the van?', line: 0, answer: C('tan'), wrong: [C('red'), C('pink')] },
+      { q: 'Where is the van stuck?', line: 2, answer: C('in the mud'), wrong: [C('in the sun'), C('on a hill')] },
     ],
   },
   {
@@ -287,8 +287,8 @@ export const STORIES: Story[] = [
       { text: 'Pam had to hug the pig.' },
     ],
     questions: [
-      { q: 'What pet does Pam have?', line: 0, answer: C('a pig', '🐷'), wrong: [C('a cat', '🐱'), C('a dog', '🐶')] },
-      { q: 'Where did the pig hide?', line: 3, answer: C('in the tub', '🛁'), wrong: [C('in a box', '📦'), C('in the van', '🚐')] },
+      { q: 'What pet does Pam have?', line: 0, answer: C('a pig'), wrong: [C('a cat'), C('a dog')] },
+      { q: 'Where did the pig hide?', line: 3, answer: C('in the tub'), wrong: [C('in a box'), C('in the van')] },
     ],
   },
   {
@@ -301,8 +301,8 @@ export const STORIES: Story[] = [
       { text: 'Ram got a nap.' },
     ],
     questions: [
-      { q: 'Who sat with Ram?', line: 2, answer: C('his cat', '🐱'), wrong: [C('his dog', '🐶'), C('a hen', '🐔')] },
-      { q: 'Where did Mom say to sit?', line: 1, answer: C('on the rug', '🟥'), wrong: [C('on the bus', '🚌'), C('in bed', '🛏️')] },
+      { q: 'Who sat with Ram?', line: 2, answer: C('his cat'), wrong: [C('his dog'), C('a hen')] },
+      { q: 'Where did Mom say to sit?', line: 1, answer: C('on the rug'), wrong: [C('on the bus'), C('in bed')] },
     ],
   },
   {
@@ -315,8 +315,8 @@ export const STORIES: Story[] = [
       { text: 'Mom said, Jen is the top kid!' },
     ],
     questions: [
-      { q: 'What did Jen have?', line: 0, answer: C('a cup of pop', '🥤'), wrong: [C('a bun', '🍞'), C('a hat', '🎩')] },
-      { q: 'What did Jen get?', line: 2, answer: C('a mop', '🧹'), wrong: [C('a pen', '🖊️'), C('a box', '📦')] },
+      { q: 'What did Jen have?', line: 0, answer: C('a cup of pop'), wrong: [C('a bun'), C('a hat')] },
+      { q: 'What did Jen get?', line: 2, answer: C('a mop'), wrong: [C('a pen'), C('a box')] },
     ],
   },
   // ---------- Digraphs ----------
@@ -330,8 +330,8 @@ export const STORIES: Story[] = [
       { text: 'Ash and Dad yell, Six!' },
     ],
     questions: [
-      { q: 'Who will toss the ball?', line: 1, answer: C('Dad', '👨'), wrong: [C('Mom', '👩'), C('a duck', '🦆')] },
-      { q: 'Where is the ball?', line: 3, answer: C('on the hill', '⛰️'), wrong: [C('in the bag', '👜'), C('on the bus', '🚌')] },
+      { q: 'Who will toss the ball?', line: 1, answer: C('Dad'), wrong: [C('Mom'), C('a duck')] },
+      { q: 'Where is the ball?', line: 3, answer: C('on the hill'), wrong: [C('in the bag'), C('on the bus')] },
     ],
   },
   {
@@ -344,8 +344,8 @@ export const STORIES: Story[] = [
       { text: 'Fish and chips! Yum!' },
     ],
     questions: [
-      { q: 'Where did Beth and Mom go?', line: 0, answer: C('the shop', '🏪'), wrong: [C('the bus', '🚌'), C('the hill', '⛰️')] },
-      { q: 'What did Mom get?', line: 3, answer: C('the fish', '🐟'), wrong: [C('a duck', '🦆'), C('a hat', '🎩')] },
+      { q: 'Where did Beth and Mom go?', line: 0, answer: C('the shop'), wrong: [C('the bus'), C('the hill')] },
+      { q: 'What did Mom get?', line: 3, answer: C('the fish'), wrong: [C('a duck'), C('a hat')] },
     ],
   },
   {
@@ -358,8 +358,8 @@ export const STORIES: Story[] = [
       { text: 'Chad and the pup tug and tug.' },
     ],
     questions: [
-      { q: 'What colour is the sock?', line: 0, answer: C('red', '🔴'), wrong: [C('blue', '🔵'), C('green', '🟢')] },
-      { q: 'Who has the sock?', line: 3, answer: C('the pup', '🐶'), wrong: [C('a cat', '🐱'), C('Mom', '👩')] },
+      { q: 'What colour is the sock?', line: 0, answer: C('red'), wrong: [C('blue'), C('green')] },
+      { q: 'Who has the sock?', line: 3, answer: C('the pup'), wrong: [C('a cat'), C('Mom')] },
     ],
   },
   {
@@ -372,8 +372,8 @@ export const STORIES: Story[] = [
       { text: 'The king said, Thank you, Duck!' },
     ],
     questions: [
-      { q: 'Where did the ring fall?', line: 1, answer: C('in the well', '🪣'), wrong: [C('in the bath', '🛁'), C('in the shop', '🏪')] },
-      { q: 'Who got the ring?', line: 3, answer: C('the duck', '🦆'), wrong: [C('the king', '👑'), C('a fish', '🐟')] },
+      { q: 'Where did the ring fall?', line: 1, answer: C('in the well'), wrong: [C('in the bath'), C('in the shop')] },
+      { q: 'Who got the ring?', line: 3, answer: C('the duck'), wrong: [C('the king'), C('a fish')] },
     ],
   },
   {
@@ -386,8 +386,8 @@ export const STORIES: Story[] = [
       { text: 'Yum! Chips with a pal!' },
     ],
     questions: [
-      { q: 'How many chips does Seth have?', line: 0, answer: C('ten', '🔟'), wrong: [C('six', '6️⃣'), C('two', '2️⃣')] },
-      { q: 'What do the pals do?', line: 3, answer: C('sit and chat', '💬'), wrong: [C('run and jump', '🏃'), C('nap', '😴')] },
+      { q: 'How many chips does Seth have?', line: 0, answer: C('ten'), wrong: [C('six'), C('two')] },
+      { q: 'What do the pals do?', line: 3, answer: C('sit and chat'), wrong: [C('run and jump'), C('nap')] },
     ],
   },
   // ---------- Blends ----------
@@ -401,8 +401,8 @@ export const STORIES: Story[] = [
       { text: 'Fran slept in the tent.' },
     ],
     questions: [
-      { q: 'What did they set up?', line: 1, answer: C('a tent', '⛺'), wrong: [C('a shop', '🏪'), C('a swing', '🛝')] },
-      { q: 'What sang at dusk?', line: 3, answer: C('frogs', '🐸'), wrong: [C('ducks', '🦆'), C('hens', '🐔')] },
+      { q: 'What did they set up?', line: 1, answer: C('a tent'), wrong: [C('a shop'), C('a swing')] },
+      { q: 'What sang at dusk?', line: 3, answer: C('frogs'), wrong: [C('ducks'), C('hens')] },
     ],
   },
   {
@@ -415,8 +415,8 @@ export const STORIES: Story[] = [
       { text: 'Then Mom gets them a hot drink.' },
     ],
     questions: [
-      { q: 'What do Trish and Brad do?', line: 1, answer: C('jump and splash', '💦'), wrong: [C('sit and nap', '😴'), C('run to the bus', '🚌')] },
-      { q: 'Who slips in the mud?', line: 2, answer: C('Brad', '👦'), wrong: [C('Trish', '👧'), C('Mom', '👩')] },
+      { q: 'What do Trish and Brad do?', line: 1, answer: C('jump and splash'), wrong: [C('sit and nap'), C('run to the bus')] },
+      { q: 'Who slips in the mud?', line: 2, answer: C('Brad'), wrong: [C('Trish'), C('Mom')] },
     ],
   },
   {
@@ -429,8 +429,8 @@ export const STORIES: Story[] = [
       { text: 'Then Mom said, Glen, lunch!' },
     ],
     questions: [
-      { q: 'What does Glen sit in?', line: 2, answer: C('the box', '📦'), wrong: [C('the tent', '⛺'), C('a bus', '🚌')] },
-      { q: 'What did Mom call Glen for?', line: 4, answer: C('lunch', '🍲'), wrong: [C('a bath', '🛁'), C('a nap', '😴')] },
+      { q: 'What does Glen sit in?', line: 2, answer: C('the box'), wrong: [C('the tent'), C('a bus')] },
+      { q: 'What did Mom call Glen for?', line: 4, answer: C('lunch'), wrong: [C('a bath'), C('a nap')] },
     ],
   },
   {
@@ -443,8 +443,8 @@ export const STORIES: Story[] = [
       { text: 'The crab hid in the sand.' },
     ],
     questions: [
-      { q: 'What runs past Fran?', line: 1, answer: C('a crab', '🦀'), wrong: [C('a frog', '🐸'), C('a duck', '🦆')] },
-      { q: 'Where did the crab hide?', line: 4, answer: C('in the sand', '🏖️'), wrong: [C('in a box', '📦'), C('in a cup', '☕')] },
+      { q: 'What runs past Fran?', line: 1, answer: C('a crab'), wrong: [C('a frog'), C('a duck')] },
+      { q: 'Where did the crab hide?', line: 4, answer: C('in the sand'), wrong: [C('in a box'), C('in a cup')] },
     ],
   },
   {
@@ -457,8 +457,8 @@ export const STORIES: Story[] = [
       { text: 'Yum! Dev and Mom munch and munch.' },
     ],
     questions: [
-      { q: 'How many lamps did Dev light?', line: 1, answer: C('ten', '🔟'), wrong: [C('two', '2️⃣'), C('six', '6️⃣')] },
-      { q: 'What does Dad bring?', line: 3, answer: C('a box of snacks', '🎁'), wrong: [C('a drum', '🥁'), C('a crab', '🦀')] },
+      { q: 'How many lamps did Dev light?', line: 1, answer: C('ten'), wrong: [C('two'), C('six')] },
+      { q: 'What does Dad bring?', line: 3, answer: C('a box of snacks'), wrong: [C('a drum'), C('a crab')] },
     ],
   },
   {
@@ -471,8 +471,8 @@ export const STORIES: Story[] = [
       { text: 'Brad can swim! Mom claps.' },
     ],
     questions: [
-      { q: 'Where did Brad and Mom go?', line: 0, answer: C('the pond', '🏞️'), wrong: [C('the shop', '🏪'), C('the bus', '🚌')] },
-      { q: 'What did Mom hold?', line: 2, answer: C('his hand', '✋'), wrong: [C('his cap', '🧢'), C('a drum', '🥁')] },
+      { q: 'Where did Brad and Mom go?', line: 0, answer: C('the pond'), wrong: [C('the shop'), C('the bus')] },
+      { q: 'What did Mom hold?', line: 2, answer: C('his hand'), wrong: [C('his cap'), C('a drum')] },
     ],
   },
   // ---------- Magic e ----------
@@ -486,8 +486,8 @@ export const STORIES: Story[] = [
       { text: 'They ate it. Yum!' },
     ],
     questions: [
-      { q: 'What will Jane bake?', line: 0, answer: C('a cake', '🎂'), wrong: [C('a bun', '🍞'), C('a pie', '🥧')] },
-      { q: 'Who came to help?', line: 2, answer: C('Pete', '👦'), wrong: [C('Mike', '🧒'), C('Rose', '👧')] },
+      { q: 'What will Jane bake?', line: 0, answer: C('a cake'), wrong: [C('a bun'), C('a pie')] },
+      { q: 'Who came to help?', line: 2, answer: C('Pete'), wrong: [C('Mike'), C('Rose')] },
     ],
   },
   {
@@ -500,8 +500,8 @@ export const STORIES: Story[] = [
       { text: 'Rose, Kate and Mike skip and smile.' },
     ],
     questions: [
-      { q: 'What does Rose have?', line: 0, answer: C('a rope', '🪢'), wrong: [C('a kite', '🪁'), C('a cake', '🎂')] },
-      { q: 'Who came to skip?', line: 2, answer: C('Mike', '🧒'), wrong: [C('Pete', '👦'), C('Jane', '👧')] },
+      { q: 'What does Rose have?', line: 0, answer: C('a rope'), wrong: [C('a kite'), C('a cake')] },
+      { q: 'Who came to skip?', line: 2, answer: C('Mike'), wrong: [C('Pete'), C('Jane')] },
     ],
   },
   {
@@ -514,8 +514,8 @@ export const STORIES: Story[] = [
       { text: 'Pete and Jane race home.' },
     ],
     questions: [
-      { q: 'What did Pete make?', line: 0, answer: C('a ship', '🚀'), wrong: [C('a cake', '🎂'), C('a kite', '🪁')] },
-      { q: 'What did they see?', line: 3, answer: C('a pup', '🐶'), wrong: [C('a frog', '🐸'), C('a duck', '🦆')] },
+      { q: 'What did Pete make?', line: 0, answer: C('a ship'), wrong: [C('a cake'), C('a kite')] },
+      { q: 'What did they see?', line: 3, answer: C('a pup'), wrong: [C('a frog'), C('a duck')] },
     ],
   },
   {
@@ -528,8 +528,8 @@ export const STORIES: Story[] = [
       { text: 'Kate said, Here, take a grape!' },
     ],
     questions: [
-      { q: 'Who likes grapes?', line: 1, answer: C('Kate', '👧'), wrong: [C('Mike', '🧒'), C('Mom', '👩')] },
-      { q: 'What did Mike bite?', line: 2, answer: C('the lime', '🍋'), wrong: [C('a grape', '🍇'), C('a cake', '🎂')] },
+      { q: 'Who likes grapes?', line: 1, answer: C('Kate'), wrong: [C('Mike'), C('Mom')] },
+      { q: 'What did Mike bite?', line: 2, answer: C('the lime'), wrong: [C('a grape'), C('a cake')] },
     ],
   },
   {
@@ -542,8 +542,8 @@ export const STORIES: Story[] = [
       { text: 'Yes! Mike spots Jane in the crate.' },
     ],
     questions: [
-      { q: 'Where does Pete hide?', line: 1, answer: C('in the shed', '🛖'), wrong: [C('in the crate', '📦'), C('on the bike', '🚲')] },
-      { q: 'Who looks for them?', line: 3, answer: C('Mike', '🧒'), wrong: [C('Rose', '👧'), C('Kate', '👩')] },
+      { q: 'Where does Pete hide?', line: 1, answer: C('in the shed'), wrong: [C('in the crate'), C('on the bike')] },
+      { q: 'Who looks for them?', line: 3, answer: C('Mike'), wrong: [C('Rose'), C('Kate')] },
     ],
   },
   {
@@ -556,8 +556,8 @@ export const STORIES: Story[] = [
       { text: 'Mike and Rose dine at nine.' },
     ],
     questions: [
-      { q: 'How do Mike and Rose get home?', line: 2, answer: C('on bikes', '🚲'), wrong: [C('on a bus', '🚌'), C('in a van', '🚐')] },
-      { q: 'What is on the plate?', line: 3, answer: C('rice', '🍚'), wrong: [C('cake', '🎂'), C('grapes', '🍇')] },
+      { q: 'How do Mike and Rose get home?', line: 2, answer: C('on bikes'), wrong: [C('on a bus'), C('in a van')] },
+      { q: 'What is on the plate?', line: 3, answer: C('rice'), wrong: [C('cake'), C('grapes')] },
     ],
   },
   // ---------- ee / ai / oa ----------
@@ -571,8 +571,8 @@ export const STORIES: Story[] = [
       { text: 'Jai sits and waves.' },
     ],
     questions: [
-      { q: 'What are Jai and Mom waiting for?', line: 0, answer: C('the train', '🚆'), wrong: [C('the bus', '🚌'), C('a boat', '⛵')] },
-      { q: 'What does Jai do on the train?', line: 4, answer: C('waves', '👋'), wrong: [C('naps', '😴'), C('jumps', '🦘')] },
+      { q: 'What are Jai and Mom waiting for?', line: 0, answer: C('the train'), wrong: [C('the bus'), C('a boat')] },
+      { q: 'What does Jai do on the train?', line: 4, answer: C('waves'), wrong: [C('naps'), C('jumps')] },
     ],
   },
   {
@@ -585,8 +585,8 @@ export const STORIES: Story[] = [
       { text: 'In one week, a green sprig!' },
     ],
     questions: [
-      { q: 'What sits on the tree?', line: 1, answer: C('a bee', '🐝'), wrong: [C('a goat', '🐐'), C('a cat', '🐱')] },
-      { q: 'How many seeds does Neel see?', line: 2, answer: C('three', '3️⃣'), wrong: [C('two', '2️⃣'), C('ten', '🔟')] },
+      { q: 'What sits on the tree?', line: 1, answer: C('a bee'), wrong: [C('a goat'), C('a cat')] },
+      { q: 'How many seeds does Neel see?', line: 2, answer: C('three'), wrong: [C('two'), C('ten')] },
     ],
   },
   {
@@ -599,8 +599,8 @@ export const STORIES: Story[] = [
       { text: 'Then the snail slides off the pail.' },
     ],
     questions: [
-      { q: 'What pet does Gail have?', line: 0, answer: C('a snail', '🐌'), wrong: [C('a goat', '🐐'), C('a frog', '🐸')] },
-      { q: 'What does Gail paint?', line: 2, answer: C('the pail', '🪣'), wrong: [C('the boat', '⛵'), C('the train', '🚆')] },
+      { q: 'What pet does Gail have?', line: 0, answer: C('a snail'), wrong: [C('a goat'), C('a frog')] },
+      { q: 'What does Gail paint?', line: 2, answer: C('the pail'), wrong: [C('the boat'), C('the train')] },
     ],
   },
   {
@@ -613,8 +613,8 @@ export const STORIES: Story[] = [
       { text: 'Dad and Neel munch. Sweet!' },
     ],
     questions: [
-      { q: 'What does Neel make?', line: 1, answer: C('toast', '🍞'), wrong: [C('tea', '☕'), C('soup', '🍲')] },
-      { q: 'What goes on the toast?', line: 2, answer: C('jam', '🍯'), wrong: [C('cheese', '🧀'), C('rice', '🍚')] },
+      { q: 'What does Neel make?', line: 1, answer: C('toast'), wrong: [C('tea'), C('soup')] },
+      { q: 'What goes on the toast?', line: 2, answer: C('jam'), wrong: [C('cheese'), C('rice')] },
     ],
   },
   {
@@ -627,8 +627,8 @@ export const STORIES: Story[] = [
       { text: 'Mom gets wet. Jai gives Mom the coat!' },
     ],
     questions: [
-      { q: 'What colour is the coat?', line: 0, answer: C('red', '🔴'), wrong: [C('green', '🟢'), C('blue', '🔵')] },
-      { q: 'What happens on the road?', line: 2, answer: C('it rains', '🌧️'), wrong: [C('it snows', '❄️'), C('it is hot', '☀️')] },
+      { q: 'What colour is the coat?', line: 0, answer: C('red'), wrong: [C('green'), C('blue')] },
+      { q: 'What happens on the road?', line: 2, answer: C('it rains'), wrong: [C('it snows'), C('it is hot')] },
     ],
   },
   {
@@ -641,8 +641,8 @@ export const STORIES: Story[] = [
       { text: 'Gail and Neel chase the sheep!' },
     ],
     questions: [
-      { q: 'What do the sheep need?', line: 1, answer: C('oats', '🌾'), wrong: [C('cake', '🎂'), C('fish', '🐟')] },
-      { q: 'What does Neel fill?', line: 2, answer: C('a pail', '🪣'), wrong: [C('a boat', '⛵'), C('a cup', '☕')] },
+      { q: 'What do the sheep need?', line: 1, answer: C('oats'), wrong: [C('cake'), C('fish')] },
+      { q: 'What does Neel fill?', line: 2, answer: C('a pail'), wrong: [C('a boat'), C('a cup')] },
     ],
   },
 ];

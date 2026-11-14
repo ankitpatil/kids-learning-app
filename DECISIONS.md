@@ -2,6 +2,11 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-14 — Story answers: words only (Ankit request, interactive session)
+- Ankit chose to remove the pictures from Story Choose answer choices too (257 choices). Answers are now words only; on level 1 the choices are still read aloud, so pre-readers answer by listening. This supersedes the "kept pictures on the answer choices" point below.
+- Only Stories changed. Other reading games keep pictures where the picture is the task or a level-1 clue: Word Detective "Read it" (read the word, tap the picture), Phonics Pop, Word Builder and finish-the-sentence clues.
+- Claude stories: any picture on a choice is dropped, and emoji inside any text (line, question or choice) now rejects the story.
+
 ## 2026-11-14 — Stories: text only, funny first (Ankit request, interactive session)
 - Removed the pictures beside every story line (210 lines) and the title picture: a child could match the line picture to the same picture on an answer choice without reading. Lines are now `{ text }` only, and Claude stories have any line pictures dropped by the checker. Tests guard both.
 - Kept pictures on the **answer choices**: on level 1 the app reads the story and the choices aloud, and pictures help a pre-reader pick; with no pictures in the story there is nothing to match them against, so they now test understanding. Easy to remove too if Ankit prefers words only.

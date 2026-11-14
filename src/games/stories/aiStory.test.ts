@@ -1,6 +1,6 @@
 import 'fake-indexeddb/auto';
 import { describe, it, expect } from 'vitest';
-import { checkAiStory, newStory, patternCap, storyRequest, answerInLine, cleanEmoji, playableCached, fallbackStory, STORY_LIMITS, TOPIC_ICONS } from './aiStory';
+import { checkAiStory, newStory, patternCap, storyRequest, answerInLine, playableCached, fallbackStory, STORY_LIMITS, TOPIC_ICONS } from './aiStory';
 import { STORIES, PATTERNS, type Story } from '../../content/stories';
 import { blockedWords } from '../../content/kidSafe';
 import { createAiClient, createMockProvider, type AiProvider } from '../../ai/client';
@@ -126,17 +126,21 @@ describe('checkAiStory', () => {
     }
   });
 
-  it('replaces bad pictures instead of failing', () => {
-    expect(cleanEmoji('🐱', '⭐')).toBe('🐱');
-    expect(cleanEmoji('cat', '⭐')).toBe('⭐');
-    expect(cleanEmoji('<img>', '⭐')).toBe('⭐');
-    expect(cleanEmoji(42, '⭐')).toBe('⭐');
-  });
-
-  it('drops any pictures Claude puts beside story lines (lines are text only, so pictures can’t give answers away)', () => {
+  it('drops any pictures Claude adds to lines and answer choices (words only, so pictures can’t give answers away)', () => {
     const r = checkAiStory(GOOD, 0, 'cricket');
     expect(r.ok).toBe(true);
-    if (r.ok) for (const l of r.story.lines) expect(Object.keys(l)).toEqual(['text']);
+    if (!r.ok) return;
+    for (const l of r.story.lines) expect(Object.keys(l)).toEqual(['text']);
+    for (const q of r.story.questions) for (const c of [q.answer, ...q.wrong]) expect(Object.keys(c)).toEqual(['text']);
+  });
+
+  it('rejects emoji inside the text itself', () => {
+    const inLine = clone();
+    inLine.lines[0].text = 'Raj has a red 🏏.';
+    expect(checkAiStory(inLine, 0, 'cricket').ok).toBe(false);
+    const inChoice = clone();
+    inChoice.questions[0].wrong[0].text = 'a ☕';
+    expect(checkAiStory(inChoice, 0, 'cricket').ok).toBe(false);
   });
 
   it('answerInLine matches whole words, ignoring case', () => {
@@ -275,9 +279,13 @@ describe('kid-safe word list', () => {
     expect(blockedWords('Check the shell. Shut the van. Hit the ball.')).toEqual([]);
   });
 
-  it('built-in story lines and titles are text only (no pictures to match against the answers)', () => {
+  it('built-in story lines, titles and answer choices are words only (no pictures)', () => {
     const PICTO = /\p{Extended_Pictographic}/u;
     for (const s of STORIES) {
+      for (const q of s.questions) for (const c of [q.answer, ...q.wrong]) {
+        expect(Object.keys(c), s.id).toEqual(['text']);
+        expect(PICTO.test(c.text), s.id).toBe(false);
+      }
       for (const l of s.lines) {
         expect(Object.keys(l), s.id).toEqual(['text']);
         expect(PICTO.test(l.text), s.id).toBe(false);
