@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { startPlacement, answer, isDone, currentCheckpoint, PRESETS, type StartingPoint } from '../engine/placement';
 import { makeQuickItem, type QuickItem } from '../engine/quickItems';
 import type { Subject } from '../engine/tracks';
-import { say, stopSpeech } from '../audio/speech';
+import { say, stopSpeech, speak } from '../audio/speech';
 import { fresh } from '../engine/recent';
 
 interface Props {
@@ -101,7 +101,7 @@ export function Placement({ subject, onDone, onExit }: Props) {
             <span key={i} className={i < Math.min(state.asked, 8) ? 'dot done' : 'dot'} />
           ))}
         </div>
-        <button className="icon-btn" onClick={() => say(item.say)} aria-label="Say again">🔊</button>
+        <button className="icon-btn" onClick={() => speak(item.say)} aria-label="Say again">🔊</button>
       </div>
       <div className={`quick-visual ${item.visual.length > 24 ? 'small' : ''}`}>{item.visual}</div>
       <div className={`quick-choices ${wordChoices ? 'words' : ''}`}>

@@ -4,6 +4,7 @@ import { loadAiSettings, normalizeProxyUrl, saveAiSettings, type AiSettings } fr
 import { createProxyProvider } from '../ai/client';
 import { ai } from '../ai/app';
 import { loadMotionSettings, saveMotionSettings } from '../motion/settings';
+import { isNarrationOn, setNarration } from '../audio/speech';
 
 type Test = { state: 'idle' } | { state: 'testing' } | { state: 'ok' } | { state: 'fail'; why: string };
 
@@ -11,6 +12,7 @@ type Test = { state: 'idle' } | { state: 'testing' } | { state: 'ok' } | { state
 export function Settings({ onBack, onVoice }: { onBack: () => void; onVoice: () => void }) {
   const [s, setS] = useState<AiSettings>(() => loadAiSettings());
   const [move, setMove] = useState(() => loadMotionSettings());
+  const [narrate, setNarrate] = useState(() => isNarrationOn());
   const [urlText, setUrlText] = useState(s.proxyUrl);
   const [test, setTest] = useState<Test>({ state: 'idle' });
   const urlOk = normalizeProxyUrl(urlText) !== null;
@@ -49,6 +51,21 @@ export function Settings({ onBack, onVoice }: { onBack: () => void; onVoice: () 
           <span className="voice-name">🗣️ Reading voice</span>
           <span className="voice-sub">Pick the narrator voice</span>
         </button>
+        <label className="toggle-row">
+          <span>
+            <span className="voice-name">💬 Talk by itself</span>
+            <span className="voice-sub">The app reads prompts, feedback and level-1 stories aloud on its own. Off: it speaks only when the child taps 🔊, a word or a picture. Saved for this device only.</span>
+          </span>
+          <input
+            type="checkbox"
+            className="toggle"
+            checked={narrate}
+            onChange={(e) => {
+              setNarration(e.target.checked);
+              setNarrate(e.target.checked);
+            }}
+          />
+        </label>
       </section>
 
       <section className="settings-card">

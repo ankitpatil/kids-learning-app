@@ -5,7 +5,7 @@ import { tokenize } from '../../audio/readAlong';
 import { updateSkill, type SkillState } from '../../engine/adaptive';
 import { maxLevel } from '../../engine/tracks';
 import { getSkillState, getSkillStates, saveSkillState, logAttempt } from '../../store/db';
-import { say, sayAlong } from '../../audio/speech';
+import { say, sayAlong, speak, isNarrationOn } from '../../audio/speech';
 import { fresh, remember } from '../../engine/recent';
 import { ai } from '../../ai/app';
 import { STORY_TOPICS, type StoryTopic } from '../../ai/request';
@@ -31,6 +31,7 @@ export function StoryChoose({ profileId, onDone, onExit }: Props) {
   const [state, setState] = useState<SkillState | null>(null);
   const [story, setStory] = useState<Story | null>(null);
   const [mode, setMode] = useState<ReadMode>('auto');
+  const autoLevel = useRef(false);
   const [phase, setPhase] = useState<'read' | 'question'>('read');
   const [question, setQuestion] = useState<QuestionItem | null>(null);
   const [hi, setHi] = useState<Hi>(null);
@@ -115,7 +116,11 @@ export function StoryChoose({ profileId, onDone, onExit }: Props) {
     const easy = ease.current;
     const s = given ?? fresh(TRACK, () => pickStory(lv, unlocked.current, Math.random, easy, [], cached.current), (x) => x.id);
     if (given) remember(TRACK, given.id);
-    const m = readMode(lv, easy);
+    const m0 = readMode(lv, easy);
+    // With narration off the story is not read aloud by itself: the "read to me" speaker does it instead,
+    // and on a read-to-you level using it is not a hint.
+    autoLevel.current = m0 === 'auto';
+    const m: ReadMode = m0 === 'auto' && !isNarrationOn() ? 'button' : m0;
     qi.current = 0;
     readHelp.current = false;
     setStory(s);
@@ -162,14 +167,14 @@ export function StoryChoose({ profileId, onDone, onExit }: Props) {
 
   function readToMe() {
     if (!story || phase !== 'read') return;
-    readHelp.current = true; // on levels where the child reads, hearing the whole story counts as a hint
+    readHelp.current = !autoLevel.current; // on levels where the child reads, hearing the whole story counts as a hint
     readLines(story, 0, story.lines.length - 1);
   }
 
   function tapWord(word: string) {
     stop();
     setHi(null);
-    say(word);
+    speak(word);
   }
 
   function startQuestions(s: Story = story!) {
@@ -285,7 +290,7 @@ export function StoryChoose({ profileId, onDone, onExit }: Props) {
         </div>
         <button
           className="icon-btn"
-          onClick={() => (phase === 'question' && question ? say(questionSpeech(question, state.level)) : say(story.title))}
+          onClick={() => (phase === 'question' && question ? speak(questionSpeech(question, state.level)) : speak(story.title))}
           aria-label="Say again"
         >
           🔊

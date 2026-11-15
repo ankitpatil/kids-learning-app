@@ -7,7 +7,7 @@ import { maxLevel } from '../../engine/tracks';
 import { numberWord } from '../../engine/numberWords';
 import { getSkillState, getSkillStates, saveSkillState, logAttempt } from '../../store/db';
 import { planRound, resolveSlot, type Slot } from '../../engine/roundMix';
-import { say } from '../../audio/speech';
+import { say, speak } from '../../audio/speech';
 import { fresh } from '../../engine/recent';
 import { feedback } from '../../components/Feedback';
 
@@ -191,10 +191,10 @@ export function StorySums({ profileId, onDone, onExit }: Props) {
             <span key={i} className={i < index ? 'dot done' : i === index ? `dot now${slot.current.kind === 'stretch' ? ' bonus' : ''}` : 'dot'} />
           ))}
         </div>
-        <button className="icon-btn" onClick={() => say(ask(item))} aria-label="Say again">🔊</button>
+        <button className="icon-btn" onClick={() => speak(ask(item))} aria-label="Say again">🔊</button>
       </div>
 
-      <div className={`story-card sum-story ${mood}`} onClick={() => say(spokenStory(item))}>
+      <div className={`story-card sum-story ${mood}`} onClick={() => speak(spokenStory(item))}>
         {item.lines.map((l, i) => (
           <p key={i} className="story-line">{l}</p>
         ))}

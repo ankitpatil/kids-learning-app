@@ -2,6 +2,11 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-15 — Narration off by default (Ankit's call)
+- New Grown-ups toggle "💬 Talk by itself", **off by default**, per device (`localStorage.narration`). Off: screen prompts, answer feedback, hints and Move-mode prompts are silent; speech the child asks for still plays — every 🔊 "say again" button, tapping a title, word, picture or sticker, avatar names, the voice sample and "read to me". The 🔊/🔇 mute button still silences everything.
+- In code: `say()` is narration (gated); `speak()` is asked-for speech (always, unless muted). New tap-to-hear code should use `speak()`.
+- Stories: on read-to-you levels (L1) with narration off, the story isn't read aloud by itself — the "read to me" speaker is shown instead, and using it there doesn't count as a hint.
+
 ## 2026-11-15 — Hosted on Vercel (Ankit's call)
 - Static Vite build on Vercel (Hobby, `*.vercel.app`), connected to this repo: every push to `main` deploys. No login, no custom domain for now. HTTPS there is also what the camera (Move mode) needs.
 - Scheduled runs keep pushing to `main` (Ankit didn't ask for a review branch), so the test + build gate before every push is now the safety net for what the kids see. CLAUDE.md updated.

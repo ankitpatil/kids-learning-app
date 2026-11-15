@@ -4,7 +4,7 @@ import { LETTERS } from './letters';
 import { updateSkill, type SkillState } from '../../engine/adaptive';
 import { getSkillState, getSkillStates, saveSkillState, logAttempt } from '../../store/db';
 import { planRound, resolveSlot, type Slot } from '../../engine/roundMix';
-import { say } from '../../audio/speech';
+import { say, speak } from '../../audio/speech';
 import { fresh } from '../../engine/recent';
 import { feedback } from '../../components/Feedback';
 
@@ -118,10 +118,10 @@ export function PhonicsPop({ profileId, onDone, onExit }: Props) {
             <span key={i} className={i < index ? 'dot done' : i === index ? `dot now${slot.current.kind === 'stretch' ? ' bonus' : ''}` : 'dot'} />
           ))}
         </div>
-        <button className="icon-btn" onClick={() => say(prompt(item))} aria-label="Say again">🔊</button>
+        <button className="icon-btn" onClick={() => speak(prompt(item))} aria-label="Say again">🔊</button>
       </div>
 
-      <button className="picture-card" onClick={() => say(item.word)} aria-label={`Picture: ${item.word}`}>
+      <button className="picture-card" onClick={() => speak(item.word)} aria-label={`Picture: ${item.word}`}>
         <span className="picture">{item.emoji}</span>
       </button>
 

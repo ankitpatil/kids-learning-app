@@ -21,7 +21,7 @@ beforeEach(() => {
   vi.useFakeTimers();
   spoken = [];
   vi.stubGlobal('SpeechSynthesisUtterance', FakeUtterance);
-  vi.stubGlobal('localStorage', { getItem: () => null, setItem: () => {} });
+  vi.stubGlobal('localStorage', { getItem: (k: string) => (k === 'narration' ? '1' : null), setItem: () => {} });
   vi.stubGlobal('window', {
     speechSynthesis: { cancel: () => {}, resume: () => {}, getVoices: () => [], speak: (u: FakeUtterance) => spoken.push(u) },
   });
@@ -103,5 +103,32 @@ describe('say (phrase queue)', () => {
     stopSpeech();
     vi.advanceTimersByTime(20000);
     expect(spoken.map((u) => u.text)).toEqual(['One.']);
+  });
+});
+
+describe('narration setting', () => {
+  it('is off by default: say() stays quiet, speak() still talks', async () => {
+    vi.stubGlobal('localStorage', { getItem: () => null, setItem: () => {} });
+    vi.resetModules();
+    const { say, speak, isNarrationOn } = await import('./speech');
+    expect(isNarrationOn()).toBe(false);
+    say('Pick a game!');
+    vi.runAllTimers();
+    expect(spoken).toHaveLength(0);
+    speak('cat');
+    vi.runAllTimers();
+    expect(spoken.map((u) => u.text)).toEqual(['cat']);
+  });
+
+  it('turned on, say() speaks and the choice is saved', async () => {
+    const store: Record<string, string> = {};
+    vi.stubGlobal('localStorage', { getItem: (k: string) => store[k] ?? null, setItem: (k: string, v: string) => (store[k] = v) });
+    vi.resetModules();
+    const { say, setNarration } = await import('./speech');
+    setNarration(true);
+    expect(store.narration).toBe('1');
+    say('Pick a game!');
+    vi.runAllTimers();
+    expect(spoken.map((u) => u.text)).toEqual(['Pick a game!']);
   });
 });

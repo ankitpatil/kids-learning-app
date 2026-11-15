@@ -4,7 +4,7 @@ import { updateSkill, type SkillState } from '../../engine/adaptive';
 import { maxLevel } from '../../engine/tracks';
 import { getSkillState, getSkillStates, saveSkillState, logAttempt } from '../../store/db';
 import { planRound, resolveSlot, type Slot } from '../../engine/roundMix';
-import { say } from '../../audio/speech';
+import { say, speak } from '../../audio/speech';
 import { fresh } from '../../engine/recent';
 import { feedback } from '../../components/Feedback';
 
@@ -120,10 +120,10 @@ export function SightWordCatch({ profileId, onDone, onExit }: Props) {
             <span key={i} className={i < index ? 'dot done' : i === index ? `dot now${slot.current.kind === 'stretch' ? ' bonus' : ''}` : 'dot'} />
           ))}
         </div>
-        <button className="icon-btn" onClick={() => say(prompt(item))} aria-label="Say again">🔊</button>
+        <button className="icon-btn" onClick={() => speak(prompt(item))} aria-label="Say again">🔊</button>
       </div>
 
-      <button className={`catcher ${mood}`} onClick={() => say(prompt(item))} aria-label="Hear the word again">
+      <button className={`catcher ${mood}`} onClick={() => speak(prompt(item))} aria-label="Hear the word again">
         <span aria-hidden="true">{mood === 'yay' ? '🫙✨' : '🫙'}</span>
       </button>
 

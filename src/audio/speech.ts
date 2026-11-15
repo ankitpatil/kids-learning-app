@@ -8,6 +8,29 @@ try {
   /* storage unavailable */
 }
 
+// Narration = the app speaking by itself (screen prompts, feedback, hints). Off by default: then only
+// speech the child asks for (🔊 buttons, tapping a word or picture, "read to me") is spoken.
+const NARRATION_KEY = 'narration';
+let narration = false;
+try {
+  narration = localStorage.getItem(NARRATION_KEY) === '1';
+} catch {
+  /* storage unavailable */
+}
+
+export function isNarrationOn() {
+  return narration;
+}
+
+export function setNarration(on: boolean) {
+  narration = on;
+  try {
+    localStorage.setItem(NARRATION_KEY, on ? '1' : '0');
+  } catch {
+    /* ignore */
+  }
+}
+
 export function isMuted() {
   return muted;
 }
@@ -101,7 +124,8 @@ function utter(text: string, rate: number): SpeechSynthesisUtterance {
  * `speechChunks`) and each phrase is spoken on its own with a pause after it, because one long
  * utterance runs everything together. A new call (or `stopSpeech`) cancels what is left.
  */
-export function say(text: string, opts: { rate?: number } = {}) {
+export function say(text: string, opts: { rate?: number; asked?: boolean } = {}) {
+  if (!opts.asked && !narration) return;
   if (muted || typeof window === 'undefined' || !window.speechSynthesis) return;
   stopSpeech();
   const mine = generation;
@@ -127,6 +151,11 @@ export function say(text: string, opts: { rate?: number } = {}) {
     window.speechSynthesis.speak(u);
   };
   speakChunk(0);
+}
+
+/** Speak something the child (or parent) just asked to hear — spoken even when narration is off. */
+export function speak(text: string, opts: { rate?: number } = {}) {
+  say(text, { ...opts, asked: true });
 }
 
 /** If speech hasn't started by now, assume the engine is stuck and time the words ourselves. */

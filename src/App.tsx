@@ -25,7 +25,7 @@ import { levelsFromCheckpoint, masteredFromCheckpoint } from './engine/placement
 import { pickTrack } from './engine/tracks';
 import { Placement, StartPoint } from './screens/Placement';
 import type { Subject } from './engine/tracks';
-import { say, isMuted, setMuted, stopSpeech } from './audio/speech';
+import { say, isMuted, setMuted, stopSpeech, speak } from './audio/speech';
 import { MoveModeToggle } from './components/MotionLayer';
 
 type Game = 'count' | 'missing' | 'placeValue' | 'compare2d' | HopTrack | 'phonics' | WordTrack | 'sightWords' | 'endings' | 'stories' | 'wordProblems';
@@ -272,7 +272,7 @@ export default function App() {
           {muted ? '🔇' : '🔊'}
         </button>
       </div>
-      <h1 className="title" onClick={() => say('Pick a game!')}>Little Learners</h1>
+      <h1 className="title" onClick={() => speak('Pick a game!')}>Little Learners</h1>
       <div className="subjects">
         <button
           className="subject math"
