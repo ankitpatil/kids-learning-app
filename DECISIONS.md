@@ -2,6 +2,16 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-15 — AI3b "Why?" helper in the math games (split again: AI3b math, AI3c 3 reading games, AI3d Story Choose)
+- AI3b covered six integrations of different shapes, so it was split: this run does the two math games (Feed the Monster — all four modes — and Story Sums). AI3c = Phonics Pop, Sight-Word Catch, Word Builder; AI3d = Story Choose questions.
+- Counting and tens & ones feed modes: the "answer" is the target number, even though it is on screen. So a Claude hint can't say it ("count to 8" is rejected). Strict on purpose: the canned hint already says the target, and a Claude hint there should be about *how* to count (tap each cookie, boxes first). The request also leaves the target out of the question, so Claude isn't tempted.
+- Question texts avoid number words that could equal the answer by accident ("one by one", "boxes of ten" → "full boxes"), so the request itself never contains the answer unless it's a number the child is shown (5 + ? = 10, or a story where 8 − 4 = 4).
+- Compare: the answer is one of the two plate numbers and both are in the question; the hint may name the other plate but not the answer plate.
+- Story Sums, per step: answer mode / build number → the result; equation mode → "a plus b" (the equation without its result); build sign step → "plus"/"minus". So a sign hint may not say "plus" (or "minus") — it has to talk about getting more / going away. The leak check for non-number answers now also normalises + / − and number words, so "5 + 3", "five plus three" and "5 plus 3" all count as giving it away.
+- Story Sums requests: story + question if ≤ 160 chars, else question first then the story (cut at 160) so the question is never the part that gets cut. Story names are the built-in ones (Riya, Sam…); `redactIdentifiers` still swaps a name if it matches a local nickname.
+- Cache key includes the round index (`index:itemId[:step]`) so an item id seen twice in a round still gets its own hint.
+- When a Claude hint is used it replaces the whole canned hint, including "Not seven." / "That's twelve." prefixes — same as Number Line Hop.
+
 ## 2026-11-14 — AI3a "Why?" helper (split: core + 2 games now, other games in AI3b)
 - AI3 touches all 8 games, so it was split: this run builds the checked hint pipeline (`src/ai/whyHint.ts`) and wires it into one math game (Number Line Hop) and one reading game (Word Detective). AI3b wires the rest.
 - One Claude request per item (per step for make-10 items). If it fails or is rejected, later misses on that item use the canned hints (no retry: the 2 s budget leaves no room).

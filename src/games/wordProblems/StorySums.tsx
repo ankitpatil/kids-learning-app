@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { makeWordProblem, eqText, eqSpoken, hintFor, signHint, spokenStory, solve, type WordProblem, type Equation, type Op } from './generator';
+import { makeWordProblem, eqText, eqSpoken, hintFor, signHint, spokenStory, solve, sumWhyContext, type WordProblem, type Equation, type Op, type SumStep } from './generator';
+import { ai } from '../../ai/app';
+import { createWhyHinter } from '../../ai/whyHint';
 import { updateSkill, type SkillState } from '../../engine/adaptive';
 import { maxLevel } from '../../engine/tracks';
 import { numberWord } from '../../engine/numberWords';
@@ -64,6 +66,8 @@ export function StorySums({ profileId, onDone, onExit }: Props) {
   const ease = useRef(false);
   const started = useRef(Date.now());
   const busy = useRef(false);
+  const misses = useRef(0); // misses on the current item (AI3: Claude hint from the 2nd)
+  const hinter = useRef(createWhyHinter(ai));
   const plan = useRef(planRound(ROUND_LENGTH));
   const all = useRef<Awaited<ReturnType<typeof getSkillStates>>>({});
   const slot = useRef<Slot>({ kind: 'current', trackId: TRACK, level: 0 });
@@ -89,6 +93,7 @@ export function StorySums({ profileId, onDone, onExit }: Props) {
     setSign(null);
     setPics(it.showPictures);
     setMood('idle');
+    misses.current = 0;
     started.current = Date.now();
     busy.current = false;
     setTimeout(() => say((sl.kind === 'stretch' ? 'Bonus challenge! || ' : '') + ask(it)), 250);
@@ -127,14 +132,18 @@ export function StorySums({ profileId, onDone, onExit }: Props) {
     }, 2400);
   }
 
-  async function miss(key: string, hint: string, showPics = true) {
+  async function miss(key: string, canned: string, step: SumStep, picked: string | number, showPics = true) {
     await record(false);
     feedback('wrong');
     hinted.current = true;
     setTried((t) => [...t, key]);
     setMood('oops');
     if (showPics && item!.answer <= 20) setPics(true);
-    say(hint);
+    // From the 2nd miss on an item: a checked Claude hint if helpers are on (≤ 2 s), else canned.
+    misses.current += 1;
+    const ctx = sumWhyContext(item!, step, slot.current.level, picked);
+    const hint = await hinter.current.hint(`${index}:${item!.id}:${step}`, misses.current, ctx, canned);
+    say(hint.text);
     setTimeout(() => {
       setMood('idle');
       busy.current = false;
@@ -146,7 +155,7 @@ export function StorySums({ profileId, onDone, onExit }: Props) {
     if (!item || busy.current || tried.includes(`n${n}`)) return;
     busy.current = true;
     if (n === item.answer) return win();
-    return miss(`n${n}`, `Not ${numberWord(n)}. || ${hintFor(item)}`);
+    return miss(`n${n}`, `Not ${numberWord(n)}. || ${hintFor(item)}`, 'number', n);
   }
 
   async function pickEquation(e: Equation) {
@@ -155,7 +164,7 @@ export function StorySums({ profileId, onDone, onExit }: Props) {
     if (e.a === item.a && e.b === item.b && e.op === item.op) return win();
     // Wrong sign → explain the action; right sign, wrong number → look at the story's numbers.
     const hint = e.op !== item.op ? signHint(item) : `Look at the numbers in the story. || ${item.spokenLines.join(' | ')}`;
-    return miss(eqText(e), hint, false);
+    return miss(eqText(e), hint, 'equation', `${e.a} ${e.op === '+' ? 'plus' : 'minus'} ${e.b}`, false);
   }
 
   async function pickSign(op: Op) {
@@ -167,7 +176,7 @@ export function StorySums({ profileId, onDone, onExit }: Props) {
       busy.current = false;
       return;
     }
-    return miss(`s${op}`, signHint(item), false);
+    return miss(`s${op}`, signHint(item), 'sign', op === '+' ? 'plus' : 'minus', false);
   }
 
   if (!item || !state) return <div className="screen center">Loading…</div>;

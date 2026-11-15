@@ -9,6 +9,9 @@ import { say } from '../../audio/speech';
 import { fresh } from '../../engine/recent';
 import { feedback } from '../../components/Feedback';
 import { makeCompareItem, comparePrompt, compareHint, comparePraise, type CompareItem } from './compare';
+import { feedWhyContext } from './why';
+import { ai } from '../../ai/app';
+import { createWhyHinter } from '../../ai/whyHint';
 
 const ROUND_LENGTH = 8;
 const w = numberWord;
@@ -91,6 +94,8 @@ export function FeedMonster({ profileId, trackId, onDone, onExit }: Props) {
   const ease = useRef(false);
   const started = useRef(Date.now());
   const busy = useRef(false);
+  const misses = useRef(0); // misses on the current item (AI3: Claude hint from the 2nd)
+  const hinter = useRef(createWhyHinter(ai));
   const plan = useRef(planRound(ROUND_LENGTH));
   const all = useRef<Awaited<ReturnType<typeof getSkillStates>>>({});
   const slot = useRef<Slot>({ kind: 'current', trackId, level: 0 });
@@ -115,6 +120,7 @@ export function FeedMonster({ profileId, trackId, onDone, onExit }: Props) {
     setBoxes(0);
     setMood('idle');
     setWrongPick(null);
+    misses.current = 0;
     started.current = Date.now();
     busy.current = false;
     setTimeout(() => say((sl.kind === 'stretch' ? 'Bonus challenge! || ' : '') + promptFor(it)), 250);
@@ -179,24 +185,30 @@ export function FeedMonster({ profileId, trackId, onDone, onExit }: Props) {
     } else {
       setMood('oops');
       setHintUsed(true);
+      let canned: string;
       if (isCompare(item)) {
         setWrongPick(given);
-        say(compareHint(item));
+        canned = compareHint(item);
       } else if (isPlaceValue(item)) {
-        say(placeValueHint(item, pv, boxes, fed, given));
+        canned = placeValueHint(item, pv, boxes, fed, given);
         if (item.mode === 'choose') setWrongPick(given);
       } else if (item.mode === 'choose') {
         setWrongPick(given);
-        say(`Hmm, | ${w(item.have)} and ${w(given)} make ${w(item.have + given)}. | I want ${w(item.total)}. | Try again!`);
+        canned = `Hmm, | ${w(item.have)} and ${w(given)} make ${w(item.have + given)}. | I want ${w(item.total)}. | Try again!`;
       } else {
         const now = item.have + given;
         const diff = Math.abs(item.total - now);
-        say(
+        canned =
           verdict === 'too-few'
             ? `That's ${w(now)}. | I want ${w(item.total)}. | Can you give me ${w(diff)} more?`
-            : `Oh, that's too many! | I want ${w(item.total)}. | Take ${w(diff)} back.`,
-        );
+            : `Oh, that's too many! | I want ${w(item.total)}. | Take ${w(diff)} back.`;
       }
+      // From the 2nd miss on an item: a checked Claude hint if helpers are on (≤ 2 s), else canned.
+      misses.current += 1;
+      const picked = !isCompare(item) && isPlaceValue(item) && item.mode === 'feed' ? { boxes, loose: fed } : given;
+      const ctx = feedWhyContext(item, sl.level, picked);
+      const hint = await hinter.current.hint(`${index}:${item.id}`, misses.current, ctx, canned);
+      say(hint.text);
       setTimeout(() => {
         setMood('idle');
         busy.current = false;

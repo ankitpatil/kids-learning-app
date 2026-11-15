@@ -8,6 +8,8 @@ import {
 import { getLevel, maxLevel } from '../../engine/tracks';
 import { numberWord } from '../../engine/numberWords';
 import type { Rng } from '../feedMonster/generator';
+import type { WhyContext } from '../../ai/whyHint';
+import { LIMITS } from '../../ai/request';
 
 export type Kind = 'addTo' | 'takeFrom' | 'putTogether';
 export type Mode = 'answer' | 'equation' | 'build';
@@ -228,4 +230,27 @@ export function signHint(it: WordProblem): string {
 /** The full story + question, spoken. */
 export function spokenStory(it: WordProblem): string {
   return `${it.spokenLines.join(' | ')} || ${it.spokenQuestion}`;
+}
+
+// ---- AI3b "Why?" helper ----
+
+export type SumStep = 'number' | 'equation' | 'sign';
+
+/**
+ * What the child is being asked at this step and what they must find. `number`: the answer
+ * (answer mode, or build mode after the sign). `equation`: the number sentence without its
+ * result, in words ("5 plus 3", so a hint saying "5 plus 3" or "five plus three" is caught).
+ * `sign`: plus or minus. Names are the story's built-in ones. If the story is too long for the
+ * request whitelist, the question leads so it isn't the part that gets cut.
+ */
+export function sumWhyContext(it: WordProblem, step: SumStep, level: number, picked?: string | number): WhyContext {
+  const base = { subject: 'math' as const, track: 'wordProblems', level, picked };
+  const story = it.lines.join(' ');
+  const ask =
+    step === 'sign' ? 'Is this story plus or minus?' : step === 'equation' ? 'Which number sentence fits the story?' : it.question;
+  const full = `${story} ${ask}`;
+  const question = full.length <= LIMITS.question ? full : `${ask} Story: ${story}`.slice(0, LIMITS.question);
+  const word = it.op === '+' ? 'plus' : 'minus';
+  const answer = step === 'sign' ? word : step === 'equation' ? `${it.a} ${word} ${it.b}` : it.answer;
+  return { ...base, question, answer };
 }

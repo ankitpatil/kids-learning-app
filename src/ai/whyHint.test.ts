@@ -40,6 +40,18 @@ describe('answer leak checks', () => {
   it('math: non-number answers must not appear as written', () => {
     expect(leaksAnswer('It is 5 + 3 = 8.', { subject: 'math', answer: '5 + 3 = 8' })).toBe(true);
     expect(leaksAnswer('Does she get more or fewer?', { subject: 'math', answer: '5 + 3 = 8' })).toBe(false);
+    // AI3b: equation answers in words or symbols, numbers as digits or words.
+    const EQ = { subject: 'math' as const, answer: '5 plus 3' };
+    expect(leaksAnswer('Try 5 plus 3.', EQ)).toBe(true);
+    expect(leaksAnswer('Try five plus three.', EQ)).toBe(true);
+    expect(leaksAnswer('Try 5 + 3.', EQ)).toBe(true);
+    expect(leaksAnswer('She gets 3 more, so we add.', EQ)).toBe(false);
+    const SUB = { subject: 'math' as const, answer: '12 minus 4' };
+    expect(leaksAnswer('It is 12 - 4.', SUB)).toBe(true);
+    expect(leaksAnswer('It is twelve minus four.', SUB)).toBe(true);
+    expect(leaksAnswer('Four go away from the twelve.', SUB)).toBe(false);
+    expect(leaksAnswer('Getting more means plus!', { subject: 'math', answer: 'plus' })).toBe(true);
+    expect(leaksAnswer('Do they get more, or do some go away?', { subject: 'math', answer: 'plus' })).toBe(false);
   });
 
   it('reading: the word said or spelled out', () => {

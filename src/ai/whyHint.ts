@@ -70,9 +70,12 @@ export function leaksAnswer(text: string, ctx: Pick<WhyContext, 'subject' | 'ans
   const answer = String(ctx.answer).trim();
   if (ctx.subject === 'math') {
     if (/^\d+$/.test(answer)) return mentionsNumber(text, Number(answer));
-    // Non-number answers (an equation, "more"): the answer as written must not appear.
-    const norm = (s: string) => s.toLowerCase().replace(/\s+/g, '');
-    return norm(text).includes(norm(answer));
+    // Non-number answers (an equation like "5 plus 3", "minus"): the answer must not appear as
+    // written, nor with its numbers as words ("five plus three"), nor with + / − for plus / minus.
+    const norm = (s: string) => s.toLowerCase().replace(/\s+[-−–]\s+|[−–]/g, 'minus').replace(/\+/g, 'plus').replace(/[-\s]+/g, '');
+    const asWords = answer.replace(/\d+/g, (d) => ` ${numberWord(Number(d))} `);
+    const t = norm(text);
+    return t.includes(norm(answer)) || t.includes(norm(asWords));
   }
   if (spellsWord(text, answer)) return true;
   return !ctx.sayWordOk && saysWord(text, answer);

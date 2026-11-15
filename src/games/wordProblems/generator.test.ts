@@ -1,8 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import {
   makeWordProblem, modeAt, kindsAt, solve, eqText, eqSpoken, numbersFor, storyText, wrongOpResult,
-  answerChoices, equationChoices, hintFor, signHint, spokenStory, fillFrame, type Kind,
+  answerChoices, equationChoices, hintFor, signHint, spokenStory, fillFrame, sumWhyContext, type Kind,
 } from './generator';
+import { whyRequest, leaksAnswer } from '../../ai/whyHint';
+import { sanitizeRequest } from '../../ai/request';
 import { PEOPLE, THINGS, SETTINGS, ADD_TO, ADD_TO_COMES, TAKE_FROM, PUT_TOGETHER, settingsFor } from '../../content/wordProblems';
 import { blockedWords } from '../../content/kidSafe';
 import { numberWord } from '../../engine/numberWords';
@@ -245,5 +247,27 @@ describe('story sums: C2 content', () => {
     expect(fillFrame('{B} {b?swims|swim} away.', 4, 3, riya, arjun, fish, String)).toBe('3 fish swim away.');
     expect(fillFrame('{His} dad gives {him} {b} more.', 4, 3, arjun, riya, fish, numberWord)).toBe('His dad gives him three more.');
     expect(fillFrame('{His} mum gives {him} {b} more.', 4, 3, riya, arjun, fish, String)).toBe('Her mum gives her 3 more.');
+  });
+});
+
+describe('sumWhyContext (AI3b)', () => {
+  it('each step asks for the right thing, never states it, and passes the whitelist', () => {
+    for (let level = 0; level <= 2; level++) {
+      for (let n = 0; n < 150; n++) {
+        const it = makeWordProblem(level, Math.random, n % 7 === 0);
+        for (const step of ['number', 'equation', 'sign'] as const) {
+          const ctx = sumWhyContext(it, step, level, 4);
+          const word = it.op === '+' ? 'plus' : 'minus';
+          expect(ctx.answer).toBe(step === 'number' ? it.answer : step === 'sign' ? word : `${it.a} ${word} ${it.b}`);
+          expect(ctx.question.length).toBeLessThanOrEqual(160);
+          expect(ctx.question).toContain(step === 'number' ? it.question : step === 'sign' ? 'plus or minus' : 'number sentence');
+          // Never states it, unless the answer happens to be one of the story's numbers (8 − 4 = 4).
+          if (step === 'equation' || (step === 'number' && it.answer !== it.a && it.answer !== it.b)) expect(leaksAnswer(ctx.question, ctx)).toBe(false);
+          const req = sanitizeRequest(whyRequest(ctx));
+          expect(req).toMatchObject({ kind: 'why', subject: 'math', track: 'wordProblems', level: level + 1 });
+          expect(req && req.kind === 'why' && req.item.question).toBe(ctx.question);
+        }
+      }
+    }
   });
 });
