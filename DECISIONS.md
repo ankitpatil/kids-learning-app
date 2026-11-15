@@ -2,6 +2,11 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-15 — Hosted on Vercel (Ankit's call)
+- Static Vite build on Vercel (Hobby, `*.vercel.app`), connected to this repo: every push to `main` deploys. No login, no custom domain for now. HTTPS there is also what the camera (Move mode) needs.
+- Scheduled runs keep pushing to `main` (Ankit didn't ask for a review branch), so the test + build gate before every push is now the safety net for what the kids see. CLAUDE.md updated.
+- No child data reaches Vercel: progress lives in each browser's IndexedDB; Vercel only serves files.
+
 ## 2026-11-15 — Move mode: smoother cursor (Ankit: "hand movement is not very smooth")
 - Cause: the cursor only moved when a camera frame was tracked (≈15–30 fps) and used a fixed EMA (laggy and still jittery).
 - Fix: tracking sets a *target*; the cursor is drawn every screen refresh and glides toward it (exponential, frame-rate independent, rate 20/s). Hit-testing and the hold ring also run per display frame.

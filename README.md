@@ -92,7 +92,7 @@ Keep changes small: one item, done well. Feature requests from Ankit outside the
 
 ### Never
 
-- Deploy publicly, or add anything that costs money (domains, paid APIs, voice actors)
+- Change hosting (the app is on Vercel; every push to `main` deploys), or add anything that costs money (domains, paid APIs, voice actors)
 - Add analytics, trackers or any third-party service that receives child data
 - Add a backend that stores child data
 - Collect more than a nickname and an avatar for a child profile

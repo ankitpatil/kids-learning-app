@@ -73,6 +73,6 @@ Reprioritised 2026-11-08 for the actual learner: knows basic words and +/- (≈ 
 - **Deploy the family proxy** from `proxy/` (Cloudflare Worker free tier) with the API key as a secret and a family passcode; enter the URL + passcode in the app's parent Settings
 - **Parked (option 2):** "Explain this week" button in the parent dashboard — sends anonymous stats to Claude for a plain-English summary. Revisit after #23
 - **Download recorded sounds for S1** into `public/sounds/raw/` (CC0 only; Freesound needs Ankit's login). Shortlist: Kenney *Music Jingles* (kenney.nl/assets/music-jingles, CC0) → one bright victory jingle; Freesound CC0: "cheering and clapping crowd 2" (AlaskaRobotics, 8 s, school gym), "Crowd Cheering" (SoundsExciting, 13 s), "Voice_Crowd_Small_Expression_Applause_Cheer" (Nox_Sound, 3 s), "yay.mp3" (Disarmenemys, kid's yay). Avoid clips whose page asks for credit despite CC0 (e.g. BerlinGameScene)
-- Making the app public / deploying to a public domain
+- Custom domain or login for the hosted app (it's on Vercel at a `*.vercel.app` address since 2026-11-15; pushes to `main` deploy)
 - Anything that costs money (domains, paid APIs, voice actors)
 - Adding analytics or any third-party service that receives child data
