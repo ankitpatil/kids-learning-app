@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { HandLandmarker, PoseLandmarker } from '@mediapipe/tasks-vision';
 import { MOTION_EVENT, loadMotionSettings, saveMotionSettings, type MotionSettings, type TrackingMode } from '../motion/settings';
-import { LOST_GRACE_MS, createDwell, smooth, toScreen, type Pt } from '../motion/pointer';
+import { LOST_GRACE_MS, createDwell, createOneEuro, glide, toScreen, type Pt } from '../motion/pointer';
 import { INDEX_TIP, loadHandTracker, loadPoseTracker } from '../motion/tracker';
 import { activeWrist, createPlayerLock, reachToScreen, type LockStep, type Pose } from '../motion/player';
 import { say } from '../audio/speech';
@@ -139,25 +139,44 @@ function MotionSession({ mode }: { mode: TrackingMode }) {
       el?.classList.add('motion-hover');
       hovered = el;
     };
-    /** Move the cursor (or hide it) and run hold-to-choose. */
+    // Tracking (≈15–30 fps) only sets where the hand is; the cursor is drawn every screen refresh,
+    // gliding toward that point, so it moves smoothly between camera frames.
+    const euro = createOneEuro();
+    let target: Pt | null = null;
+    let lastRender = 0;
+    /** New tracked hand point from the camera (or null = hand gone). */
     const drive = (pt: Pt | null, now: number) => {
-      const cursor = cursorRef.current!;
       if (!pt) {
-        cursor.style.opacity = '0';
-        dwell.update(null, now);
-        hover(null);
-        pos = null;
+        target = null;
+        euro.reset();
         return;
       }
-      pos = smooth(pos, pt);
+      target = euro.filter(pt, now);
+    };
+    /** Every display frame: glide the cursor, then run hold-to-choose under it. */
+    const render = (now: number) => {
+      const cursor = cursorRef.current;
+      const dt = lastRender ? now - lastRender : 16;
+      lastRender = now;
+      if (!cursor) return;
+      if (!target) {
+        if (pos) {
+          cursor.style.opacity = '0';
+          dwell.update(null, now);
+          hover(null);
+          pos = null;
+        }
+        return;
+      }
+      pos = pos ? glide(pos, target, dt) : target;
       cursor.style.opacity = '1';
-      cursor.style.transform = `translate(${pos.x}px, ${pos.y}px)`;
-      const target = pickTarget(document.elementFromPoint(pos.x, pos.y));
-      hover(target);
-      const step = dwell.update(target, now);
+      cursor.style.transform = `translate3d(${pos.x}px, ${pos.y}px, 0)`;
+      const hit = pickTarget(document.elementFromPoint(pos.x, pos.y));
+      hover(hit);
+      const step = dwell.update(hit, now);
       cursor.style.setProperty('--p', String(step.progress));
-      if (step.fire && target?.isConnected) {
-        target.click();
+      if (step.fire && hit?.isConnected) {
+        hit.click();
         cursor.classList.remove('fired');
         void cursor.offsetWidth; // restart the pop animation
         cursor.classList.add('fired');
@@ -188,6 +207,7 @@ function MotionSession({ mode }: { mode: TrackingMode }) {
 
     const frame = (now: number) => {
       raf = requestAnimationFrame(frame);
+      render(now);
       const video = videoRef.current;
       if (!video || !cursorRef.current || !canvasRef.current || video.readyState < 2 || video.currentTime === lastVideoTime) return;
       lastVideoTime = video.currentTime;
@@ -235,7 +255,7 @@ function MotionSession({ mode }: { mode: TrackingMode }) {
     (async () => {
       try {
         const size = mode === 'body' ? { width: { ideal: 1280 }, height: { ideal: 720 } } : { width: { ideal: 640 }, height: { ideal: 480 } };
-        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', ...size }, audio: false });
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', frameRate: { ideal: 30 }, ...size }, audio: false });
         if (cancelled) return;
         const video = videoRef.current!;
         video.srcObject = stream;

@@ -2,6 +2,13 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-15 — Move mode: smoother cursor (Ankit: "hand movement is not very smooth")
+- Cause: the cursor only moved when a camera frame was tracked (≈15–30 fps) and used a fixed EMA (laggy and still jittery).
+- Fix: tracking sets a *target*; the cursor is drawn every screen refresh and glides toward it (exponential, frame-rate independent, rate 20/s). Hit-testing and the hold ring also run per display frame.
+- One Euro filter replaces the EMA: strong smoothing when the hand is still (steady while holding on a button), light when it moves fast (little lag). minCutoff 1.2 Hz, beta 0.004 (px/s).
+- Body mode cursor point = mean of the wrist and the same hand's pinky/index/thumb points (when visible): steadier than the wrist alone.
+- Camera asks for 30 fps. Possible next step if still choppy on the TV laptop: run the tracker in a Web Worker so detection never blocks drawing.
+
 ## 2026-11-15 — Move mode M4a: body tracking + raise-hand-to-claim (with Ankit)
 - Body (pose) tracker is the default Move mode: it sees whole people (so a hand belongs to a body), works at TV distance, and makes "hand raised" easy (wrist above nose). The fingertip tracker stays as "Close to the laptop".
 - Claim = a wrist above the head for 1 s (highest hand wins if two go up together). Follow = nearest shoulder-centre to last frame, max jump 25 % of the image; if two bodies are within 1.2× of each other (crossing paths) the cursor pauses that frame instead of guessing. Gone for 2 s → turn is free.

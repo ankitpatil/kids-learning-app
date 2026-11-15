@@ -64,3 +64,52 @@ export function createDwell<T>(holdMs = HOLD_MS) {
     },
   };
 }
+
+/**
+ * One Euro filter (Casiez et al. 2012) for a 2-D point in screen pixels: heavy smoothing when the hand is
+ * nearly still (no jitter while holding on a button), light smoothing when it moves fast (little lag).
+ * `minCutoff` (Hz) sets the steadiness at rest; `beta` how quickly it loosens up with speed (px/s).
+ */
+export function createOneEuro(minCutoff = 1.2, beta = 0.004, dCutoff = 1.0) {
+  let prev: Pt | null = null;
+  let dPrev: Pt = { x: 0, y: 0 };
+  let tPrev = 0;
+  const alpha = (cutoff: number, dt: number) => {
+    const tau = 1 / (2 * Math.PI * cutoff);
+    return 1 / (1 + tau / dt);
+  };
+  return {
+    filter(p: Pt, tMs: number): Pt {
+      if (!prev) {
+        prev = p;
+        tPrev = tMs;
+        return p;
+      }
+      const dt = Math.max(1e-3, (tMs - tPrev) / 1000);
+      tPrev = tMs;
+      const ad = alpha(dCutoff, dt);
+      const d = { x: (p.x - prev.x) / dt, y: (p.y - prev.y) / dt };
+      dPrev = { x: dPrev.x + ad * (d.x - dPrev.x), y: dPrev.y + ad * (d.y - dPrev.y) };
+      const speed = Math.hypot(dPrev.x, dPrev.y);
+      const a = alpha(minCutoff + beta * speed, dt);
+      prev = { x: prev.x + a * (p.x - prev.x), y: prev.y + a * (p.y - prev.y) };
+      return prev;
+    },
+    reset() {
+      prev = null;
+      dPrev = { x: 0, y: 0 };
+    },
+  };
+}
+
+/** How fast the drawn cursor catches up with the tracked point, per second (frame-rate independent). */
+export const GLIDE_RATE = 20;
+
+/**
+ * Move `from` part of the way to `to` for a display frame of `dtMs`. Called every screen refresh, so the
+ * cursor glides smoothly between camera frames (camera/tracker ≈ 15–30 fps, screen 60–120 fps).
+ */
+export function glide(from: Pt, to: Pt, dtMs: number, rate = GLIDE_RATE): Pt {
+  const k = 1 - Math.exp((-rate * Math.max(0, dtMs)) / 1000);
+  return { x: from.x + (to.x - from.x) * k, y: from.y + (to.y - from.y) * k };
+}

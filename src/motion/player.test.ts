@@ -45,6 +45,16 @@ describe('body helpers', () => {
     expect(activeWrist(body(0.5, 'up'))!.y).toBeCloseTo(0.2);
   });
 
+  it('steadies the cursor point by averaging the wrist with that hand’s visible knuckles', () => {
+    const p = body(0.5, 'mid');
+    p[18] = { x: 0.40, y: 0.41, visibility: 1 }; // right pinky
+    p[20] = { x: 0.44, y: 0.43, visibility: 1 }; // right index
+    p[17] = { x: 0.9, y: 0.9, visibility: 1 }; // left pinky must not be mixed in
+    const w = activeWrist(p)!;
+    expect(w.x).toBeCloseTo((0.42 + 0.40 + 0.44) / 3);
+    expect(w.y).toBeCloseTo((0.45 + 0.41 + 0.43) / 3);
+  });
+
   it('maps the wrist within the player’s own reach box, mirrored', () => {
     const p = body(0.5);
     // reach box: 0.4 wide centred on x = 0.5, top at 0.4 - 0.3 * 0.6 = 0.22, 0.3 tall

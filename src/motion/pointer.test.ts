@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ACTIVE_ZONE, HOLD_MS, createDwell, smooth, toScreen } from './pointer';
+import { ACTIVE_ZONE, HOLD_MS, createDwell, createOneEuro, glide, smooth, toScreen } from './pointer';
 
 describe('toScreen', () => {
   it('mirrors x so the cursor moves the way the hand moves', () => {
@@ -57,5 +57,56 @@ describe('createDwell', () => {
     d.update('a', 0);
     d.reset();
     expect(d.update('a', 100).fire).toBe(false);
+  });
+});
+
+
+describe('createOneEuro', () => {
+  it('starts at the first point', () => {
+    const f = createOneEuro();
+    expect(f.filter({ x: 100, y: 50 }, 0)).toEqual({ x: 100, y: 50 });
+  });
+
+  it('damps jitter while the hand is still', () => {
+    const f = createOneEuro();
+    f.filter({ x: 500, y: 500 }, 0);
+    let out = { x: 500, y: 500 };
+    let worst = 0;
+    for (let i = 1; i <= 60; i++) {
+      const noise = i % 2 ? 8 : -8; // ±8 px tracker jitter at 30 fps
+      out = f.filter({ x: 500 + noise, y: 500 - noise }, i * 33);
+      worst = Math.max(worst, Math.abs(out.x - 500));
+    }
+    expect(worst).toBeLessThan(4); // jitter cut by more than half
+  });
+
+  it('keeps up with a fast sweep (little lag)', () => {
+    const f = createOneEuro();
+    let out = { x: 0, y: 0 };
+    for (let i = 0; i <= 15; i++) out = f.filter({ x: i * 60, y: 0 }, i * 33); // ~1800 px/s
+    expect(900 - out.x).toBeLessThan(150);
+  });
+
+  it('reset forgets the history', () => {
+    const f = createOneEuro();
+    f.filter({ x: 0, y: 0 }, 0);
+    f.reset();
+    expect(f.filter({ x: 300, y: 300 }, 33)).toEqual({ x: 300, y: 300 });
+  });
+});
+
+describe('glide', () => {
+  it('moves part of the way, more for longer frames, never overshooting', () => {
+    const a = glide({ x: 0, y: 0 }, { x: 100, y: 0 }, 8);
+    const b = glide({ x: 0, y: 0 }, { x: 100, y: 0 }, 16);
+    expect(a.x).toBeGreaterThan(0);
+    expect(b.x).toBeGreaterThan(a.x);
+    expect(glide({ x: 0, y: 0 }, { x: 100, y: 0 }, 10_000).x).toBeLessThanOrEqual(100);
+  });
+
+  it('is frame-rate independent (two 8 ms steps = one 16 ms step)', () => {
+    const two = glide(glide({ x: 0, y: 0 }, { x: 100, y: 0 }, 8), { x: 100, y: 0 }, 8);
+    const one = glide({ x: 0, y: 0 }, { x: 100, y: 0 }, 16);
+    expect(two.x).toBeCloseTo(one.x);
   });
 });

@@ -16,6 +16,8 @@ export const L_SHOULDER = 11;
 export const R_SHOULDER = 12;
 export const L_WRIST = 15;
 export const R_WRIST = 16;
+const L_HAND = [17, 19, 21]; // pinky, index, thumb (left)
+const R_HAND = [18, 20, 22];
 export const L_HIP = 23;
 export const R_HIP = 24;
 
@@ -59,7 +61,14 @@ export function activeWrist(p: Pose): Lm | null {
   const lh = p[L_HIP];
   const rh = p[R_HIP];
   const limit = seen(lh) && seen(rh) ? (t.y + (lh.y + rh.y) / 2) / 2 : t.y + t.size;
-  return highest(wrists(p).filter((w) => w.y < limit));
+  const w = highest(wrists(p).filter((x) => x.y < limit));
+  return w ? handCentre(p, w) : null;
+}
+
+/** Average the wrist with the visible hand points on the same side: much steadier than the wrist alone. */
+function handCentre(p: Pose, wrist: Lm): Lm {
+  const pts = [wrist, ...(wrist === p[L_WRIST] ? L_HAND : R_HAND).map((i) => p[i]).filter(seen)];
+  return { x: pts.reduce((s, l) => s + l.x, 0) / pts.length, y: pts.reduce((s, l) => s + l.y, 0) / pts.length, visibility: wrist.visibility };
 }
 
 /** Reach box, in shoulder widths: how far a child can comfortably move a hand around their own body. */
