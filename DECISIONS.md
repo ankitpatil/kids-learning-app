@@ -2,6 +2,15 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-14 — AI3a "Why?" helper (split: core + 2 games now, other games in AI3b)
+- AI3 touches all 8 games, so it was split: this run builds the checked hint pipeline (`src/ai/whyHint.ts`) and wires it into one math game (Number Line Hop) and one reading game (Word Detective). AI3b wires the rest.
+- One Claude request per item (per step for make-10 items). If it fails or is rejected, later misses on that item use the canned hints (no retry: the 2 s budget leaves no room).
+- The game waits for the hint (≤ 2 s) before speaking; the "oops" face and wrong sound play at once, so the child sees feedback immediately.
+- Leak rules: math — if the answer is a number, it may not appear as digits or words ("7", "seven", "thirty-four"); other answers may not appear as written. Reading — the word may not be spelled out ("c, a, t", "c a t", "sh-i-p"); in Read it and sentences it may not be said either (that would do the reading); in Build it the word is spoken anyway, so saying it is allowed. Erring strict is fine — a rejected hint just means the built-in one.
+- Also rejected: > 160 chars, > 2 sentences, > 14 words per sentence, anything other than letters/digits/basic punctuation (no emoji or links), kid-safe blocklist hits.
+- Word Detective keeps the useful per-miss prefix ("That's dog.", the sentence read with their word, "Fix the red one") and replaces only the hint part with Claude's text.
+- Level is sent 1-based (engine levels are 0-based; the request whitelist clamps to 1–20). Track ids are stripped to letters/digits to fit the whitelist.
+
 ## 2026-11-14 — C3 silly stories
 - Rewrote 41 of the 43 built-in stories so each has a silly situation and a punchline last line (a pig gets off the bus "at the mud", the dog yells "Six!", a goat steps off the train). Kept "Glen Has a Plan" (box rocket → "Glen, lunch!") and "Grapes and a Lime" as they were already funny; small tweaks elsewhere. Story ids kept so saved "recent stories" still match.
 - Added 10 new stories, 2 per pattern (Gus and the Wig, Pip the Yak, The Long Nap, Bath for a Yak, Pig in a Pink Dress, The Big Gift, The Snake and the Cake, Duke and the Flute, Toad on a Boat, Dee Can Not Sleep): 53 total, 10–13 per pattern.

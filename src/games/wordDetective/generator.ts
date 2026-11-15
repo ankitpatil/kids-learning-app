@@ -1,3 +1,4 @@
+import type { WhyContext } from '../../ai/whyHint';
 import { WORDS, MAGIC_E, SENTENCES, type PictureWord } from '../../content/words';
 import { PATTERNS } from '../../content/stories';
 import { getLevel } from '../../engine/tracks';
@@ -209,4 +210,16 @@ export function fillSentence(item: SentenceItem, word: string): string {
 /** Which slots are wrong (indices). Empty array = correct. */
 export function wrongSlots(item: BuildItem, placed: (string | null)[]): number[] {
   return item.slots.map((s, i) => (placed[i] === s ? -1 : i)).filter((i) => i >= 0);
+}
+
+/**
+ * AI3 "Why?" helper: what the child is being asked and the word they must find. Read it and
+ * sentences: the hint may not say or spell the word (that would do the reading for them).
+ * Build it: the word is spoken anyway, so it may be said, but not spelled out.
+ */
+export function wordWhyContext(item: WordItem, track: string, level: number, picked?: string): WhyContext {
+  const base = { subject: 'reading' as const, track, level, answer: item.word, picked };
+  if (item.kind === 'read') return { ...base, question: `Read the written word "${item.word}", then tap its picture.` };
+  if (item.kind === 'sentence') return { ...base, question: `Which word finishes the sentence? ${fillSentence(item, '___')}` };
+  return { ...base, question: `Build the word "${item.word}" from letter tiles.`, sayWordOk: true };
 }

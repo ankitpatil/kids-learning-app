@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { makeWordItem, wrongSlots, fillSentence, type WordItem, type WordTrack, type BuildItem } from './generator';
+import { makeWordItem, wrongSlots, fillSentence, wordWhyContext, type WordItem, type WordTrack, type BuildItem } from './generator';
 import { updateSkill, type SkillState } from '../../engine/adaptive';
 import { maxLevel } from '../../engine/tracks';
 import { getSkillState, getSkillStates, saveSkillState, logAttempt } from '../../store/db';
@@ -7,6 +7,8 @@ import { planRound, resolveSlot, type Slot } from '../../engine/roundMix';
 import { say } from '../../audio/speech';
 import { fresh } from '../../engine/recent';
 import { feedback } from '../../components/Feedback';
+import { ai } from '../../ai/app';
+import { createWhyHinter } from '../../ai/whyHint';
 
 const ROUND_LENGTH = 8;
 
@@ -38,6 +40,8 @@ export function WordDetective({ profileId, trackId, onDone, onExit }: Props) {
   const ease = useRef(false);
   const started = useRef(Date.now());
   const busy = useRef(false);
+  const misses = useRef(0); // misses on the current item (AI3: Claude hint from the 2nd)
+  const hinter = useRef(createWhyHinter(ai));
   const plan = useRef(planRound(ROUND_LENGTH));
   const all = useRef<Awaited<ReturnType<typeof getSkillStates>>>({});
   const slot = useRef<Slot>({ kind: 'current', trackId, level: 0 });
@@ -57,6 +61,7 @@ export function WordDetective({ profileId, trackId, onDone, onExit }: Props) {
     const it = fresh(sl.trackId, () => makeWordItem(sl.trackId as WordTrack, sl.level, i, Math.random, easy, prevWord), (x) => x.word);
     hinted.current = ease.current;
     ease.current = false;
+    misses.current = 0;
     setItem(it);
     setTried([]);
     setBad([]);
@@ -117,6 +122,13 @@ export function WordDetective({ profileId, trackId, onDone, onExit }: Props) {
     setTimeout(() => advance(out.state.level), 1700);
   }
 
+  /** Canned hint, or (from the 2nd miss, helpers on, ≤ 2 s) a checked Claude hint. */
+  async function hintFor(it: WordItem, canned: string, picked?: string) {
+    misses.current += 1;
+    const ctx = wordWhyContext(it, slot.current.trackId, slot.current.level, picked);
+    return (await hinter.current.hint(it.id, misses.current, ctx, canned)).text;
+  }
+
   async function pickPicture(emoji: string, word: string) {
     if (!item || item.kind !== 'read' || busy.current || tried.includes(emoji)) return;
     busy.current = true;
@@ -127,7 +139,8 @@ export function WordDetective({ profileId, trackId, onDone, onExit }: Props) {
     setTried((t) => [...t, emoji]);
     setMood('oops');
     // Hint: name the picture they tapped and sound out the word by its letters.
-    say(`That's ${word}. || Look again: ${item.word.split('').join(', ')}.`);
+    const look = `Look again: ${item.word.split('').join(', ')}.`;
+    say(`That's ${word}. || ${await hintFor(item, look, word)}`);
     setTimeout(() => {
       setMood('idle');
       busy.current = false;
@@ -145,7 +158,7 @@ export function WordDetective({ profileId, trackId, onDone, onExit }: Props) {
     setTried((t) => [...t, word]);
     setMood('oops');
     // Hint: read the sentence with their word so they can hear it doesn't make sense.
-    say(`${fillSentence(item, word)} || Hmm, does that make sense? | Try again.`);
+    say(`${fillSentence(item, word)} || ${await hintFor(item, 'Hmm, does that make sense? | Try again.', word)}`);
     setTimeout(() => {
       setMood('idle');
       busy.current = false;
@@ -187,7 +200,9 @@ export function WordDetective({ profileId, trackId, onDone, onExit }: Props) {
     hinted.current = true;
     setBad(wrong);
     setMood('oops');
-    say(`Almost! | Fix the red one${wrong.length > 1 ? 's' : ''}. || ${it.word}.`);
+    const canned = `Almost! | Fix the red one${wrong.length > 1 ? 's' : ''}. || ${it.word}.`;
+    const hint = await hintFor(it, canned, p.join(''));
+    say(hint === canned ? canned : `Fix the red one${wrong.length > 1 ? 's' : ''}. || ${hint}`);
     setTimeout(() => {
       // Pop the wrong tiles back out so the child only fixes those.
       setPlaced((cur) => cur.map((x, i) => (wrong.includes(i) ? null : x)));

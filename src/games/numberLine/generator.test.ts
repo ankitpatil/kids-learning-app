@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { makeHopItem, checkHops, frogAt, hopMode, maxHops, smallChoices, splitText, HOP_TRACKS } from './generator';
+import { makeHopItem, checkHops, frogAt, hopMode, maxHops, smallChoices, splitText, hopWhyContext, HOP_TRACKS } from './generator';
 import { maxLevel, getTrack } from '../../engine/tracks';
+import { whyRequest } from '../../ai/whyHint';
+import { sanitizeRequest } from '../../ai/request';
 
 const many = (fn: () => void, n = 300) => {
   for (let i = 0; i < n; i++) fn();
@@ -132,6 +134,26 @@ describe('smallChoices', () => {
       expect(new Set(c).size).toBe(4);
       expect(c).toContain(a);
       c.forEach((v) => expect(v >= 1 && v <= 9).toBe(true));
+    }
+  });
+});
+
+describe('hopWhyContext (AI3)', () => {
+  it('asks for the number of this step, and every request passes the whitelist', () => {
+    for (const t of HOP_TRACKS) {
+      for (let level = 0; level <= maxLevel(t); level++) {
+        for (let i = 0; i < 30; i++) {
+          const it = makeHopItem(t, level);
+          for (const step of ['hop', 'split', 'land', 'choose'] as const) {
+            const ctx = hopWhyContext(it, step, level, 5);
+            expect(ctx.answer).toBe(step === 'split' ? it.toTen : it.answer);
+            expect(ctx.question).not.toMatch(new RegExp(`= ${ctx.answer}(?!\\d)`));
+            const req = sanitizeRequest(whyRequest(ctx));
+            expect(req).not.toBeNull();
+            expect(req).toMatchObject({ kind: 'why', subject: 'math', track: t, level: level + 1 });
+          }
+        }
+      }
     }
   });
 });

@@ -1,3 +1,4 @@
+import type { WhyContext } from '../../ai/whyHint';
 // Number Line Hop: a frog hops along a number line to add (right) or subtract (left).
 // CPA levels per track:
 //   add10 / sub10 pictorial  → 'hop'    : line visible, child taps hop-by-hop and counts the hops
@@ -143,4 +144,15 @@ export function maxHops(item: HopItem): number {
 export function splitText(item: HopItem): string {
   const s = item.op === '+' ? '+' : '−';
   return `${item.a} ${s} ${item.toTen} ${s} ${item.rest}`;
+}
+
+/** AI3 "Why?" helper: what the child is being asked at this step, and the number they must find. */
+export function hopWhyContext(item: HopItem, step: 'hop' | 'split' | 'land' | 'choose', level: number, picked?: number): WhyContext {
+  const s = item.op === '+' ? '+' : '-';
+  const dir = item.op === '+' ? 'forward' : 'back';
+  const base = { subject: 'math' as const, track: item.trackId, level };
+  if (step === 'split') return { ...base, question: `${item.a} ${s} ? = 10. How many hops from ${item.a} to 10 on a number line?`, answer: item.toTen, picked };
+  if (step === 'land') return { ...base, question: `${item.a} ${s} ${item.b}: the frog is on 10 and hops ${item.rest} more ${dir}. Where does it land?`, answer: item.answer, picked };
+  if (step === 'hop') return { ...base, question: `${item.a} ${s} ${item.b}: start at ${item.a} on a number line and hop ${item.b} times ${dir}.`, answer: item.answer, picked: picked === undefined ? undefined : `${picked} hops` };
+  return { ...base, question: `What is ${item.a} ${s} ${item.b}?`, answer: item.answer, picked };
 }

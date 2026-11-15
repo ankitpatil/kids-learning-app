@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { makeHopItem, checkHops, frogAt, maxHops, splitText, type HopItem, type HopTrack } from './generator';
+import { makeHopItem, checkHops, frogAt, maxHops, splitText, hopWhyContext, type HopItem, type HopTrack } from './generator';
 import { updateSkill, type SkillState } from '../../engine/adaptive';
 import { maxLevel } from '../../engine/tracks';
 import { getSkillState, getSkillStates, saveSkillState, logAttempt } from '../../store/db';
@@ -7,6 +7,8 @@ import { planRound, resolveSlot, type Slot } from '../../engine/roundMix';
 import { say } from '../../audio/speech';
 import { fresh } from '../../engine/recent';
 import { feedback } from '../../components/Feedback';
+import { ai } from '../../ai/app';
+import { createWhyHinter } from '../../ai/whyHint';
 
 const ROUND_LENGTH = 8;
 const NUMBER_WORDS = ['zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen','twenty'];
@@ -66,6 +68,8 @@ export function NumberLineHop({ profileId, trackId, onDone, onExit }: Props) {
   const ease = useRef(false);
   const started = useRef(Date.now());
   const busy = useRef(false);
+  const misses = useRef(0); // misses on the current item (AI3: Claude hint from the 2nd)
+  const hinter = useRef(createWhyHinter(ai));
   const plan = useRef(planRound(ROUND_LENGTH));
   const all = useRef<Awaited<ReturnType<typeof getSkillStates>>>({});
   const slot = useRef<Slot>({ kind: 'current', trackId, level: 0 });
@@ -92,6 +96,7 @@ export function NumberLineHop({ profileId, trackId, onDone, onExit }: Props) {
     setFrog(it.a);
     setMood('idle');
     setTried([]);
+    misses.current = 0;
     started.current = Date.now();
     busy.current = false;
     setTimeout(() => say((sl.kind === 'stretch' ? 'Bonus challenge! || ' : '') + promptFor(it, s)), 250);
@@ -145,12 +150,16 @@ export function NumberLineHop({ profileId, trackId, onDone, onExit }: Props) {
     }, 2300);
   }
 
-  async function wrong(msg: string) {
+  async function wrong(msg: string, picked?: number) {
     await record(false);
     feedback('wrong');
     setMood('oops');
     setHintUsed(true);
-    say(msg);
+    // From the 2nd miss on an item: a checked Claude hint if helpers are on (≤ 2 s), else `msg`.
+    misses.current += 1;
+    const ctx = hopWhyContext(item!, step, slot.current.level, picked);
+    const hint = await hinter.current.hint(`${item!.id}:${step}`, misses.current, ctx, msg);
+    say(hint.text);
     setTimeout(() => {
       setMood('idle');
       busy.current = false;
@@ -167,6 +176,7 @@ export function NumberLineHop({ profileId, trackId, onDone, onExit }: Props) {
       v === 'too-few'
         ? `You hopped ${w(hops)}. We need ${w(item.b)} hops. Hop ${w(item.b - hops)} more!`
         : `Oops, that's ${w(hops)} hops. We need ${w(item.b)}. Hop back ${w(hops - item.b)}.`,
+      hops,
     );
   }
 
@@ -184,12 +194,12 @@ export function NumberLineHop({ profileId, trackId, onDone, onExit }: Props) {
         return;
       }
       setTried((t) => [...t, n]);
-      return wrong(`Let's count the hops from ${w(item.a)} to ten. | Try again!`);
+      return wrong(`Let's count the hops from ${w(item.a)} to ten. | Try again!`, n);
     }
     if (n === item.answer) return finishCorrect();
     setTried((t) => [...t, n]);
-    if (step === 'land') return wrong(`Start at ten and hop ${w(item.rest)} ${item.op === '+' ? 'forward' : 'back'}. | Try again!`);
-    return wrong(`Hmm, | start at ${w(item.a)} on the line and hop ${w(item.b)} ${item.op === '+' ? 'forward' : 'back'}. | Try again!`);
+    if (step === 'land') return wrong(`Start at ten and hop ${w(item.rest)} ${item.op === '+' ? 'forward' : 'back'}. | Try again!`, n);
+    return wrong(`Hmm, | start at ${w(item.a)} on the line and hop ${w(item.b)} ${item.op === '+' ? 'forward' : 'back'}. | Try again!`, n);
   }
 
   if (!item || !state) return <div className="screen center">Loading…</div>;

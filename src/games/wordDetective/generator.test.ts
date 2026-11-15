@@ -1,9 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { NEAR_TILE, splitGraphemes, makeReadItem, makeBuildItem, makeWordItem, makeMagicItem, makeSentenceItem, fillSentence, wrongSlots, PICTURE_TRACKS, MAGIC_E_LEVEL, EASY_SENTENCE_PATTERN } from './generator';
+import { NEAR_TILE, splitGraphemes, makeReadItem, makeBuildItem, makeWordItem, makeMagicItem, makeSentenceItem, fillSentence, wrongSlots, PICTURE_TRACKS, MAGIC_E_LEVEL, EASY_SENTENCE_PATTERN, wordWhyContext, WORD_TRACKS } from './generator';
 import { wordPattern, isSightWord, tokenizeWords } from '../stories/generator';
 import { PATTERNS } from '../../content/stories';
 import { blockedWords } from '../../content/kidSafe';
 import { WORDS, MAGIC_E, SENTENCES } from '../../content/words';
+import { whyRequest, leaksAnswer } from '../../ai/whyHint';
+import { sanitizeRequest } from '../../ai/request';
+import { maxLevel } from '../../engine/tracks';
 
 describe('splitGraphemes', () => {
   it('keeps digraphs and vowel teams together', () => {
@@ -193,5 +196,25 @@ describe('finish the sentence: C2 bank', () => {
       expect(PATTERNS.indexOf(s.pattern)).toBeLessThanOrEqual(EASY_SENTENCE_PATTERN);
     }
     expect(SENTENCES.filter((s) => PATTERNS.indexOf(s.pattern) <= EASY_SENTENCE_PATTERN).length).toBeGreaterThanOrEqual(15);
+  });
+});
+
+describe('wordWhyContext (AI3)', () => {
+  it('targets the word, passes the whitelist, and only Build it may say the word', () => {
+    for (const t of WORD_TRACKS) {
+      for (let level = 0; level <= maxLevel(t); level++) {
+        for (let i = 0; i < 12; i++) {
+          const it = makeWordItem(t, level, i);
+          const ctx = wordWhyContext(it, t, level, 'dog');
+          expect(ctx.answer).toBe(it.word);
+          expect(!!ctx.sayWordOk).toBe(it.kind === 'build');
+          if (it.kind === 'sentence') expect(ctx.question).toContain('___');
+          expect(sanitizeRequest(whyRequest(ctx))).toMatchObject({ kind: 'why', subject: 'reading', track: t });
+          // A hint that names the word is a leak unless building; spelling it is always a leak.
+          expect(leaksAnswer(`Hmm, it is ${it.word}.`, ctx)).toBe(it.kind !== 'build');
+          expect(leaksAnswer(`Look: ${it.word.split('').join('-')}.`, ctx)).toBe(true);
+        }
+      }
+    }
   });
 });
