@@ -2,6 +2,11 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-15 — Age bands recalibrated for an advanced learner (Ankit)
+- Ankit: reading stories and answering questions is a 5–6 skill; the app targets smart kids. Bands moved about a grade earlier than Common Core: Ages 5–6 now covers all phonics, short words, sh/ch/th, blends, first magic-e level, all stories, tricky words 1–2, adding/subtracting within 10 incl. numbers only, first make-10, first tens & ones and compare levels, first two story-sum levels. Ages 6–7 has the rest (within 20 numbers only, tens & ones to 100, close comparisons, vowel teams, -ed/-ing reading yourself, magic-e look-alikes). Nothing built is Ages 7–8 now; planned money/clock/groups are 6–7.
+- Section subtitles changed from grade names to "K–Grade 1 skills" / "Grade 1–2 skills" / "Grade 2+ skills" so they stay honest.
+- Display only: the adaptive engine and placement still set each child's level.
+
 ## 2026-11-15 — Narration off by default; levels grouped by age (Ankit)
 - "Narration" = speech the app starts by itself (instructions, item prompts, praise, counting along). Off by default; the home 🔊 button became 🗣️/🤫 (talking on/off) and Grown-ups has the same toggle.
 - Speech the child asks for still plays with narration off: 🔊 "say again", tapping a picture, a story word, an avatar, a sticker, the voice preview (`tapSay`). Without this, pre-reader games (Phonics Pop's letter sound, Build it's spoken word) would be unplayable. Stories at the "read to you" level still read themselves (`sayAlong`), since reading to the child is that level's content.

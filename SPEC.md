@@ -4,7 +4,7 @@ Gamified reading and math web app for kids aged 5–7.
 
 ## Principles
 - **Pre-readers first**: every instruction can be spoken (audio/TTS); minimal text, icons + sound. **Narration (the app talking by itself) is off by default** (Ankit, 2026-11-15): 🗣️/🤫 on the home screen and Grown-ups turn it on. Speech the child asks for — 🔊, tapping a picture or word — always plays (`tapSay`), and "read to you" stories still read aloud. Grown-ups "Silent mode" silences everything. New code: automatic prompts use `say`, tap handlers use `tapSay`.
-- **Levels by suggested age**: every track level has an age band (Ages 5–6 K, 6–7 Grade 1, 7–8 Grade 2; `LEVEL_AGES` in `engine/tracks.ts`, Common Core based). Level Select groups levels under these headings. New levels need a band (tested).
+- **Levels by suggested age**: every track level has an age band (Ages 5–6, 6–7, 7–8; `LEVEL_AGES` in `engine/tracks.ts`). Calibrated for an **advanced learner**, about a grade ahead of Common Core; all story levels (reading + answering questions) are Ages 5–6. Level Select groups levels under these headings. New levels need a band (tested).
 - **Big tap targets**: ≥ 60px. Works on tablets and phones, touch-first.
 - **Short rounds**: 3–5 minutes (~10 items), then a reward screen.
 - **Gentle failure**: no buzzer. Wiggle the wrong choice, offer a hint, never show "level down" to the child.

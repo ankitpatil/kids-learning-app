@@ -107,35 +107,40 @@ export const TRACKS: TrackDef[] = [
 // ---------- Suggested age per level (US Common Core K–2) ----------
 export type AgeBand = 'k' | 'g1' | 'g2';
 export const AGE_BANDS: { id: AgeBand; ages: string; grade: string }[] = [
-  { id: 'k', ages: 'Ages 5–6', grade: 'Kindergarten' },
-  { id: 'g1', ages: 'Ages 6–7', grade: 'Grade 1' },
-  { id: 'g2', ages: 'Ages 7–8', grade: 'Grade 2' },
+  { id: 'k', ages: 'Ages 5–6', grade: 'K–Grade 1 skills' },
+  { id: 'g1', ages: 'Ages 6–7', grade: 'Grade 1–2 skills' },
+  { id: 'g2', ages: 'Ages 7–8', grade: 'Grade 2+ skills' },
 ];
 
-/** Suggested band for each level of each track, in level order (K.CC/K.OA/1.OA/1.NBT, K.RF/1.RF/2.RF). */
+/**
+ * Suggested band for each level of each track, in level order. Calibrated for an advanced learner
+ * (Ankit, 2026-11-15): roughly a grade ahead of US Common Core (K.CC/K.OA/1.OA/1.NBT, K.RF/1.RF/2.RF),
+ * and reading stories + answering questions is a 5–6 skill. The adaptive engine still sets the pace;
+ * these bands only group levels on the Level Select screen.
+ */
 export const LEVEL_AGES: Record<string, AgeBand[]> = {
-  count: ['k', 'k', 'k', 'k', 'k', 'k'], // K.CC: count objects to 20
-  add10: ['k', 'k', 'g1'], // K.OA.2 within 10 with objects; fluent within 10 is 1.OA.6
-  sub10: ['k', 'k', 'g1'],
-  missing: ['k', 'g1', 'g1'], // K.OA.4 make 10 with pictures; unknown addend 1.OA.8
-  add20: ['g1', 'g1'], // 1.OA.6 make-ten strategies
+  count: ['k', 'k', 'k', 'k', 'k', 'k'],
+  add10: ['k', 'k', 'k'],
+  sub10: ['k', 'k', 'k'],
+  missing: ['k', 'k', 'g1'],
+  add20: ['k', 'g1'], // make 10 on a number line at 5–6; numbers only at 6–7
   sub20: ['g1', 'g1'],
-  placeValue: ['g1', 'g1', 'g1'], // 1.NBT.2 tens and ones
-  compare2d: ['g1', 'g1', 'g1'], // 1.NBT.3
-  wordProblems: ['k', 'g1', 'g1'], // K.OA.2 → 1.OA.1 (within 20, equations)
-  money: ['g2'], // 2.MD.8
-  time: ['g1'], // 1.MD.3
-  grouping: ['g2'], // 2.OA.3–4
-  phonics: ['k', 'k', 'k', 'k', 'k', 'k', 'k'], // K.RF.3a letter sounds
-  cvc: ['k', 'k'], // K.RF.2/3 CVC words
-  digraphs: ['g1', 'g1'], // 1.RF.3a
-  blends: ['g1', 'g1'],
-  silentE: ['g1', 'g1', 'g1'], // 1.RF.3c final -e
-  vowelTeams: ['g1', 'g2'], // 1.RF.3c → 2.RF.3b vowel teams
-  endings: ['g1', 'g1', 'g1'], // 1.RF.3f inflectional endings
-  sightWords: ['k', 'g1', 'g1'], // Dolch pre-primer → primer/first grade
-  sentences: ['g1', 'g1'],
-  stories: ['k', 'g1', 'g2'], // read to you → read it yourself with magic e / vowel teams
+  placeValue: ['k', 'g1', 'g1'],
+  compare2d: ['k', 'g1', 'g1'],
+  wordProblems: ['k', 'k', 'g1'],
+  money: ['g1'],
+  time: ['g1'],
+  grouping: ['g1'],
+  phonics: ['k', 'k', 'k', 'k', 'k', 'k', 'k'],
+  cvc: ['k', 'k'],
+  digraphs: ['k', 'k'],
+  blends: ['k', 'k'],
+  silentE: ['k', 'g1', 'g1'],
+  vowelTeams: ['g1', 'g1'],
+  endings: ['k', 'g1', 'g1'],
+  sightWords: ['k', 'k', 'g1'],
+  sentences: ['k', 'g1'],
+  stories: ['k', 'k', 'k'], // all story levels: reading stories and answering questions at 5–6
 };
 
 /** Suggested age band for a level (falls back to the last known band, then K). */
