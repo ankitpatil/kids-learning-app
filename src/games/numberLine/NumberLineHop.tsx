@@ -4,7 +4,7 @@ import { updateSkill, type SkillState } from '../../engine/adaptive';
 import { maxLevel } from '../../engine/tracks';
 import { getSkillState, getSkillStates, saveSkillState, logAttempt } from '../../store/db';
 import { planRound, resolveSlot, type Slot } from '../../engine/roundMix';
-import { say } from '../../audio/speech';
+import { say, tapSay } from '../../audio/speech';
 import { fresh } from '../../engine/recent';
 import { feedback } from '../../components/Feedback';
 import { ai } from '../../ai/app';
@@ -217,7 +217,7 @@ export function NumberLineHop({ profileId, trackId, onDone, onExit }: Props) {
             <span key={i} className={i < index ? 'dot done' : i === index ? `dot now${slot.current.kind === 'stretch' ? ' bonus' : ''}` : 'dot'} />
           ))}
         </div>
-        <button className="icon-btn" onClick={() => say(promptFor(item, step))} aria-label="Say again">🔊</button>
+        <button className="icon-btn" onClick={() => tapSay(promptFor(item, step))} aria-label="Say again">🔊</button>
       </div>
 
       <div className="equation" aria-hidden>

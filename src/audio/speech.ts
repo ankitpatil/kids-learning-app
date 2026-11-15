@@ -12,6 +12,30 @@ export function isMuted() {
   return muted;
 }
 
+// Narration = prompts the app speaks by itself (instructions, praise). Off by default (Ankit, 2026-11-15).
+// Speech the child asks for — tapping 🔊, a picture or a story line — still plays (see `tapSay`),
+// and stories at the "read to you" level still read themselves aloud. `muted` silences everything.
+let narration = false;
+try {
+  narration = localStorage.getItem('narration') === '1';
+} catch {
+  /* storage unavailable */
+}
+
+export function isNarrationOn() {
+  return narration;
+}
+
+export function setNarration(on: boolean) {
+  narration = on;
+  try {
+    localStorage.setItem('narration', on ? '1' : '0');
+  } catch {
+    /* ignore */
+  }
+  if (!on) stopSpeech();
+}
+
 export function setMuted(m: boolean) {
   muted = m;
   try {
@@ -101,8 +125,8 @@ function utter(text: string, rate: number): SpeechSynthesisUtterance {
  * `speechChunks`) and each phrase is spoken on its own with a pause after it, because one long
  * utterance runs everything together. A new call (or `stopSpeech`) cancels what is left.
  */
-export function say(text: string, opts: { rate?: number } = {}) {
-  if (muted || typeof window === 'undefined' || !window.speechSynthesis) return;
+export function say(text: string, opts: { rate?: number; tapped?: boolean } = {}) {
+  if (muted || (!narration && !opts.tapped) || typeof window === 'undefined' || !window.speechSynthesis) return;
   stopSpeech();
   const mine = generation;
   const rate = opts.rate ?? 0.9;
@@ -127,6 +151,11 @@ export function say(text: string, opts: { rate?: number } = {}) {
     window.speechSynthesis.speak(u);
   };
   speakChunk(0);
+}
+
+/** Speak because the child tapped something (🔊, a picture): plays even when narration is off. */
+export function tapSay(text: string, opts: { rate?: number } = {}) {
+  say(text, { ...opts, tapped: true });
 }
 
 /** If speech hasn't started by now, assume the engine is stuck and time the words ourselves. */

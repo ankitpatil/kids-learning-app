@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { listVoices, previewVoice, getVoicePref, setVoicePref, say } from '../audio/speech';
+import { listVoices, previewVoice, getVoicePref, setVoicePref, say, tapSay } from '../audio/speech';
 import { AUTO, chooseVoice, isNatural, voiceLabel } from '../audio/voices';
 
 /** Parent screen: pick the narrator voice. Natural (neural) voices first, each with a preview. */
@@ -23,7 +23,7 @@ export function VoicePicker({ onBack }: { onBack: () => void }) {
   const pick = (id: string) => {
     setVoicePref(id);
     setPref(id);
-    say('Hi! This is my reading voice.');
+    tapSay('Hi! This is my reading voice.');
   };
   const id = (v: SpeechSynthesisVoice) => v.voiceURI || v.name;
   const hasNatural = voices.some(isNatural);

@@ -2,6 +2,12 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-15 — Narration off by default; levels grouped by age (Ankit)
+- "Narration" = speech the app starts by itself (instructions, item prompts, praise, counting along). Off by default; the home 🔊 button became 🗣️/🤫 (talking on/off) and Grown-ups has the same toggle.
+- Speech the child asks for still plays with narration off: 🔊 "say again", tapping a picture, a story word, an avatar, a sticker, the voice preview (`tapSay`). Without this, pre-reader games (Phonics Pop's letter sound, Build it's spoken word) would be unplayable. Stories at the "read to you" level still read themselves (`sayAlong`), since reading to the child is that level's content.
+- The old all-sound mute moved to Grown-ups as "Silent mode" (no voice, no sound effects, even on tap). Sound effects stay on by default.
+- Age bands per level from US Common Core (K.CC, K.OA, 1.OA, 1.NBT, K.RF, 1.RF, 2.RF; Dolch lists for tricky words). A track can span bands (e.g. Add within 10: two K levels, then Grade 1 for numbers only); Level Select shows the track in each age section with only that section's level chips. ▶ plays the child's current level when it's in that section, else the section's first level. Grade 2 shows only where a level is Grade 2 (vowel-team look-alikes, read-it-yourself stories) — math Grade 2 tracks aren't built yet.
+
 ## 2026-11-15 — Hosted on Vercel (Ankit's call)
 - Static Vite build on Vercel (Hobby, `*.vercel.app`), connected to this repo: every push to `main` deploys. No login, no custom domain for now. HTTPS there is also what the camera (Move mode) needs.
 - Scheduled runs keep pushing to `main` (Ankit didn't ask for a review branch), so the test + build gate before every push is now the safety net for what the kids see. CLAUDE.md updated.

@@ -4,6 +4,7 @@ import { loadAiSettings, normalizeProxyUrl, saveAiSettings, type AiSettings } fr
 import { createProxyProvider } from '../ai/client';
 import { ai } from '../ai/app';
 import { loadMotionSettings, saveMotionSettings } from '../motion/settings';
+import { isMuted, setMuted, isNarrationOn, setNarration } from '../audio/speech';
 
 type Test = { state: 'idle' } | { state: 'testing' } | { state: 'ok' } | { state: 'fail'; why: string };
 
@@ -11,6 +12,8 @@ type Test = { state: 'idle' } | { state: 'testing' } | { state: 'ok' } | { state
 export function Settings({ onBack, onVoice }: { onBack: () => void; onVoice: () => void }) {
   const [s, setS] = useState<AiSettings>(() => loadAiSettings());
   const [move, setMove] = useState(() => loadMotionSettings());
+  const [talk, setTalk] = useState(() => isNarrationOn());
+  const [silent, setSilent] = useState(() => isMuted());
   const [urlText, setUrlText] = useState(s.proxyUrl);
   const [test, setTest] = useState<Test>({ state: 'idle' });
   const urlOk = normalizeProxyUrl(urlText) !== null;
@@ -49,6 +52,23 @@ export function Settings({ onBack, onVoice }: { onBack: () => void; onVoice: () 
           <span className="voice-name">🗣️ Reading voice</span>
           <span className="voice-sub">Pick the narrator voice</span>
         </button>
+      </section>
+
+      <section className="settings-card">
+        <label className="toggle-row">
+          <span>
+            <span className="voice-name">🗣️ Talking (narration)</span>
+            <span className="voice-sub">The app speaks instructions and praise by itself. Off by default. Tapping 🔊 or a picture always speaks. Kids can also switch it with 🗣️/🤫 on the home screen.</span>
+          </span>
+          <input type="checkbox" className="toggle" checked={talk} onChange={(e) => { setTalk(e.target.checked); setNarration(e.target.checked); }} />
+        </label>
+        <label className="toggle-row">
+          <span>
+            <span className="voice-name">🔇 Silent mode</span>
+            <span className="voice-sub">No voice and no sound effects at all — even when 🔊 is tapped.</span>
+          </span>
+          <input type="checkbox" className="toggle" checked={silent} onChange={(e) => { setSilent(e.target.checked); setMuted(e.target.checked); }} />
+        </label>
       </section>
 
       <section className="settings-card">

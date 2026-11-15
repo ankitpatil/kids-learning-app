@@ -4,7 +4,7 @@ import { updateSkill, type SkillState } from '../../engine/adaptive';
 import { maxLevel } from '../../engine/tracks';
 import { getSkillState, getSkillStates, saveSkillState, logAttempt } from '../../store/db';
 import { planRound, resolveSlot, type Slot } from '../../engine/roundMix';
-import { say } from '../../audio/speech';
+import { say, tapSay } from '../../audio/speech';
 import { fresh } from '../../engine/recent';
 import { feedback } from '../../components/Feedback';
 import { ai } from '../../ai/app';
@@ -224,7 +224,7 @@ export function WordDetective({ profileId, trackId, onDone, onExit }: Props) {
             <span key={i} className={i < index ? 'dot done' : i === index ? `dot now${slot.current.kind === 'stretch' ? ' bonus' : ''}` : 'dot'} />
           ))}
         </div>
-        <button className="icon-btn" onClick={() => say(promptFor(item))} aria-label="Say again">🔊</button>
+        <button className="icon-btn" onClick={() => tapSay(promptFor(item))} aria-label="Say again">🔊</button>
       </div>
 
       <div className="mode-badge">{item.kind === 'sentence' ? '💬' : item.kind === 'read' ? (item.magic ? '✨' : '🔍') : '🧩'}</div>
@@ -274,7 +274,7 @@ export function WordDetective({ profileId, trackId, onDone, onExit }: Props) {
         </>
       ) : (
         <>
-          <button className="picture-card" onClick={() => say(item.word)} aria-label="Hear the word again">
+          <button className="picture-card" onClick={() => tapSay(item.word)} aria-label="Hear the word again">
             <span className="picture">{item.emoji}</span>
           </button>
           <div className={`slots ${mood}`}>

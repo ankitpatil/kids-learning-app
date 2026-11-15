@@ -25,7 +25,7 @@ import { levelsFromCheckpoint, masteredFromCheckpoint } from './engine/placement
 import { pickTrack } from './engine/tracks';
 import { Placement, StartPoint } from './screens/Placement';
 import type { Subject } from './engine/tracks';
-import { say, isMuted, setMuted, stopSpeech } from './audio/speech';
+import { say, isNarrationOn, setNarration, stopSpeech, tapSay } from './audio/speech';
 import { MoveModeToggle } from './components/MotionLayer';
 
 type Game = 'count' | 'missing' | 'placeValue' | 'compare2d' | HopTrack | 'phonics' | WordTrack | 'sightWords' | 'endings' | 'stories' | 'wordProblems';
@@ -55,7 +55,7 @@ export default function App() {
   useEffect(() => {
     if (screen.name !== 'reward') window.clearTimeout(praiseTimer.current);
   }, [screen.name]);
-  const [muted, setMutedState] = useState(isMuted());
+  const [narrating, setNarrating] = useState(isNarrationOn());
 
   useEffect(() => {
     listProfiles().then((list) => {
@@ -262,17 +262,19 @@ export default function App() {
         <button className="icon-btn" onClick={() => setScreen({ name: 'vault' })} aria-label="Sticker book">📒</button>
         <MoveModeToggle />
         <button
-          className="icon-btn"
-          aria-label={muted ? 'Sound on' : 'Sound off'}
+          className={`icon-btn ${narrating ? '' : 'quiet'}`}
+          aria-label={narrating ? 'Talking on. Turn talking off' : 'Talking off. Turn talking on'}
+          aria-pressed={narrating}
           onClick={() => {
-            setMuted(!muted);
-            setMutedState(!muted);
+            setNarration(!narrating);
+            setNarrating(!narrating);
+            if (!narrating) tapSay('Talking on!');
           }}
         >
-          {muted ? '🔇' : '🔊'}
+          {narrating ? '🗣️' : '🤫'}
         </button>
       </div>
-      <h1 className="title" onClick={() => say('Pick a game!')}>Little Learners</h1>
+      <h1 className="title" onClick={() => tapSay('Pick a game!')}>Little Learners</h1>
       <div className="subjects">
         <button
           className="subject math"

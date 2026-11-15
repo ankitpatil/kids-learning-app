@@ -5,7 +5,7 @@ import { tokenize } from '../../audio/readAlong';
 import { updateSkill, type SkillState } from '../../engine/adaptive';
 import { maxLevel } from '../../engine/tracks';
 import { getSkillState, getSkillStates, saveSkillState, logAttempt } from '../../store/db';
-import { say, sayAlong } from '../../audio/speech';
+import { say, sayAlong, tapSay } from '../../audio/speech';
 import { fresh, remember } from '../../engine/recent';
 import { ai } from '../../ai/app';
 import { STORY_TOPICS, type StoryTopic } from '../../ai/request';
@@ -169,7 +169,7 @@ export function StoryChoose({ profileId, onDone, onExit }: Props) {
   function tapWord(word: string) {
     stop();
     setHi(null);
-    say(word);
+    tapSay(word);
   }
 
   function startQuestions(s: Story = story!) {
@@ -285,7 +285,7 @@ export function StoryChoose({ profileId, onDone, onExit }: Props) {
         </div>
         <button
           className="icon-btn"
-          onClick={() => (phase === 'question' && question ? say(questionSpeech(question, state.level)) : say(story.title))}
+          onClick={() => (phase === 'question' && question ? tapSay(questionSpeech(question, state.level)) : tapSay(story.title))}
           aria-label="Say again"
         >
           🔊

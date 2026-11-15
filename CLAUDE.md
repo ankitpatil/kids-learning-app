@@ -5,7 +5,7 @@ You are continuing development of a kids (5–7) reading & math PWA. Read SPEC.m
 Each run:
 1. `npm ci` then `npm test` and `npm run build` — fix anything broken before new work.
 2. Take the **first unchecked item** in BACKLOG.md "Next". Do only that item (split it if too big).
-3. Follow SPEC.md principles: spoken instructions, big tap targets, gentle failure, no third-party data sharing.
+3. Follow SPEC.md principles: speakable instructions (narration is off by default; tap-to-hear uses `tapSay`), an age band for every new level, big tap targets, gentle failure, no third-party data sharing.
 4. Add/extend Vitest tests for logic (engine, generators, store). UI can be lightly tested.
 5. `npm test` and `npm run build` must pass before committing.
 6. Tick the item in BACKLOG.md. Add any judgment calls to DECISIONS.md (newest first, dated).

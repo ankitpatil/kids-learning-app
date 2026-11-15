@@ -444,3 +444,9 @@ body.move-mode .icon-btn { min-width: 72px; min-height: 72px; }
 .move-option.on { border-color: var(--primary); }
 .move-option input { margin-top: 6px; width: 20px; height: 20px; accent-color: var(--primary); }
 .move-option .voice-name, .move-option .voice-sub { display: block; }
+
+/* Level select: grouped by suggested age */
+.age-group { display: grid; gap: 14px; }
+.age-group + .age-group { margin-top: 18px; }
+.age-title { display: flex; align-items: baseline; gap: 10px; margin: 4px 6px 0; font-size: 26px; color: var(--primary); }
+.age-grade { font-size: 16px; font-weight: 600; color: #636e72; }

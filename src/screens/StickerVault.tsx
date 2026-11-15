@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { STICKERS, STICKER_PAGES, type Sticker } from '../content/stickers';
 import { collectedCount } from '../engine/stickers';
-import { say } from '../audio/speech';
+import { say, tapSay } from '../audio/speech';
 
 interface Props {
   owned: Record<string, number>;
@@ -35,7 +35,7 @@ export function StickerVault({ owned, onBack }: Props) {
             <div className="vault-grid">
               {items.map((s) =>
                 owned[s.id] ? (
-                  <button key={s.id} className={`vault-sticker ${s.rarity}`} onClick={() => { setZoom(s); say(s.name); }} aria-label={s.name}>
+                  <button key={s.id} className={`vault-sticker ${s.rarity}`} onClick={() => { setZoom(s); tapSay(s.name); }} aria-label={s.name}>
                     <span>{s.emoji}</span>
                     {owned[s.id] > 1 && <span className="dup">×{owned[s.id]}</span>}
                   </button>

@@ -104,6 +104,51 @@ export const TRACKS: TrackDef[] = [
   },
 ];
 
+// ---------- Suggested age per level (US Common Core K–2) ----------
+export type AgeBand = 'k' | 'g1' | 'g2';
+export const AGE_BANDS: { id: AgeBand; ages: string; grade: string }[] = [
+  { id: 'k', ages: 'Ages 5–6', grade: 'Kindergarten' },
+  { id: 'g1', ages: 'Ages 6–7', grade: 'Grade 1' },
+  { id: 'g2', ages: 'Ages 7–8', grade: 'Grade 2' },
+];
+
+/** Suggested band for each level of each track, in level order (K.CC/K.OA/1.OA/1.NBT, K.RF/1.RF/2.RF). */
+export const LEVEL_AGES: Record<string, AgeBand[]> = {
+  count: ['k', 'k', 'k', 'k', 'k', 'k'], // K.CC: count objects to 20
+  add10: ['k', 'k', 'g1'], // K.OA.2 within 10 with objects; fluent within 10 is 1.OA.6
+  sub10: ['k', 'k', 'g1'],
+  missing: ['k', 'g1', 'g1'], // K.OA.4 make 10 with pictures; unknown addend 1.OA.8
+  add20: ['g1', 'g1'], // 1.OA.6 make-ten strategies
+  sub20: ['g1', 'g1'],
+  placeValue: ['g1', 'g1', 'g1'], // 1.NBT.2 tens and ones
+  compare2d: ['g1', 'g1', 'g1'], // 1.NBT.3
+  wordProblems: ['k', 'g1', 'g1'], // K.OA.2 → 1.OA.1 (within 20, equations)
+  money: ['g2'], // 2.MD.8
+  time: ['g1'], // 1.MD.3
+  grouping: ['g2'], // 2.OA.3–4
+  phonics: ['k', 'k', 'k', 'k', 'k', 'k', 'k'], // K.RF.3a letter sounds
+  cvc: ['k', 'k'], // K.RF.2/3 CVC words
+  digraphs: ['g1', 'g1'], // 1.RF.3a
+  blends: ['g1', 'g1'],
+  silentE: ['g1', 'g1', 'g1'], // 1.RF.3c final -e
+  vowelTeams: ['g1', 'g2'], // 1.RF.3c → 2.RF.3b vowel teams
+  endings: ['g1', 'g1', 'g1'], // 1.RF.3f inflectional endings
+  sightWords: ['k', 'g1', 'g1'], // Dolch pre-primer → primer/first grade
+  sentences: ['g1', 'g1'],
+  stories: ['k', 'g1', 'g2'], // read to you → read it yourself with magic e / vowel teams
+};
+
+/** Suggested age band for a level (falls back to the last known band, then K). */
+export function levelAge(trackId: string, level: number): AgeBand {
+  const bands = LEVEL_AGES[trackId] ?? [];
+  return bands[Math.min(level, bands.length - 1)] ?? 'k';
+}
+
+/** Level indexes of a track that fall in an age band (in order). */
+export function levelsInBand(t: TrackDef, band: AgeBand): number[] {
+  return t.levels.map((_, i) => i).filter((i) => levelAge(t.id, i) === band);
+}
+
 const BY_ID = new Map(TRACKS.map((t) => [t.id, t]));
 
 export function getTrack(id: string): TrackDef {

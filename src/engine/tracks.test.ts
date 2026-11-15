@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { TRACKS, getTrack, getLevel, maxLevel, tracksFor } from './tracks';
+import { TRACKS, getTrack, getLevel, maxLevel, tracksFor, AGE_BANDS, LEVEL_AGES, levelAge, levelsInBand } from './tracks';
 import { PHONICS_LEVEL_NEW } from '../games/phonicsPop/letters';
 import { COUNT_MAX_BY_LEVEL } from './skills';
 
@@ -75,5 +75,31 @@ describe('pickTrack', () => {
   });
   it('a reader who mastered letters and short words goes to sh/ch/th words, not letter popping', () => {
     expect(pickTrack('reading', { phonics: { level: 6, mastery: 0.95 }, cvc: { level: 1, mastery: 0.95 } })).toBe('digraphs');
+  });
+});
+
+describe('suggested age per level', () => {
+  it('every level of every track has an age band, with no extra entries', () => {
+    for (const t of TRACKS) {
+      expect(LEVEL_AGES[t.id]?.length, t.id).toBe(t.levels.length);
+      t.levels.forEach((_, i) => expect(AGE_BANDS.map((b) => b.id)).toContain(levelAge(t.id, i)));
+    }
+    expect(Object.keys(LEVEL_AGES).sort()).toEqual(TRACKS.map((t) => t.id).sort());
+  });
+
+  it('levels never get younger as they get harder', () => {
+    const order = AGE_BANDS.map((b) => b.id);
+    for (const t of TRACKS) {
+      for (let i = 1; i < t.levels.length; i++) {
+        expect(order.indexOf(levelAge(t.id, i))).toBeGreaterThanOrEqual(order.indexOf(levelAge(t.id, i - 1)));
+      }
+    }
+  });
+
+  it('bands split a track into all of its levels exactly once', () => {
+    for (const t of TRACKS) {
+      const all = AGE_BANDS.flatMap((b) => levelsInBand(t, b.id)).sort((a, b) => a - b);
+      expect(all).toEqual(t.levels.map((_, i) => i));
+    }
   });
 });

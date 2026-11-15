@@ -5,7 +5,7 @@ import { updateSkill, type SkillState } from '../../engine/adaptive';
 import { maxLevel } from '../../engine/tracks';
 import { getSkillState, getSkillStates, saveSkillState, logAttempt } from '../../store/db';
 import { planRound, resolveSlot, type Slot } from '../../engine/roundMix';
-import { say } from '../../audio/speech';
+import { say, tapSay } from '../../audio/speech';
 import { fresh } from '../../engine/recent';
 import { feedback } from '../../components/Feedback';
 import { makeCompareItem, comparePrompt, compareHint, comparePraise, type CompareItem } from './compare';
@@ -232,7 +232,7 @@ export function FeedMonster({ profileId, trackId, onDone, onExit }: Props) {
               <span key={i} className={i < index ? 'dot done' : i === index ? `dot now${slot.current.kind === 'stretch' ? ' bonus' : ''}` : 'dot'} />
             ))}
           </div>
-          <button className="icon-btn" onClick={() => say(promptFor(item))} aria-label="Say again">🔊</button>
+          <button className="icon-btn" onClick={() => tapSay(promptFor(item))} aria-label="Say again">🔊</button>
         </div>
         <div className={`monster cmp-monster ${mood}`} aria-hidden>
           <div className="monster-face">{done ? '😋' : mood === 'oops' ? '😮' : item.ask === 'more' ? '🤤' : '😌'}</div>
@@ -276,7 +276,7 @@ export function FeedMonster({ profileId, trackId, onDone, onExit }: Props) {
             <span key={i} className={i < index ? 'dot done' : i === index ? `dot now${slot.current.kind === 'stretch' ? ' bonus' : ''}` : 'dot'} />
           ))}
         </div>
-        <button className="icon-btn" onClick={() => say(promptFor(item))} aria-label="Say again">🔊</button>
+        <button className="icon-btn" onClick={() => tapSay(promptFor(item))} aria-label="Say again">🔊</button>
       </div>
 
         {item.mode === 'choose' ? (
@@ -359,7 +359,7 @@ export function FeedMonster({ profileId, trackId, onDone, onExit }: Props) {
             <span key={i} className={i < index ? 'dot done' : i === index ? `dot now${slot.current.kind === 'stretch' ? ' bonus' : ''}` : 'dot'} />
           ))}
         </div>
-        <button className="icon-btn" onClick={() => say(promptFor(item))} aria-label="Say again">🔊</button>
+        <button className="icon-btn" onClick={() => tapSay(promptFor(item))} aria-label="Say again">🔊</button>
       </div>
 
       {item.have > 0 ? (

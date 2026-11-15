@@ -69,6 +69,11 @@ describe('sayAlong', () => {
 });
 
 describe('say (phrase queue)', () => {
+  // These tests are about the queue, so narration is switched on (it is off by default).
+  beforeEach(() => {
+    vi.stubGlobal('localStorage', { getItem: (k: string) => (k === 'narration' ? '1' : null), setItem: () => {} });
+  });
+
   it('speaks phrases one at a time, waiting for each to end plus its pause', async () => {
     const { say } = await import('./speech');
     const { PAUSE } = await import('./readAlong');
@@ -103,5 +108,30 @@ describe('say (phrase queue)', () => {
     stopSpeech();
     vi.advanceTimersByTime(20000);
     expect(spoken.map((u) => u.text)).toEqual(['One.']);
+  });
+});
+
+describe('narration (off by default)', () => {
+  it('does not speak prompts by itself until narration is switched on', async () => {
+    const { say, isNarrationOn, setNarration } = await import('./speech');
+    expect(isNarrationOn()).toBe(false);
+    say('Pick what to play!');
+    expect(spoken).toHaveLength(0);
+    setNarration(true);
+    say('Pick what to play!');
+    expect(spoken.map((u) => u.text)).toEqual(['Pick what to play!']);
+  });
+
+  it('still speaks when the child taps (🔊, a picture), even with narration off', async () => {
+    const { tapSay } = await import('./speech');
+    tapSay('cat');
+    expect(spoken.map((u) => u.text)).toEqual(['cat']);
+  });
+
+  it('silent mode silences taps too', async () => {
+    const { tapSay, setMuted } = await import('./speech');
+    setMuted(true);
+    tapSay('cat');
+    expect(spoken).toHaveLength(0);
   });
 });

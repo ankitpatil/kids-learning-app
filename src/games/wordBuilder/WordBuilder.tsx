@@ -5,7 +5,7 @@ import { updateSkill, type SkillState } from '../../engine/adaptive';
 import { maxLevel } from '../../engine/tracks';
 import { getSkillState, getSkillStates, saveSkillState, logAttempt } from '../../store/db';
 import { planRound, resolveSlot, type Slot } from '../../engine/roundMix';
-import { say } from '../../audio/speech';
+import { say, tapSay } from '../../audio/speech';
 import { fresh } from '../../engine/recent';
 import { feedback } from '../../components/Feedback';
 
@@ -126,7 +126,7 @@ export function WordBuilder({ profileId, onDone, onExit }: Props) {
             <span key={i} className={i < index ? 'dot done' : i === index ? `dot now${slot.current.kind === 'stretch' ? ' bonus' : ''}` : 'dot'} />
           ))}
         </div>
-        <button className="icon-btn" onClick={() => say(prompt(item))} aria-label="Say again">🔊</button>
+        <button className="icon-btn" onClick={() => tapSay(prompt(item))} aria-label="Say again">🔊</button>
       </div>
 
       <div className="sentence-clue" aria-hidden="true">{item.emoji.repeat(item.emojiCount)}</div>

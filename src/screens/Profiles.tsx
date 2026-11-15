@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { AVATARS, MAX_NICKNAME, MAX_PROFILES, avatarName, suggestAvatar } from '../engine/profiles';
 import type { Profile } from '../store/db';
-import { say } from '../audio/speech';
+import { say, tapSay } from '../audio/speech';
 
 interface PickerProps {
   profiles: Profile[];
@@ -23,7 +23,7 @@ export function ProfilePicker({ profiles, currentId, onPick, onNew, onBack }: Pi
         {onBack ? <button className="back-btn" onClick={onBack} aria-label="Back to home">⬅️ Back</button> : <span />}
         <span />
       </div>
-      <h1 className="title" onClick={() => say("Who's playing?")}>Who's playing?</h1>
+      <h1 className="title" onClick={() => tapSay("Who's playing?")}>Who's playing?</h1>
       <div className="profile-grid">
         {profiles.map((p) => (
           <button
@@ -73,7 +73,7 @@ export function CreateProfile({ usedAvatars, onCreate, onBack }: CreateProps) {
         <div className="avatar big" aria-hidden>{avatar}</div>
         <span style={{ width: 64 }} />
       </div>
-      <h1 className="title" onClick={() => say('Pick your animal!')}>Pick your animal</h1>
+      <h1 className="title" onClick={() => tapSay('Pick your animal!')}>Pick your animal</h1>
       <div className="avatar-grid" role="radiogroup" aria-label="Animals">
         {AVATARS.map((a) => (
           <button
@@ -84,7 +84,7 @@ export function CreateProfile({ usedAvatars, onCreate, onBack }: CreateProps) {
             className={`avatar-choice${a.emoji === avatar ? ' chosen' : ''}`}
             onClick={() => {
               setAvatar(a.emoji);
-              say(a.name);
+              tapSay(a.name);
             }}
           >
             {a.emoji}
