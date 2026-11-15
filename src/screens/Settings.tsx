@@ -10,7 +10,7 @@ type Test = { state: 'idle' } | { state: 'testing' } | { state: 'ok' } | { state
 /** Parent settings (behind the parent gate): Claude helpers and the narrator voice. */
 export function Settings({ onBack, onVoice }: { onBack: () => void; onVoice: () => void }) {
   const [s, setS] = useState<AiSettings>(() => loadAiSettings());
-  const [move, setMove] = useState(() => loadMotionSettings().enabled);
+  const [move, setMove] = useState(() => loadMotionSettings());
   const [urlText, setUrlText] = useState(s.proxyUrl);
   const [test, setTest] = useState<Test>({ state: 'idle' });
   const urlOk = normalizeProxyUrl(urlText) !== null;
@@ -60,13 +60,37 @@ export function Settings({ onBack, onVoice }: { onBack: () => void; onVoice: () 
           <input
             type="checkbox"
             className="toggle"
-            checked={move}
+            checked={move.enabled}
             onChange={(e) => {
-              setMove(e.target.checked);
-              saveMotionSettings({ enabled: e.target.checked });
+              const next = { ...move, enabled: e.target.checked };
+              setMove(next);
+              saveMotionSettings(next);
             }}
           />
         </label>
+        <div className="move-choice" role="radiogroup" aria-label="How far from the camera">
+          {([
+            ['body', '📺 Standing back (TV)', 'Whole body. The player raises a hand to take the turn; others are ignored.'],
+            ['hand', '💻 Close to the laptop', 'Fingertip, one hand. Best within arm’s reach.'],
+          ] as const).map(([value, label, sub]) => (
+            <label key={value} className={`move-option ${move.tracking === value ? 'on' : ''}`}>
+              <input
+                type="radio"
+                name="move-tracking"
+                checked={move.tracking === value}
+                onChange={() => {
+                  const next = { ...move, tracking: value };
+                  setMove(next);
+                  saveMotionSettings(next);
+                }}
+              />
+              <span>
+                <span className="voice-name">{label}</span>
+                <span className="voice-sub">{sub}</span>
+              </span>
+            </label>
+          ))}
+        </div>
       </section>
 
       <section className="settings-card">

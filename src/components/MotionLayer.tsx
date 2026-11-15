@@ -1,15 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
-import type { HandLandmarker } from '@mediapipe/tasks-vision';
-import { MOTION_EVENT, loadMotionSettings, saveMotionSettings } from '../motion/settings';
+import type { HandLandmarker, PoseLandmarker } from '@mediapipe/tasks-vision';
+import { MOTION_EVENT, loadMotionSettings, saveMotionSettings, type MotionSettings, type TrackingMode } from '../motion/settings';
 import { LOST_GRACE_MS, createDwell, smooth, toScreen, type Pt } from '../motion/pointer';
-import { INDEX_TIP, loadHandTracker } from '../motion/tracker';
+import { INDEX_TIP, loadHandTracker, loadPoseTracker } from '../motion/tracker';
+import { activeWrist, createPlayerLock, reachToScreen, type LockStep, type Pose } from '../motion/player';
 import { say } from '../audio/speech';
 
-/** Live Move-mode flag; re-renders when it changes anywhere in the app. */
-export function useMotionEnabled(): boolean {
-  const [on, setOn] = useState(() => loadMotionSettings().enabled);
+/** Live Move-mode settings; re-render when they change anywhere in the app. */
+export function useMotionSettings(): MotionSettings {
+  const [s, setS] = useState(() => loadMotionSettings());
   useEffect(() => {
-    const sync = () => setOn(loadMotionSettings().enabled);
+    const sync = () => setS(loadMotionSettings());
     window.addEventListener(MOTION_EVENT, sync);
     window.addEventListener('storage', sync);
     return () => {
@@ -17,12 +18,12 @@ export function useMotionEnabled(): boolean {
       window.removeEventListener('storage', sync);
     };
   }, []);
-  return on;
+  return s;
 }
 
 /** Mounted once at the root. Does nothing (no camera, no download) unless Move mode is on. */
 export function MotionLayer() {
-  const enabled = useMotionEnabled();
+  const { enabled, tracking } = useMotionSettings();
   const [visible, setVisible] = useState(() => document.visibilityState === 'visible');
 
   useEffect(() => {
@@ -36,11 +37,12 @@ export function MotionLayer() {
     return () => document.removeEventListener('visibilitychange', onVis);
   }, []);
 
-  return enabled && visible ? <MotionSession /> : null;
+  return enabled && visible ? <MotionSession key={tracking} mode={tracking} /> : null;
 }
 
-type Status = 'starting' | 'tracking' | 'noHand' | 'blocked' | 'error';
+type Status = 'starting' | 'tracking' | 'noHand' | 'raise' | 'claiming' | 'blocked' | 'error';
 const NO_HAND_MS = 2000;
+const COLORS = { player: '#00b894', candidate: '#f5b301', other: 'rgba(255,255,255,.75)' };
 
 /** The thing a hand can press: a button (or role=button), enabled, not inside a [data-no-motion] area. */
 function pickTarget(el: Element | null): HTMLElement | null {
@@ -51,8 +53,60 @@ function pickTarget(el: Element | null): HTMLElement | null {
   return t;
 }
 
-function MotionSession() {
+/** Camera coords (0–1) → preview pixels, matching the mirrored, object-fit: cover video. */
+type ToPreview = (x: number, y: number) => Pt;
+
+/** Box around a body's visible landmarks, in preview pixels. */
+function bodyBox(p: Pose, map: ToPreview) {
+  let x0 = 1, y0 = 1, x1 = 0, y1 = 0;
+  for (const l of p) {
+    if ((l.visibility ?? 1) < 0.5) continue;
+    x0 = Math.min(x0, l.x); x1 = Math.max(x1, l.x);
+    y0 = Math.min(y0, l.y); y1 = Math.max(y1, l.y);
+  }
+  if (x1 <= x0 || y1 <= y0) return null;
+  const pad = 0.03;
+  const a = map(Math.max(0, x0 - pad), Math.max(0, y0 - pad));
+  const b = map(Math.min(1, x1 + pad), Math.min(1, y1 + pad));
+  return { x: Math.min(a.x, b.x), y: a.y, w: Math.abs(b.x - a.x), h: b.y - a.y };
+}
+
+/** Boxes around everyone in the preview: green = the player, yellow = claiming, dashed = ignored. */
+function drawBodies(ctx: CanvasRenderingContext2D, poses: Pose[], step: LockStep, h: number, map: ToPreview) {
+  const fs = Math.round(h * 0.075);
+  ctx.font = `700 ${fs}px system-ui, sans-serif`;
+  ctx.textBaseline = 'middle';
+  poses.forEach((p, i) => {
+    const b = bodyBox(p, map);
+    if (!b) return;
+    const role = i === step.player ? 'player' : i === step.candidate ? 'candidate' : 'other';
+    ctx.strokeStyle = COLORS[role];
+    ctx.lineWidth = role === 'other' ? 2 : 5;
+    ctx.setLineDash(role === 'other' ? [6, 6] : []);
+    ctx.strokeRect(b.x, b.y, b.w, b.h);
+    ctx.setLineDash([]);
+    const label = role === 'player' ? '⭐ Player' : role === 'candidate' ? '🙋 Hold it…' : '';
+    if (label) {
+      const tw = ctx.measureText(label).width + 14;
+      const th = fs * 1.4;
+      const ly = Math.max(0, b.y - th);
+      ctx.fillStyle = COLORS[role];
+      ctx.fillRect(b.x, ly, tw, th);
+      ctx.fillStyle = '#fff';
+      ctx.fillText(label, b.x + 7, ly + th / 2);
+    }
+    if (role === 'candidate') {
+      ctx.fillStyle = '#0006';
+      ctx.fillRect(b.x, b.y + b.h - 12, b.w, 12);
+      ctx.fillStyle = COLORS.candidate;
+      ctx.fillRect(b.x, b.y + b.h - 12, b.w * step.progress, 12);
+    }
+  });
+}
+
+function MotionSession({ mode }: { mode: TrackingMode }) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
   const [status, setStatus] = useState<Status>('starting');
 
@@ -60,19 +114,24 @@ function MotionSession() {
     let cancelled = false;
     let stream: MediaStream | null = null;
     let raf = 0;
-    let tracker: HandLandmarker | null = null;
+    let hand: HandLandmarker | null = null;
+    let pose: PoseLandmarker | null = null;
     let lastVideoTime = -1;
     let lastSeen = performance.now();
     let pos: Pt | null = null;
     let hovered: HTMLElement | null = null;
     let current: Status = 'starting';
     const dwell = createDwell<HTMLElement>();
+    const lock = createPlayerLock();
+
     const set = (s: Status) => {
-      if (s !== current) {
-        current = s;
-        setStatus(s);
-        if (s === 'noHand') say('Show me your hand!');
-      }
+      if (s === current) return;
+      const prev = current;
+      current = s;
+      setStatus(s);
+      if (s === 'noHand') say('Show me your hand!');
+      if (s === 'raise' && prev !== 'claiming') say('Raise your hand to play!');
+      if (s === 'tracking' && prev === 'claiming') say("Got you! Let's play.");
     };
     const hover = (el: HTMLElement | null) => {
       if (el === hovered) return;
@@ -80,31 +139,19 @@ function MotionSession() {
       el?.classList.add('motion-hover');
       hovered = el;
     };
-
-    const frame = (now: number) => {
-      raf = requestAnimationFrame(frame);
-      const video = videoRef.current;
-      const cursor = cursorRef.current;
-      if (!tracker || !video || !cursor || video.readyState < 2 || video.currentTime === lastVideoTime) return;
-      lastVideoTime = video.currentTime;
-
-      const tip = tracker.detectForVideo(video, now).landmarks[0]?.[INDEX_TIP];
-      if (!tip) {
-        if (now - lastSeen > LOST_GRACE_MS) {
-          cursor.style.opacity = '0';
-          dwell.update(null, now);
-          hover(null);
-          pos = null;
-        }
-        if (now - lastSeen > NO_HAND_MS) set('noHand');
+    /** Move the cursor (or hide it) and run hold-to-choose. */
+    const drive = (pt: Pt | null, now: number) => {
+      const cursor = cursorRef.current!;
+      if (!pt) {
+        cursor.style.opacity = '0';
+        dwell.update(null, now);
+        hover(null);
+        pos = null;
         return;
       }
-      lastSeen = now;
-      set('tracking');
-      pos = smooth(pos, toScreen(tip, window.innerWidth, window.innerHeight));
+      pos = smooth(pos, pt);
       cursor.style.opacity = '1';
       cursor.style.transform = `translate(${pos.x}px, ${pos.y}px)`;
-
       const target = pickTarget(document.elementFromPoint(pos.x, pos.y));
       hover(target);
       const step = dwell.update(target, now);
@@ -116,18 +163,85 @@ function MotionSession() {
         cursor.classList.add('fired');
       }
     };
+    /** Clear the preview overlay and size it to the preview box. */
+    const overlay = () => {
+      const c = canvasRef.current!;
+      const dpr = window.devicePixelRatio || 1;
+      const w = c.clientWidth;
+      const h = c.clientHeight;
+      if (c.width !== Math.round(w * dpr) || c.height !== Math.round(h * dpr)) {
+        c.width = Math.round(w * dpr);
+        c.height = Math.round(h * dpr);
+      }
+      const ctx = c.getContext('2d')!;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, w, h);
+      const video = videoRef.current!;
+      const s = Math.max(w / (video.videoWidth || w), h / (video.videoHeight || h));
+      const dw = (video.videoWidth || w) * s;
+      const dh = (video.videoHeight || h) * s;
+      const ox = (w - dw) / 2;
+      const oy = (h - dh) / 2;
+      const map: ToPreview = (x, y) => ({ x: w - (ox + x * dw), y: oy + y * dh });
+      return { ctx, h, map };
+    };
+
+    const frame = (now: number) => {
+      raf = requestAnimationFrame(frame);
+      const video = videoRef.current;
+      if (!video || !cursorRef.current || !canvasRef.current || video.readyState < 2 || video.currentTime === lastVideoTime) return;
+      lastVideoTime = video.currentTime;
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+
+      if (pose) {
+        // Body mode: raise a hand to claim the turn, then only that body's lifted hand drives the cursor.
+        const poses = pose.detectForVideo(video, now).landmarks as Pose[];
+        const step = lock.update(poses, now);
+        const { ctx, h, map } = overlay();
+        drawBodies(ctx, poses, step, h, map);
+        set(step.phase === 'locked' ? 'tracking' : step.phase === 'claiming' ? 'claiming' : 'raise');
+        const p = step.player >= 0 ? poses[step.player] : null;
+        const wrist = p ? activeWrist(p) : null;
+        if (p && wrist) {
+          lastSeen = now;
+          drive(reachToScreen(wrist, p, vw, vh), now);
+        } else if (step.phase !== 'locked' || now - lastSeen > LOST_GRACE_MS) {
+          drive(null, now);
+        }
+        return;
+      }
+
+      if (hand) {
+        // Hand mode (close to the laptop): the index fingertip is the cursor.
+        const tip = hand.detectForVideo(video, now).landmarks[0]?.[INDEX_TIP];
+        const { ctx, map } = overlay();
+        if (tip) {
+          const d = map(tip.x, tip.y);
+          ctx.fillStyle = COLORS.player;
+          ctx.beginPath();
+          ctx.arc(d.x, d.y, 10, 0, Math.PI * 2);
+          ctx.fill();
+          lastSeen = now;
+          set('tracking');
+          drive(toScreen(tip, vw, vh), now);
+        } else {
+          if (now - lastSeen > LOST_GRACE_MS) drive(null, now);
+          if (now - lastSeen > NO_HAND_MS) set('noHand');
+        }
+      }
+    };
 
     (async () => {
       try {
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
-          audio: false,
-        });
+        const size = mode === 'body' ? { width: { ideal: 1280 }, height: { ideal: 720 } } : { width: { ideal: 640 }, height: { ideal: 480 } };
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', ...size }, audio: false });
         if (cancelled) return;
         const video = videoRef.current!;
         video.srcObject = stream;
         await video.play();
-        tracker = await loadHandTracker();
+        if (mode === 'body') pose = await loadPoseTracker();
+        else hand = await loadHandTracker();
         if (cancelled) return;
         lastSeen = performance.now();
         raf = requestAnimationFrame(frame);
@@ -144,22 +258,35 @@ function MotionSession() {
       hover(null);
       stream?.getTracks().forEach((t) => t.stop());
     };
-  }, []);
+  }, [mode]);
 
-  const turnOff = () => saveMotionSettings({ enabled: false });
+  const failed = status === 'blocked' || status === 'error';
+  const badge =
+    status === 'tracking' ? (mode === 'body' ? '⭐ Playing' : '✋ Tracking')
+    : status === 'claiming' ? '🙋 Keep it up…'
+    : status === 'raise' ? '🙋 Raise your hand!'
+    : status === 'noHand' ? '✋ Show your hand'
+    : status === 'starting' ? '📷 Starting…'
+    : '';
 
   return (
-    <div className="motion-layer" aria-hidden={status === 'tracking'}>
-      <video ref={videoRef} className={`motion-preview ${status === 'blocked' || status === 'error' ? 'off' : ''}`} playsInline muted />
+    <div className="motion-layer">
+      <div className={`motion-preview ${mode} ${failed ? 'off' : ''} ${status === 'tracking' ? 'live' : ''}`} aria-hidden>
+        <video ref={videoRef} playsInline muted />
+        <canvas ref={canvasRef} />
+        {badge && <span className="motion-badge">{badge}</span>}
+      </div>
       <div ref={cursorRef} className="motion-cursor" style={{ opacity: 0 }}>
         <span className="motion-dot">✋</span>
       </div>
-      {status === 'starting' && <div className="motion-chip">📷 Getting the camera ready…</div>}
+      {status === 'raise' && <div className="motion-chip">🙋 Whoever is playing — raise your hand!</div>}
       {status === 'noHand' && <div className="motion-chip">✋ Show me your hand!</div>}
-      {(status === 'blocked' || status === 'error') && (
+      {failed && (
         <div className="motion-chip warn" role="alert">
           {status === 'blocked' ? '📷 Camera is blocked — allow it in the browser, or' : '📷 Move mode could not start (needs internet the first time) —'}{' '}
-          <button className="link-btn strong" onClick={turnOff}>use touch</button>
+          <button className="link-btn strong" onClick={() => saveMotionSettings({ enabled: false })}>
+            use touch
+          </button>
         </div>
       )}
     </div>
@@ -168,7 +295,7 @@ function MotionSession() {
 
 /** 🙌 / 👆 toggle for the home screen top bar. */
 export function MoveModeToggle() {
-  const on = useMotionEnabled();
+  const { enabled: on } = useMotionSettings();
   return (
     <button
       className={`icon-btn move-toggle ${on ? 'on' : ''}`}
@@ -177,7 +304,7 @@ export function MoveModeToggle() {
       aria-pressed={on}
       onClick={() => {
         saveMotionSettings({ enabled: !on });
-        say(on ? 'Touch mode.' : 'Move mode! Hold your hand on a button to pick it.');
+        say(on ? 'Touch mode.' : 'Move mode!');
       }}
     >
       {on ? '🙌' : '👆'}

@@ -20,6 +20,16 @@ describe('motion settings', () => {
     expect(loadMotionSettings(kv).enabled).toBe(false);
   });
 
+  it('defaults to body tracking and keeps the other field when saving one', () => {
+    const kv = memory();
+    expect(loadMotionSettings(kv).tracking).toBe('body');
+    saveMotionSettings({ tracking: 'hand' }, kv);
+    saveMotionSettings({ enabled: true }, kv);
+    expect(loadMotionSettings(kv)).toEqual({ enabled: true, tracking: 'hand' });
+    kv.setItem('motion-settings', JSON.stringify({ enabled: true, tracking: 'feet' }));
+    expect(loadMotionSettings(kv).tracking).toBe('body');
+  });
+
   it('treats junk or missing storage as off', () => {
     const kv = memory();
     kv.setItem('motion-settings', '{nope');

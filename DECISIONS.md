@@ -2,6 +2,14 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-15 — Move mode M4a: body tracking + raise-hand-to-claim (with Ankit)
+- Body (pose) tracker is the default Move mode: it sees whole people (so a hand belongs to a body), works at TV distance, and makes "hand raised" easy (wrist above nose). The fingertip tracker stays as "Close to the laptop".
+- Claim = a wrist above the head for 1 s (highest hand wins if two go up together). Follow = nearest shoulder-centre to last frame, max jump 25 % of the image; if two bodies are within 1.2× of each other (crossing paths) the cursor pauses that frame instead of guessing. Gone for 2 s → turn is free.
+- Cursor = the player's higher wrist, and only when lifted above mid-body (between shoulders and hips) — arms at the sides must not press buttons by accident.
+- Wrist → screen is relative to the player's own body: a reach box 4 shoulder-widths wide × 3 tall around the shoulders, so a child can reach every corner without walking, wherever they stand.
+- Pose lite model (~6 MB) for speed on a laptop; up to 3 people.
+- Preview: 30 vw (240–480 px), 16:9 in body mode so nobody at the edge of the room is cropped out; pages get right padding (landscape) / bottom padding (portrait) so buttons aren't under it.
+
 ## 2026-11-15 — Move mode (M1, M2) built interactively with Ankit
 - Hand-as-mouse layer instead of per-game motion code: all games already answer via `<button onClick>`, so one root layer (`elementFromPoint` → nearest enabled button → hold → `click()`) makes every game playable by hand with no game changes.
 - Hold-to-choose (0.9 s) rather than "touch = click": webcam tracking jitters, and a filling ring forgives it. Holding on keeps firing every 0.9 s so Feed the Monster can take cookie after cookie.
