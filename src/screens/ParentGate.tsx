@@ -41,7 +41,7 @@ export function ParentGate({ onPass, onBack }: { onPass: () => void; onBack: () 
   };
 
   return (
-    <div className="screen gate">
+    <div className="screen gate" data-no-motion>
       <div className="topbar">
         <button className="back-btn" onClick={onBack} aria-label="Back to home">⬅️ Back</button>
         <h2 className="voices-title">⚙️ Grown-ups</h2>

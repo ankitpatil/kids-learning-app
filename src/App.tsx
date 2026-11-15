@@ -26,6 +26,7 @@ import { pickTrack } from './engine/tracks';
 import { Placement, StartPoint } from './screens/Placement';
 import type { Subject } from './engine/tracks';
 import { say, isMuted, setMuted, stopSpeech } from './audio/speech';
+import { MoveModeToggle } from './components/MotionLayer';
 
 type Game = 'count' | 'missing' | 'placeValue' | 'compare2d' | HopTrack | 'phonics' | WordTrack | 'sightWords' | 'endings' | 'stories' | 'wordProblems';
 type Screen =
@@ -259,6 +260,7 @@ export default function App() {
         </button>
         <div className="stars" aria-label={`${profile.stars} stars`}>⭐ {profile.stars}</div>
         <button className="icon-btn" onClick={() => setScreen({ name: 'vault' })} aria-label="Sticker book">📒</button>
+        <MoveModeToggle />
         <button
           className="icon-btn"
           aria-label={muted ? 'Sound on' : 'Sound off'}

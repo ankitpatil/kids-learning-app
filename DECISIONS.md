@@ -2,6 +2,13 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-15 — Move mode (M1, M2) built interactively with Ankit
+- Hand-as-mouse layer instead of per-game motion code: all games already answer via `<button onClick>`, so one root layer (`elementFromPoint` → nearest enabled button → hold → `click()`) makes every game playable by hand with no game changes.
+- Hold-to-choose (0.9 s) rather than "touch = click": webcam tracking jitters, and a filling ring forgives it. Holding on keeps firing every 0.9 s so Feed the Monster can take cookie after cookie.
+- Cursor = index fingertip, mirrored; the middle 80 % of the camera frame maps to the whole screen so corners are reachable. One hand tracked.
+- `@mediapipe/tasks-vision` 0.10.14 added as a dependency (JS bundled into a lazy chunk, ~39 kB gz). The wasm runtime (jsDelivr) and hand model (Google storage) are fetched at runtime the first time Move mode starts — too big to precache (~9 MB + ~8 MB) and the build sandbox couldn't download the model. No child data is sent; only files are downloaded. Self-hosting for offline is M4.
+- Parent gate and the 🙌 toggle are `[data-no-motion]` so a waving hand can't switch modes or enter the grown-ups area (the gate's press-and-hold also needs real pointer events).
+
 ## 2026-11-15 — AI3b "Why?" helper in the math games (split again: AI3b math, AI3c 3 reading games, AI3d Story Choose)
 - AI3b covered six integrations of different shapes, so it was split: this run does the two math games (Feed the Monster — all four modes — and Story Sums). AI3c = Phonics Pop, Sight-Word Catch, Word Builder; AI3d = Story Choose questions.
 - Counting and tens & ones feed modes: the "answer" is the target number, even though it is on screen. So a Claude hint can't say it ("count to 8" is rejected). Strict on purpose: the canned hint already says the target, and a Claude hint there should be about *how* to count (tap each cookie, boxes first). The request also leaves the target out of the question, so Claude isn't tempted.

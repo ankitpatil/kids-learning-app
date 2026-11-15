@@ -74,6 +74,14 @@ Avatar/pet fed with stars, world map (island per skill), soft streaks (pause, do
 ## Parent area
 Parent gate (hold 3s or simple multiplication), dashboard: time, skills mastered, weak spots, screen-time cap.
 
+## Move mode (added 2026-11-15 by Ankit)
+Kids can play with their hands in front of the camera instead of touching — e.g. the laptop mirrored to a TV.
+- One app, two input modes. Move mode is an *input layer*, not separate games: a hand cursor that presses whatever button it holds on (0.9 s fill ring), so every game works by hand. Touch/mouse still work in Move mode.
+- Per-device setting, off by default (home 👆/🙌 toggle and Grown-ups). Grown-up controls are `[data-no-motion]`.
+- Privacy: video is processed on the device by MediaPipe and never stored or sent. The tracker code/model are downloaded only when Move mode is first used. Camera stops when Move mode is off or the tab is hidden.
+- Gentle failure: if no hand is seen for 2 s, say "Show me your hand!" — never count a miss because tracking dropped.
+- Bigger, roomier targets in Move mode (`body.move-mode`).
+
 ## AI features (added 2026-11-12, approved by Ankit)
 Two uses of Claude, in priority order:
 1. **Build-time content**: build runs (Claude) write stories, word problems and sentences as static data; tests check them (decodability, true math facts, length). No runtime AI, no data leaves the device.

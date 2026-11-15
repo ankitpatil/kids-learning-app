@@ -3,12 +3,14 @@ import { clearAiStories, listAiStories } from '../store/db';
 import { loadAiSettings, normalizeProxyUrl, saveAiSettings, type AiSettings } from '../ai/settings';
 import { createProxyProvider } from '../ai/client';
 import { ai } from '../ai/app';
+import { loadMotionSettings, saveMotionSettings } from '../motion/settings';
 
 type Test = { state: 'idle' } | { state: 'testing' } | { state: 'ok' } | { state: 'fail'; why: string };
 
 /** Parent settings (behind the parent gate): Claude helpers and the narrator voice. */
 export function Settings({ onBack, onVoice }: { onBack: () => void; onVoice: () => void }) {
   const [s, setS] = useState<AiSettings>(() => loadAiSettings());
+  const [move, setMove] = useState(() => loadMotionSettings().enabled);
   const [urlText, setUrlText] = useState(s.proxyUrl);
   const [test, setTest] = useState<Test>({ state: 'idle' });
   const urlOk = normalizeProxyUrl(urlText) !== null;
@@ -47,6 +49,24 @@ export function Settings({ onBack, onVoice }: { onBack: () => void; onVoice: () 
           <span className="voice-name">🗣️ Reading voice</span>
           <span className="voice-sub">Pick the narrator voice</span>
         </button>
+      </section>
+
+      <section className="settings-card">
+        <label className="toggle-row">
+          <span>
+            <span className="voice-name">🙌 Move mode (camera)</span>
+            <span className="voice-sub">Play with hands in front of the camera — great with the laptop on the TV. Hold a hand on a button to pick it. Video stays on this device. Saved for this device only.</span>
+          </span>
+          <input
+            type="checkbox"
+            className="toggle"
+            checked={move}
+            onChange={(e) => {
+              setMove(e.target.checked);
+              saveMotionSettings({ enabled: e.target.checked });
+            }}
+          />
+        </label>
       </section>
 
       <section className="settings-card">

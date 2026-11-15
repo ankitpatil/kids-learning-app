@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Balloon Pop — hand tracking prototype</title>
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #fdf6e3; font-family: "Fredoka", "Trebuchet MS", system-ui, sans-serif; }
+  canvas { position: fixed; inset: 0; width: 100vw; height: 100vh; display: block; }
+  video { display: none; }
+  #hud { position: fixed; top: 16px; left: 50%; transform: translateX(-50%); display: flex; gap: 16px; z-index: 2; pointer-events: none; }
+  .pill { background: #fff; border-radius: 999px; padding: 8px 22px; font-size: 32px; font-weight: 700; color: #5b4bd6; box-shadow: 0 4px 0 rgba(0,0,0,.08); }
+  #start { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; z-index: 3; background: #fdf6e3; text-align: center; padding: 24px; }
+  #start h1 { font-size: 64px; margin: 0; color: #5b4bd6; }
+  #start p { font-size: 22px; color: #555; margin: 0; max-width: 640px; }
+  #go { font: inherit; font-size: 40px; font-weight: 700; color: #fff; background: #3fbf9b; border: 0; border-radius: 28px; padding: 18px 56px; cursor: pointer; box-shadow: 0 8px 0 #2e9277; }
+  #go:active { transform: translateY(4px); box-shadow: 0 4px 0 #2e9277; }
+  #go:disabled { background: #aaa; box-shadow: 0 8px 0 #888; }
+  #status { font-size: 18px; color: #c0392b; min-height: 24px; }
+  #hint { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); z-index: 2; background: rgba(255,255,255,.85); border-radius: 16px; padding: 8px 18px; font-size: 22px; color: #444; display: none; }
+</style>
+</head>
+<body>
+<div id="start">
+  <h1>🎈 Balloon Pop</h1>
+  <p>Stand where the camera can see you. Wave your hands to pop the balloons!<br/>Tip: on a TV, stand 1–2 m back so your hands are in view.</p>
+  <button id="go">Play!</button>
+  <div id="status"></div>
+</div>
+<div id="hud"><div class="pill" id="score">⭐ 0</div><div class="pill" id="time">⏱ 60</div></div>
+<div id="hint">👋 Show me your hands!</div>
+<video id="cam" playsinline muted></video>
+<canvas id="c"></canvas>
+
+<script type="module">
+const MP_VERSION = "0.10.14";
+const MP_BASE = `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${MP_VERSION}`;
+const MODEL = "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task";
+
+const ROUND_SECONDS = 60;
+const TIPS = [4, 8, 12, 16, 20, 9];          // fingertips + palm centre: easy popping for small hands
+const COLORS = ["#ff5c7a", "#ffb020", "#3fbf9b", "#4a90e2", "#a66cff", "#ff7a3d"];
+
+const canvas = document.getElementById("c");
+const ctx = canvas.getContext("2d");
+const video = document.getElementById("cam");
+const scoreEl = document.getElementById("score");
+const timeEl = document.getElementById("time");
+const hintEl = document.getElementById("hint");
+const startEl = document.getElementById("start");
+const goBtn = document.getElementById("go");
+const statusEl = document.getElementById("status");
+
+let W = 0, H = 0, DPR = 1;
+function resize() {
+  DPR = window.devicePixelRatio || 1;
+  W = window.innerWidth; H = window.innerHeight;
+  canvas.width = W * DPR; canvas.height = H * DPR;
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+}
+addEventListener("resize", resize); resize();
+
+// ---------- sound ----------
+let audio;
+function popSound() {
+  if (!audio) return;
+  const t = audio.currentTime;
+  const o = audio.createOscillator(), g = audio.createGain();
+  o.type = "triangle";
+  o.frequency.setValueAtTime(700 + Math.random() * 300, t);
+  o.frequency.exponentialRampToValueAtTime(120, t + 0.15);
+  g.gain.setValueAtTime(0.4, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+  o.connect(g).connect(audio.destination);
+  o.start(t); o.stop(t + 0.2);
+}
+
+// ---------- game state ----------
+let balloons = [], particles = [], hands = [], score = 0, endAt = 0, lastSpawn = 0, running = false, lastHandSeen = 0;
+
+function spawn(now) {
+  const r = Math.max(40, Math.min(W, H) * 0.075);   // big targets for 5–7 year olds
+  balloons.push({
+    x: r + Math.random() * (W - 2 * r), y: H + r, r,
+    vy: (40 + Math.random() * 40) * (H / 800),
+    wobble: Math.random() * Math.PI * 2,
+    color: COLORS[Math.floor(Math.random() * COLORS.length)],
+  });
+  lastSpawn = now;
+}
+
+function pop(b) {
+  b.dead = true; score++; scoreEl.textContent = `⭐ ${score}`; popSound();
+  for (let i = 0; i < 14; i++) {
+    const a = Math.random() * Math.PI * 2, s = 120 + Math.random() * 220;
+    particles.push({ x: b.x, y: b.y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: 0.6, color: b.color });
+  }
+}
+
+function hitTest(px, py) {
+  for (const b of balloons) if (!b.dead && Math.hypot(b.x - px, b.y - py) < b.r * 1.1) pop(b);
+}
+
+// mouse / touch fallback so a tracking hiccup never blocks play
+canvas.addEventListener("pointerdown", e => running && hitTest(e.clientX, e.clientY));
+
+// ---------- camera → screen mapping (mirror + "cover" crop) ----------
+function videoRect() {
+  const vw = video.videoWidth || 640, vh = video.videoHeight || 480;
+  const s = Math.max(W / vw, H / vh), dw = vw * s, dh = vh * s;
+  return { ox: (W - dw) / 2, oy: (H - dh) / 2, dw, dh };
+}
+function toScreen(lm, rect) {
+  return { x: W - (rect.ox + lm.x * rect.dw), y: rect.oy + lm.y * rect.dh };
+}
+
+// ---------- drawing ----------
+function drawBalloon(b) {
+  const x = b.x + Math.sin(b.wobble) * 8, y = b.y;
+  ctx.strokeStyle = "rgba(0,0,0,.35)"; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(x, y + b.r * 1.15);
+  ctx.quadraticCurveTo(x + 10, y + b.r * 1.6, x, y + b.r * 2.1); ctx.stroke();
+  ctx.fillStyle = b.color;
+  ctx.beginPath(); ctx.ellipse(x, y, b.r * 0.9, b.r * 1.1, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(x - 7, y + b.r * 1.15); ctx.lineTo(x + 7, y + b.r * 1.15); ctx.lineTo(x, y + b.r * 1.05); ctx.fill();
+  ctx.fillStyle = "rgba(255,255,255,.45)";
+  ctx.beginPath(); ctx.ellipse(x - b.r * 0.35, y - b.r * 0.4, b.r * 0.18, b.r * 0.3, -0.5, 0, Math.PI * 2); ctx.fill();
+}
+
+function draw(rect) {
+  ctx.clearRect(0, 0, W, H);
+  // mirrored, faded camera so kids see themselves
+  ctx.save(); ctx.globalAlpha = 0.35;
+  ctx.translate(W, 0); ctx.scale(-1, 1);
+  ctx.drawImage(video, rect.ox, rect.oy, rect.dw, rect.dh);
+  ctx.restore();
+
+  balloons.forEach(drawBalloon);
+
+  for (const p of particles) {
+    ctx.globalAlpha = Math.max(0, p.life / 0.6); ctx.fillStyle = p.color;
+    ctx.beginPath(); ctx.arc(p.x, p.y, 7, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+
+  // hand cursors
+  for (const pts of hands) {
+    for (const p of pts) {
+      ctx.fillStyle = "rgba(255,255,255,.9)"; ctx.strokeStyle = "#5b4bd6"; ctx.lineWidth = 4;
+      ctx.beginPath(); ctx.arc(p.x, p.y, 14, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    }
+  }
+}
+
+// ---------- main loop ----------
+let landmarker, lastVideoTime = -1, prevT = 0;
+function loop(t) {
+  const dt = Math.min(0.05, (t - prevT) / 1000 || 0); prevT = t;
+  const rect = videoRect();
+
+  if (landmarker && video.readyState >= 2 && video.currentTime !== lastVideoTime) {
+    lastVideoTime = video.currentTime;
+    const res = landmarker.detectForVideo(video, t);
+    hands = (res.landmarks || []).map(lms => TIPS.map(i => toScreen(lms[i], rect)));
+    if (hands.length) lastHandSeen = t;
+  }
+  hintEl.style.display = running && t - lastHandSeen > 1500 ? "block" : "none";
+
+  if (running) {
+    const left = Math.max(0, Math.ceil((endAt - t) / 1000));
+    timeEl.textContent = `⏱ ${left}`;
+    if (t - lastSpawn > 900 && balloons.length < 7) spawn(t);
+    for (const pts of hands) for (const p of pts) hitTest(p.x, p.y);
+    if (left === 0) finish();
+  }
+
+  for (const b of balloons) { b.y -= b.vy * dt; b.wobble += dt * 2; if (b.y < -b.r * 2.5) b.dead = true; }
+  balloons = balloons.filter(b => !b.dead);
+  for (const p of particles) { p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 400 * dt; p.life -= dt; }
+  particles = particles.filter(p => p.life > 0);
+
+  draw(rect);
+  requestAnimationFrame(loop);
+}
+
+function finish() {
+  running = false; balloons = [];
+  startEl.style.display = "flex";
+  startEl.querySelector("h1").textContent = `🎉 You popped ${score}!`;
+  goBtn.textContent = "Play again"; goBtn.disabled = false; statusEl.textContent = "";
+}
+
+function startRound() {
+  score = 0; scoreEl.textContent = "⭐ 0";
+  balloons = []; particles = [];
+  endAt = performance.now() + ROUND_SECONDS * 1000;
+  running = true; lastHandSeen = performance.now();
+  startEl.style.display = "none";
+}
+
+// ---------- setup ----------
+let ready = false;
+goBtn.addEventListener("click", async () => {
+  audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+  if (ready) return startRound();
+  goBtn.disabled = true; statusEl.style.color = "#555"; statusEl.textContent = "Starting camera…";
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720, facingMode: "user" }, audio: false });
+    video.srcObject = stream; await video.play();
+    statusEl.textContent = "Loading hand tracker…";
+    const { FilesetResolver, HandLandmarker } = await import(`${MP_BASE}/vision_bundle.mjs`);
+    const fileset = await FilesetResolver.forVisionTasks(`${MP_BASE}/wasm`);
+    const opts = (delegate) => ({ baseOptions: { modelAssetPath: MODEL, delegate }, runningMode: "VIDEO", numHands: 2,
+      minHandDetectionConfidence: 0.4, minHandPresenceConfidence: 0.4, minTrackingConfidence: 0.4 });
+    try { landmarker = await HandLandmarker.createFromOptions(fileset, opts("GPU")); }
+    catch { landmarker = await HandLandmarker.createFromOptions(fileset, opts("CPU")); }
+    ready = true; goBtn.disabled = false; startRound();
+  } catch (err) {
+    console.error(err);
+    goBtn.disabled = false; statusEl.style.color = "#c0392b";
+    statusEl.textContent = err.name === "NotAllowedError"
+      ? "Camera blocked — allow camera access in the browser and try again."
+      : `Couldn't start: ${err.message}`;
+  }
+});
+
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

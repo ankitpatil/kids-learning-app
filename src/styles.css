@@ -395,3 +395,37 @@ button { font: inherit; cursor: pointer; touch-action: manipulation; }
 .story-writing { margin: auto; display: flex; flex-direction: column; align-items: center; gap: 12px; font-size: clamp(48px, 12vw, 80px); }
 .story-writing-pen { display: inline-block; animation: wiggle .6s ease infinite; }
 @media (prefers-reduced-motion: reduce) { .story-writing-pen { animation: none; } }
+
+/* Move mode (camera hand cursor) */
+.motion-layer { position: fixed; inset: 0; pointer-events: none; z-index: 1000; }
+.motion-preview { position: fixed; right: 12px; bottom: 12px; width: 168px; height: 126px; object-fit: cover; border-radius: 18px; transform: scaleX(-1); border: 4px solid #fff; box-shadow: 0 4px 0 #0002; background: #0001; }
+.motion-preview.off { display: none; }
+.motion-cursor { position: fixed; left: 0; top: 0; width: 0; height: 0; transition: opacity .2s; will-change: transform; }
+.motion-cursor::before { content: ''; position: absolute; left: -44px; top: -44px; width: 88px; height: 88px; border-radius: 50%;
+  background: conic-gradient(var(--primary) calc(var(--p, 0) * 360deg), #fff8 0); box-shadow: 0 2px 10px #0003;
+  -webkit-mask: radial-gradient(circle, transparent 30px, #000 31px); mask: radial-gradient(circle, transparent 30px, #000 31px); }
+.motion-dot { position: absolute; left: -22px; top: -24px; font-size: 40px; line-height: 1; filter: drop-shadow(0 2px 2px #0004); }
+.motion-cursor.fired::before { animation: motion-pop .35s ease; }
+@keyframes motion-pop { from { transform: scale(1.35); } to { transform: scale(1); } }
+.motion-chip { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: #fff; border-radius: 999px; padding: 10px 22px; font-size: 22px; box-shadow: 0 4px 0 #0002; pointer-events: auto; max-width: calc(100vw - 220px); text-align: center; }
+.motion-chip.warn { color: #b03a2e; }
+.motion-hover { outline: 6px solid var(--primary) !important; outline-offset: 4px; transform: scale(1.06); transition: transform .15s; }
+.move-toggle.on { background: var(--primary); }
+
+/* Bigger, roomier targets when playing from a few steps back (TV) */
+body.move-mode .btn { min-width: 120px; min-height: 100px; }
+body.move-mode .btn.huge { min-width: 220px; min-height: 140px; }
+body.move-mode .actions,
+body.move-mode .reward-actions { gap: 48px; }
+body.move-mode .quick-choices,
+body.move-mode .word-choices { gap: 40px; }
+body.move-mode .quick-choice,
+body.move-mode .word-choice { min-width: 120px; min-height: 110px; font-size: 1.25em; }
+body.move-mode .balloons { gap: 40px 56px; max-width: 900px; }
+body.move-mode .balloon { width: 132px; height: 160px; }
+body.move-mode .cookie.big { font-size: 64px; width: 88px; height: 88px; }
+body.move-mode .plate { gap: 18px; width: min(95vw, 720px); }
+body.move-mode .subjects { gap: 64px; }
+body.move-mode .back-btn,
+body.move-mode .icon-btn { min-width: 72px; min-height: 72px; }
+body.move-mode .screen { padding-bottom: 150px; } /* keep targets clear of the camera preview */
