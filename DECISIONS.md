@@ -2,6 +2,10 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-15 — Subject tiles open the levels (Ankit)
+- Math / Reading tiles now open Level Select (after the one-time starting point) instead of jumping into the auto-picked game. The auto pick lives on as a big ▶️ Play next button at the top of Level Select. Picking a starting point also lands on Level Select.
+- Tiles show the subject name ("Math", "Reading") above 1 2 3 / a b c; the "🗺️ … levels" links under the tiles are gone (the tiles do that now). Level Select's title is the subject name.
+
 ## 2026-11-15 — Age bands are 3–4, 4–5, 5–6 (Ankit)
 - Ankit: highest range is 5–6, lowest is 3–4. Bands renamed (`a34`, `a45`, `a56`; display only, nothing saved uses them).
 - 3–4: counting to 3/5, first letter sounds (s a t p, i n). 4–5: counting to 7/10, adding/subtracting within 10 with pictures, make-10 with pictures, picture story sums, more letter sounds, first short-word level, first tricky words. 5–6: everything else built today (numbers-only within 10/20, tens & ones, comparing, digraphs, blends, magic e, vowel teams, endings, sentences, all stories); planned money/clock/groups also 5–6.

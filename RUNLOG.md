@@ -42,3 +42,4 @@
 2026-11-15 13:05 PT — narration off by default + levels by age (interactive, with Ankit) — say() silent unless narration on; tapSay for 🔊/picture/word taps; home 🗣️/🤫 toggle; Grown-ups talking + silent mode; LEVEL_AGES (K / G1 / G2) for every level + Level Select age sections; 339 tests pass, build ok — done
 2026-11-15 13:10 PT — age bands recalibrated for advanced learners (interactive, with Ankit) — ~1 grade ahead of Common Core; all story levels Ages 5–6; subtitles 'K–Grade 1 skills' etc.; tests pass, build ok — done
 2026-11-15 13:15 PT — age bands now 3–4 / 4–5 / 5–6 (interactive, with Ankit) — LEVEL_AGES remapped, subtitles Preschool / Pre-K / Kindergarten and up; tests pass, build ok — done
+2026-11-15 13:25 PT — subject tiles open Level Select with ▶️ Play next; tiles named Math / Reading (interactive, with Ankit); tests pass, build ok — done

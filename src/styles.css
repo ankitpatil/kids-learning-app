@@ -32,6 +32,8 @@ button { font: inherit; cursor: pointer; touch-action: manipulation; }
 .subject.locked { opacity: .7; }
 .big-emoji { font-size: 80px; }
 .label { font-size: 36px; font-weight: 900; letter-spacing: 4px; }
+.subject-name { font-size: 44px; font-weight: 900; line-height: 1; text-shadow: 0 2px 0 #0002; }
+.subject .label { font-size: 26px; opacity: .9; }
 .lock { position: absolute; top: 16px; right: 20px; font-size: 36px; }
 
 .progress { display: flex; gap: 8px; }
@@ -158,7 +160,7 @@ button { font: inherit; cursor: pointer; touch-action: manipulation; }
 
 /* Level select */
 .levels { gap: 14px; }
-.levels-title { font-size: 34px; font-weight: 900; color: var(--primary); letter-spacing: 4px; }
+.levels-title { font-size: 34px; font-weight: 900; color: var(--primary); letter-spacing: 1px; }
 .track-list { display: grid; gap: 14px; width: min(96vw, 640px); margin: 0 auto; }
 .track-card { background: #fff; border-radius: 26px; padding: 12px 14px; box-shadow: 0 6px 0 #0001; border-left: 10px solid var(--math); }
 .track-card.reading { border-left-color: var(--reading); }
@@ -450,3 +452,8 @@ body.move-mode .icon-btn { min-width: 72px; min-height: 72px; }
 .age-group + .age-group { margin-top: 18px; }
 .age-title { display: flex; align-items: baseline; gap: 10px; margin: 4px 6px 0; font-size: 26px; color: var(--primary); }
 .age-grade { font-size: 16px; font-weight: 600; color: #636e72; }
+
+/* Level select: ▶️ Play next on top */
+.play-next { display: flex; align-items: center; justify-content: center; gap: 14px; width: min(96vw, 640px); margin: 4px auto 14px; }
+.play-next.reading { background: var(--reading); }
+.play-next-label { font-size: 36px; font-weight: 900; }

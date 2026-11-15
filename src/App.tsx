@@ -126,15 +126,16 @@ export default function App() {
   async function applyStart(subject: Subject, best: number) {
     await setTrackLevels(profile!.id, levelsFromCheckpoint(subject, best), masteredFromCheckpoint(subject, best));
     setProfile(await setPlaced(profile!.id, subject, true));
-    await launch(subject);
+    setScreen({ name: 'levels', subject }); // starting point set → show the levels (▶️ Play next is on top)
   }
 
+  /** Subject tile: first time → starting point; after that → the level screen (with ▶️ Play next on top). */
   function openSubject(subject: Subject) {
     if (!profile!.placed?.[subject]) {
       setScreen({ name: 'startpoint', subject });
       return;
     }
-    launch(subject);
+    setScreen({ name: 'levels', subject });
   }
 
   const toLevels = (subject: Subject) => {
@@ -157,6 +158,7 @@ export default function App() {
         profileId={profile.id}
         subject={subject}
         onPlay={playTrack}
+        onPlayNext={() => launch(subject)}
         onCheck={() => setScreen({ name: 'startpoint', subject })}
         onBack={() => setScreen({ name: 'home' })}
       />
@@ -282,6 +284,7 @@ export default function App() {
           aria-label="Math games"
         >
           <span className="big-emoji">👾🍪</span>
+          <span className="subject-name">Math</span>
           <span className="label">1 2 3</span>
         </button>
         <button
@@ -290,12 +293,11 @@ export default function App() {
           aria-label="Reading games"
         >
           <span className="big-emoji">🎈🔤</span>
+          <span className="subject-name">Reading</span>
           <span className="label">a b c</span>
         </button>
       </div>
       <div className="parent-links">
-        <button className="link-btn" onClick={() => setScreen({ name: 'levels', subject: 'math' })}>🗺️ Math levels</button>
-        <button className="link-btn" onClick={() => setScreen({ name: 'levels', subject: 'reading' })}>🗺️ Reading levels</button>
         <button className="link-btn" onClick={() => setScreen({ name: 'gate' })}>⚙️ Grown-ups</button>
       </div>
     </div>

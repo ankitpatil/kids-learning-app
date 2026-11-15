@@ -9,12 +9,14 @@ interface Props {
   subject: Subject;
   /** Play a track; `level` is set only when a level chip was tapped. */
   onPlay: (trackId: string, level?: number) => void;
+  /** ▶️ Play next: the app picks what to practise (first unmastered skill, current level). */
+  onPlayNext: () => void;
   onCheck: () => void;
   onBack: () => void;
 }
 
 /** Pick a skill (and optionally a level) to play. Reached from the in-game Back button. */
-export function LevelSelect({ profileId, subject, onPlay, onCheck, onBack }: Props) {
+export function LevelSelect({ profileId, subject, onPlay, onPlayNext, onCheck, onBack }: Props) {
   const [states, setStates] = useState<Record<string, SkillState> | null>(null);
   useEffect(() => {
     getSkillStates(profileId).then(setStates);
@@ -26,9 +28,12 @@ export function LevelSelect({ profileId, subject, onPlay, onCheck, onBack }: Pro
     <div className="screen levels">
       <div className="topbar">
         <button className="back-btn" onClick={onBack} aria-label="Back to home">⬅️ Back</button>
-        <div className="levels-title">{subject === 'math' ? '1 2 3' : 'a b c'}</div>
+        <div className="levels-title">{subject === 'math' ? 'Math' : 'Reading'}</div>
         <span style={{ width: 64 }} />
       </div>
+      <button className={`btn primary huge play-next ${subject}`} onClick={onPlayNext} aria-label="Play next">
+        ▶️ <span className="play-next-label">Play next</span>
+      </button>
       <div className="track-list">
         {AGE_BANDS.map((band) => {
           // Each age section lists the tracks with levels suggested for that age, and only those levels.
