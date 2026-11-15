@@ -105,48 +105,48 @@ export const TRACKS: TrackDef[] = [
 ];
 
 // ---------- Suggested age per level (US Common Core K–2) ----------
-export type AgeBand = 'k' | 'g1' | 'g2';
+export type AgeBand = 'a34' | 'a45' | 'a56';
 export const AGE_BANDS: { id: AgeBand; ages: string; grade: string }[] = [
-  { id: 'k', ages: 'Ages 5–6', grade: 'K–Grade 1 skills' },
-  { id: 'g1', ages: 'Ages 6–7', grade: 'Grade 1–2 skills' },
-  { id: 'g2', ages: 'Ages 7–8', grade: 'Grade 2+ skills' },
+  { id: 'a34', ages: 'Ages 3–4', grade: 'Preschool' },
+  { id: 'a45', ages: 'Ages 4–5', grade: 'Pre-K' },
+  { id: 'a56', ages: 'Ages 5–6', grade: 'Kindergarten and up' },
 ];
 
 /**
- * Suggested band for each level of each track, in level order. Calibrated for an advanced learner
- * (Ankit, 2026-11-15): roughly a grade ahead of US Common Core (K.CC/K.OA/1.OA/1.NBT, K.RF/1.RF/2.RF),
- * and reading stories + answering questions is a 5–6 skill. The adaptive engine still sets the pace;
- * these bands only group levels on the Level Select screen.
+ * Suggested band for each level of each track, in level order. The app targets bright kids aged 3–6
+ * (Ankit, 2026-11-15): Ages 5–6 is the top band and holds everything from Kindergarten up (reading
+ * stories and answering questions, within-20 math, tens & ones); the first letter sounds and counting
+ * start at 3–4. The adaptive engine still sets the pace; bands only group levels on Level Select.
  */
 export const LEVEL_AGES: Record<string, AgeBand[]> = {
-  count: ['k', 'k', 'k', 'k', 'k', 'k'],
-  add10: ['k', 'k', 'k'],
-  sub10: ['k', 'k', 'k'],
-  missing: ['k', 'k', 'g1'],
-  add20: ['k', 'g1'], // make 10 on a number line at 5–6; numbers only at 6–7
-  sub20: ['g1', 'g1'],
-  placeValue: ['k', 'g1', 'g1'],
-  compare2d: ['k', 'g1', 'g1'],
-  wordProblems: ['k', 'k', 'g1'],
-  money: ['g1'],
-  time: ['g1'],
-  grouping: ['g1'],
-  phonics: ['k', 'k', 'k', 'k', 'k', 'k', 'k'],
-  cvc: ['k', 'k'],
-  digraphs: ['k', 'k'],
-  blends: ['k', 'k'],
-  silentE: ['k', 'g1', 'g1'],
-  vowelTeams: ['g1', 'g1'],
-  endings: ['k', 'g1', 'g1'],
-  sightWords: ['k', 'k', 'g1'],
-  sentences: ['k', 'g1'],
-  stories: ['k', 'k', 'k'], // all story levels: reading stories and answering questions at 5–6
+  count: ['a34', 'a34', 'a45', 'a45', 'a56', 'a56'], // to 3, 5 | 7, 10 | 15, 20
+  add10: ['a45', 'a45', 'a56'], // pictures | numbers only
+  sub10: ['a45', 'a45', 'a56'],
+  missing: ['a45', 'a56', 'a56'],
+  add20: ['a56', 'a56'],
+  sub20: ['a56', 'a56'],
+  placeValue: ['a56', 'a56', 'a56'],
+  compare2d: ['a56', 'a56', 'a56'],
+  wordProblems: ['a45', 'a56', 'a56'],
+  money: ['a56'],
+  time: ['a56'],
+  grouping: ['a56'],
+  phonics: ['a34', 'a34', 'a45', 'a45', 'a45', 'a56', 'a56'], // s a t p, + i n | … | rare letters, look-alikes
+  cvc: ['a45', 'a56'],
+  digraphs: ['a56', 'a56'],
+  blends: ['a56', 'a56'],
+  silentE: ['a56', 'a56', 'a56'],
+  vowelTeams: ['a56', 'a56'],
+  endings: ['a56', 'a56', 'a56'],
+  sightWords: ['a45', 'a56', 'a56'],
+  sentences: ['a56', 'a56'],
+  stories: ['a56', 'a56', 'a56'], // reading stories and answering questions: 5–6
 };
 
-/** Suggested age band for a level (falls back to the last known band, then K). */
+/** Suggested age band for a level (falls back to the last known band, then the youngest). */
 export function levelAge(trackId: string, level: number): AgeBand {
   const bands = LEVEL_AGES[trackId] ?? [];
-  return bands[Math.min(level, bands.length - 1)] ?? 'k';
+  return bands[Math.min(level, bands.length - 1)] ?? 'a34';
 }
 
 /** Level indexes of a track that fall in an age band (in order). */

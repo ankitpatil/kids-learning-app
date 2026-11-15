@@ -2,6 +2,11 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-15 — Age bands are 3–4, 4–5, 5–6 (Ankit)
+- Ankit: highest range is 5–6, lowest is 3–4. Bands renamed (`a34`, `a45`, `a56`; display only, nothing saved uses them).
+- 3–4: counting to 3/5, first letter sounds (s a t p, i n). 4–5: counting to 7/10, adding/subtracting within 10 with pictures, make-10 with pictures, picture story sums, more letter sounds, first short-word level, first tricky words. 5–6: everything else built today (numbers-only within 10/20, tens & ones, comparing, digraphs, blends, magic e, vowel teams, endings, sentences, all stories); planned money/clock/groups also 5–6.
+- Supersedes the "advanced learner" bands below.
+
 ## 2026-11-15 — Age bands recalibrated for an advanced learner (Ankit)
 - Ankit: reading stories and answering questions is a 5–6 skill; the app targets smart kids. Bands moved about a grade earlier than Common Core: Ages 5–6 now covers all phonics, short words, sh/ch/th, blends, first magic-e level, all stories, tricky words 1–2, adding/subtracting within 10 incl. numbers only, first make-10, first tens & ones and compare levels, first two story-sum levels. Ages 6–7 has the rest (within 20 numbers only, tens & ones to 100, close comparisons, vowel teams, -ed/-ing reading yourself, magic-e look-alikes). Nothing built is Ages 7–8 now; planned money/clock/groups are 6–7.
 - Section subtitles changed from grade names to "K–Grade 1 skills" / "Grade 1–2 skills" / "Grade 2+ skills" so they stay honest.
