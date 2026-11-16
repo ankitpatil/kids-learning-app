@@ -45,3 +45,4 @@
 2026-11-15 13:25 PT — subject tiles open Level Select with ▶️ Play next; tiles named Math / Reading (interactive, with Ankit); tests pass, build ok — done
 2026-11-15 14:15 PT — narration off by default (interactive, with Ankit) — Grown-ups "Talk by itself" toggle (off); say() gated, speak() for tap-to-hear; L1 stories wait for "read to me" when off; 337 tests pass, build ok — done
 2026-11-15 17:20 PT — merge origin/main (parallel narration-off build) — kept local tapSay/Silent-mode design, dropped remote speak() version; see DECISIONS — done
+2026-11-16 07:46 PT — item AI3c — "Why?" helper in Phonics Pop, Sight-Word Catch, Word Builder: phonicsWhyContext / sightWhyContext / endingWhyContext + createWhyHinter from the 2nd miss; leak check names letters (s, /s/, capital S, "ess") and new `hide` words (finished word for endings); tests that every request passes sanitizeRequest; 343 tests pass, build ok — done

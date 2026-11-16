@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { makeEndingItem, sentenceWith, promptSentence, type EndingItem } from './generator';
+import { makeEndingItem, sentenceWith, promptSentence, endingWhyContext, type EndingItem } from './generator';
 import type { Ending } from '../../content/endings';
 import { updateSkill, type SkillState } from '../../engine/adaptive';
 import { maxLevel } from '../../engine/tracks';
@@ -8,6 +8,8 @@ import { planRound, resolveSlot, type Slot } from '../../engine/roundMix';
 import { say, tapSay } from '../../audio/speech';
 import { fresh } from '../../engine/recent';
 import { feedback } from '../../components/Feedback';
+import { ai } from '../../ai/app';
+import { createWhyHinter } from '../../ai/whyHint';
 
 const ROUND_LENGTH = 8;
 const TRACK = 'endings';
@@ -35,6 +37,8 @@ export function WordBuilder({ profileId, onDone, onExit }: Props) {
   const ease = useRef(false);
   const started = useRef(Date.now());
   const busy = useRef(false);
+  const misses = useRef(0); // misses on the current item (AI3: Claude hint from the 2nd)
+  const hinter = useRef(createWhyHinter(ai));
   const plan = useRef(planRound(ROUND_LENGTH));
   const all = useRef<Awaited<ReturnType<typeof getSkillStates>>>({});
   const slot = useRef<Slot>({ kind: 'current', trackId: TRACK, level: 0 });
@@ -57,6 +61,7 @@ export function WordBuilder({ profileId, onDone, onExit }: Props) {
     ease.current = false;
     setItem(it);
     setTried([]);
+    misses.current = 0;
     setShown(null);
     setMood('idle');
     started.current = Date.now();
@@ -105,7 +110,10 @@ export function WordBuilder({ profileId, onDone, onExit }: Props) {
     setTried((t) => [...t, e]);
     setMood('oops');
     // Hint: let them hear their version so the mismatch with the time clue is obvious.
-    say(`${sentenceWith(item, item.base + e)} || Hmm, | does that sound right?`);
+    misses.current += 1;
+    const ctx = endingWhyContext(item, slot.current.level, e);
+    const hint = (await hinter.current.hint(item.id, misses.current, ctx, 'Hmm, | does that sound right?')).text;
+    say(`${sentenceWith(item, item.base + e)} || ${hint}`);
     setTimeout(() => {
       setShown(null);
       setMood('idle');

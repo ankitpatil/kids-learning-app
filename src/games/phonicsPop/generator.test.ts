@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { makePhonicsItem, choiceCount, PHONICS_MAX_LEVEL } from './generator';
+import { makePhonicsItem, choiceCount, phonicsWhyContext, PHONICS_MAX_LEVEL } from './generator';
+import { whyRequest, leaksAnswer, checkWhyHint } from '../../ai/whyHint';
+import { sanitizeRequest } from '../../ai/request';
+
 import { LETTERS, lettersUpTo, CONFUSABLES } from './letters';
 import { maxLevel as trackMax } from '../../engine/tracks';
 
@@ -65,5 +68,36 @@ describe('makePhonicsItem', () => {
 describe('phonics levels line up with the track (round mix #14b)', () => {
   it('PHONICS_MAX_LEVEL matches the track level count', () => {
     expect(PHONICS_MAX_LEVEL).toBe(trackMax('phonics'));
+  });
+});
+
+describe('phonicsWhyContext (AI3c)', () => {
+  it('every request passes the whitelist; naming the target letter is a leak', () => {
+    for (let level = 0; level <= PHONICS_MAX_LEVEL; level++) {
+      for (let i = 0; i < 15; i++) {
+        const it = makePhonicsItem(level);
+        const ctx = phonicsWhyContext(it, level, it.choices.find((c) => c !== it.target));
+        expect(ctx.answer).toBe(it.target);
+        expect(sanitizeRequest(whyRequest(ctx))).toMatchObject({ kind: 'why', subject: 'reading', track: 'phonics', item: { answer: it.target } });
+        const L = it.target;
+        expect(leaksAnswer(`It is ${L}.`, ctx)).toBe(true);
+        expect(leaksAnswer(`Pop the ${L.toUpperCase()} balloon.`, ctx)).toBe(true);
+        expect(leaksAnswer(`Listen: /${L}/.`, ctx)).toBe(true);
+        expect(leaksAnswer(`${it.word.split('').join('-')}.`, ctx)).toBe(true);
+        // Saying the picture word is fine (it's spoken anyway).
+        if (!['a', 'i', 'o'].includes(L)) expect(leaksAnswer(`Say ${it.word} slowly. Hear the first sound?`, ctx)).toBe(false);
+      }
+    }
+  });
+
+  it('catches letter names and capitals, not letters inside words', () => {
+    const ctx = (t: string) => phonicsWhyContext({ id: 'x', target: t, word: LETTERS[t].word, emoji: '', choices: [t] }, 0);
+    expect(leaksAnswer('Find the letter ess.', ctx('s'))).toBe(true);
+    expect(leaksAnswer('It looks like a bee with a big tummy.', ctx('b'))).toBe(true);
+    expect(leaksAnswer('Capital T has a hat.', ctx('t'))).toBe(true);
+    expect(leaksAnswer('Say sun slowly. What sound comes first?', ctx('s'))).toBe(false);
+    expect(leaksAnswer("Look at the sun. It's hot!", ctx('s'))).toBe(false);
+    expect(checkWhyHint('Say sun slowly. Hear the first sound?', ctx('s'))).toEqual({ ok: true, text: 'Say sun slowly. | Hear the first sound?' });
+    expect(checkWhyHint('Sun starts with S.', ctx('s')).ok).toBe(false);
   });
 });

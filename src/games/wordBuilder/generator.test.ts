@@ -1,7 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { makeEndingItem, endingsAt, sentenceWith, promptSentence } from './generator';
+import { makeEndingItem, endingsAt, sentenceWith, promptSentence, endingWhyContext } from './generator';
+import { whyRequest, leaksAnswer } from '../../ai/whyHint';
+import { sanitizeRequest } from '../../ai/request';
+
 import { ENDING_VERBS, ENDING_NOUNS, ENDING_FRAMES } from '../../content/endings';
-import { pickTrack } from '../../engine/tracks';
+import { pickTrack, maxLevel } from '../../engine/tracks';
 
 describe('word endings content (#18)', () => {
   it('every frame has exactly one gap; base words need no spelling change', () => {
@@ -65,5 +68,24 @@ describe('ending items (#18)', () => {
     const done = Object.fromEntries(['phonics', 'cvc', 'digraphs', 'blends', 'silentE', 'vowelTeams'].map((id) => [id, { level: 9, mastery: 0.95 }]));
     expect(pickTrack('reading', done)).toBe('endings');
     expect(pickTrack('reading', { ...done, endings: { level: 9, mastery: 0.95 } })).toBe('sightWords');
+  });
+});
+
+describe('endingWhyContext (AI3c)', () => {
+  it('every request passes the whitelist; naming the ending or the finished word is a leak', () => {
+    for (let level = 0; level <= maxLevel('endings'); level++) {
+      for (let i = 0; i < 25; i++) {
+        const it = makeEndingItem(level);
+        const ctx = endingWhyContext(it, level, it.choices.find((c) => c !== it.ending));
+        expect(ctx.answer).toBe(it.ending);
+        expect(ctx.question).toContain(`${it.base}___`);
+        expect(sanitizeRequest(whyRequest(ctx))).toMatchObject({ kind: 'why', subject: 'reading', track: 'endings', item: { answer: it.ending } });
+        expect(leaksAnswer(`Add ${it.ending}.`, ctx)).toBe(true);
+        expect(leaksAnswer(`Try -${it.ending}.`, ctx)).toBe(true);
+        expect(leaksAnswer(`The word is ${it.word}.`, ctx)).toBe(true);
+        expect(leaksAnswer(`${it.base}-${it.ending}.`, ctx)).toBe(true);
+        expect(leaksAnswer(`Look at the picture. When does ${it.base} happen?`, ctx)).toBe(false);
+      }
+    }
   });
 });

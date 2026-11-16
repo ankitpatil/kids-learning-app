@@ -2,6 +2,11 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-16 — "Why?" helper in Phonics Pop, Sight-Word Catch, Word Builder (AI3c)
+- **Phonics Pop**: the answer is a letter, so the leak check (`namesLetter`) rejects the letter on its own ("s", "S", "/s/", "s-u-n", "capital S") and its spoken name ("ess", "bee", "tee"…). Letters inside words don't count. For a / i / o this also rejects the words "a", "I", "oh" — conservative on purpose; those hints fall back to the canned one. The picture word (sun) may be said. On a miss the child still hears "That's B, like ball"; the Claude hint replaces the repeated prompt.
+- **Sight-Word Catch**: the word is spoken in the prompt, so the hint may say it (`sayWordOk`) but not spell it — the canned hint spells it, Claude's must help another way. One-letter words (a, I) can't leak.
+- **Word Builder**: the answer is the ending; new `WhyContext.hide` lists other words that give it away (the finished word, "jumping"). Naming "-ing"/"ed"/"s", spelling it or saying the finished word is a leak. `hide` stays on the device (not sent). Claude's hint replaces "Hmm, does that sound right?" after the child hears their version of the sentence.
+
 ## 2026-11-15 — Merged two parallel "narration off" builds
 - Two sessions built narration-off-by-default at the same time. Kept the local design (`tapSay`, 🗣️/🤫 toggle, Silent mode, age bands), which later commits, SPEC.md and CLAUDE.md build on; the remote `speak()` version was dropped. Both use the same `localStorage.narration` key, so a device's setting carries over.
 - Its one different behaviour (L1 stories wait for "read to me" when narration is off) was not kept: Ankit's call below is that read-to-you stories still read themselves.

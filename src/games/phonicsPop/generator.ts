@@ -1,6 +1,7 @@
 import { CONFUSABLES, LETTERS, PHONICS_LEVEL_NEW, lettersUpTo } from './letters';
 import type { Rng } from '../feedMonster/generator';
 import { getLevel } from '../../engine/tracks';
+import type { WhyContext } from '../../ai/whyHint';
 
 export interface PhonicsItem {
   id: string;
@@ -66,4 +67,19 @@ export function makePhonicsItem(level: number, rng: Rng = Math.random, ease = fa
 
   const info = LETTERS[target];
   return { id: `phonics-${target}`, target, word: info.word, emoji: info.emoji, choices: shuffle([...choices], rng) };
+}
+
+/**
+ * AI3c "Why?" helper: the child must find the letter the picture word starts with. The hint may
+ * say the picture word (it's spoken anyway) but must not name the target letter or its letter name.
+ */
+export function phonicsWhyContext(item: PhonicsItem, level: number, picked?: string): WhyContext {
+  return {
+    subject: 'reading',
+    track: 'phonics',
+    level,
+    question: `Which letter does "${item.word}" start with? Pop that letter balloon.`,
+    answer: item.target,
+    picked,
+  };
 }

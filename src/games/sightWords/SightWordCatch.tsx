@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { makeSightItem, type SightItem } from './generator';
+import { makeSightItem, sightWhyContext, type SightItem } from './generator';
 import { updateSkill, type SkillState } from '../../engine/adaptive';
 import { maxLevel } from '../../engine/tracks';
 import { getSkillState, getSkillStates, saveSkillState, logAttempt } from '../../store/db';
@@ -7,6 +7,8 @@ import { planRound, resolveSlot, type Slot } from '../../engine/roundMix';
 import { say, tapSay } from '../../audio/speech';
 import { fresh } from '../../engine/recent';
 import { feedback } from '../../components/Feedback';
+import { ai } from '../../ai/app';
+import { createWhyHinter } from '../../ai/whyHint';
 
 const ROUND_LENGTH = 8;
 const TRACK = 'sightWords';
@@ -29,6 +31,8 @@ export function SightWordCatch({ profileId, onDone, onExit }: Props) {
   const ease = useRef(false);
   const started = useRef(Date.now());
   const busy = useRef(false);
+  const misses = useRef(0); // misses on the current item (AI3: Claude hint from the 2nd)
+  const hinter = useRef(createWhyHinter(ai));
   const plan = useRef(planRound(ROUND_LENGTH));
   const all = useRef<Awaited<ReturnType<typeof getSkillStates>>>({});
   const slot = useRef<Slot>({ kind: 'current', trackId: TRACK, level: 0 });
@@ -55,6 +59,7 @@ export function SightWordCatch({ profileId, onDone, onExit }: Props) {
     ease.current = false;
     setItem(it);
     setTried([]);
+    misses.current = 0;
     setMood('idle');
     started.current = Date.now();
     busy.current = false;
@@ -101,7 +106,10 @@ export function SightWordCatch({ profileId, onDone, onExit }: Props) {
     hinted.current = true;
     setTried((t) => [...t, word]);
     setMood('oops');
-    say(`That one says ${word}. || Find ${item.word}: ${item.word.split('').join(', ')}.`);
+    misses.current += 1;
+    const canned = `Find ${item.word}: ${item.word.split('').join(', ')}.`;
+    const ctx = sightWhyContext(item, slot.current.level, word);
+    say(`That one says ${word}. || ${(await hinter.current.hint(item.id, misses.current, ctx, canned)).text}`);
     setTimeout(() => {
       setMood('idle');
       busy.current = false;
