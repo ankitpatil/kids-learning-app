@@ -110,8 +110,8 @@ button { font: inherit; cursor: pointer; touch-action: manipulation; }
 .quick-visual { min-height: 10rem; max-width: min(92vw, 40rem); display: flex; align-items: center; justify-content: center; text-align: center; white-space: pre-line; font-size: 4rem; font-weight: 900; line-height: 1.2; color: var(--ink); background: #fff; border-radius: 2rem; padding: 1.25rem 1.75rem; box-shadow: 0 0.5rem 0 #0002; word-break: break-word; }
 .quick-visual.small { font-size: 2.375rem; }
 .quick-choices { display: grid; grid-template-columns: repeat(2, minmax(7.5rem, 12.5rem)); gap: 1.125rem; margin-top: auto; margin-bottom: 1.5rem; }
-.quick-choice { border: none; min-height: 6rem; border-radius: 1.75rem; background: #fff; font-size: 3rem; font-weight: 900; color: var(--primary); box-shadow: 0 0.375rem 0 #0002; }
-.quick-choices.words .quick-choice { font-size: 2.5rem; font-family: 'Andika', 'Comic Sans MS', ui-rounded, sans-serif; }
+.quick-choice { border: none; min-height: 6rem; border-radius: 1.75rem; background: #fff; font-size: calc(3rem * var(--choice-scale, 1)); font-weight: 900; color: var(--primary); box-shadow: 0 0.375rem 0 #0002; }
+.quick-choices.words .quick-choice { font-size: calc(2.5rem * var(--choice-scale, 1)); font-family: 'Andika', 'Comic Sans MS', ui-rounded, sans-serif; }
 .quick-choice:active { transform: translateY(0.1875rem); box-shadow: 0 0.1875rem 0 #0002; }
 .quick-choice.picked { background: var(--soft); }
 
@@ -249,13 +249,13 @@ button { font: inherit; cursor: pointer; touch-action: manipulation; }
 .sentence-text .blank { display: inline-block; min-width: 3.2em; border-bottom: 0.375rem dashed var(--primary); text-align: center; }
 .sentence-text .blank.filled { border-bottom-style: solid; color: #1e8e4e; animation: bounce .5s ease 1; }
 .word-choices { display: flex; flex-wrap: wrap; justify-content: center; gap: 1.125rem; padding: 0 1rem; }
-.word-choice { min-width: 8.75rem; min-height: 5.25rem; padding: 0 1.5rem; border: none; border-radius: 1.5rem; background: var(--primary); color: #fff; font-family: 'Andika', 'Comic Sans MS', ui-rounded, sans-serif; font-size: 2.875rem; font-weight: 800; box-shadow: 0 0.375rem 0 #4834d4; }
+.word-choice { min-width: 8.75rem; min-height: 5.25rem; padding: 0 1.5rem; border: none; border-radius: 1.5rem; background: var(--primary); color: #fff; font-family: 'Andika', 'Comic Sans MS', ui-rounded, sans-serif; font-size: calc(2.875rem * var(--choice-scale, 1)); font-weight: 800; box-shadow: 0 0.375rem 0 #4834d4; }
 .word-choice:active { transform: translateY(0.1875rem); box-shadow: 0 0.1875rem 0 #4834d4; }
 .word-choice.tried { opacity: .3; }
 .word-choice.right { background: #2ecc71; box-shadow: 0 0.375rem 0 #1e8e4e; animation: bounce .5s ease 2; }
 .magic-reveal { font-family: 'Andika', 'Comic Sans MS', ui-rounded, sans-serif; font-size: clamp(1.75rem, 6vw, 2.75rem); font-weight: 800; background: #fff6d6; border-radius: 1.25rem; padding: 0.375rem 1.25rem; animation: bounce .5s ease 1; }
 .magic-reveal .magic-e { color: #e17055; }
-@media (max-width: 480px) { .word-choice { min-width: 6.875rem; min-height: 4.5rem; font-size: 2.375rem; } }
+@media (max-width: 480px) { .word-choice { min-width: 6.875rem; min-height: 4.5rem; font-size: calc(2.375rem * var(--choice-scale, 1)); } }
 
 /* Sight-Word Catch */
 .catcher { border: none; background: none; font-size: 5.5rem; line-height: 1; }
@@ -354,8 +354,8 @@ button { font: inherit; cursor: pointer; touch-action: manipulation; }
 .sum-equation.oops { animation: wiggle .4s ease 2; }
 .sum-slot { display: inline-block; min-width: 1.4em; text-align: center; border-bottom: 0.375rem dashed var(--primary); }
 .sum-slot.filled { border-bottom-style: solid; color: #1e8e4e; }
-.word-choice.sign { min-width: 7.5rem; font-size: 4rem; background: #e17055; box-shadow: 0 0.375rem 0 #b8553d; }
-.word-choice.equation { font-size: clamp(1.875rem, 6vw, 2.75rem); }
+.word-choice.sign { min-width: 7.5rem; font-size: calc(4rem * var(--choice-scale, 1)); background: #e17055; box-shadow: 0 0.375rem 0 #b8553d; }
+.word-choice.equation { font-size: calc(clamp(1.875rem, 6vw, 2.75rem) * var(--choice-scale, 1)); }
 
 /* Round-end confetti rain */
 .confetti { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 50; }
@@ -454,7 +454,9 @@ body.move-mode .reward-actions { gap: 3rem; }
 body.move-mode .quick-choices,
 body.move-mode .word-choices { gap: 2.5rem; }
 body.move-mode .quick-choice,
-body.move-mode .word-choice { min-width: 7.5rem; min-height: 6.875rem; font-size: 1.25em; }
+body.move-mode .word-choice { min-width: 7.5rem; min-height: 6.875rem; }
+/* answer text 25% bigger in Move mode: a factor on each button's own size (`1.25em` here used to shrink it to body-text size) */
+body.move-mode { --choice-scale: 1.25; }
 body.move-mode .balloons { gap: 2.5rem 3.5rem; max-width: 56.25rem; }
 body.move-mode .balloon { width: 8.25rem; height: 10rem; }
 body.move-mode .cookie.big { font-size: 4rem; width: 5.5rem; height: 5.5rem; }

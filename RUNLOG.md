@@ -47,3 +47,4 @@
 2026-11-15 17:20 PT — merge origin/main (parallel narration-off build) — kept local tapSay/Silent-mode design, dropped remote speak() version; see DECISIONS — done
 2026-11-15 20:17 PT — responsive scaling (rem + fluid root size) + steadier TV cursor + tracked hand in preview (interactive, with Ankit); 346 tests pass, build ok; not tried with a real camera — done
 2026-11-15 20:26 PT — Move mode: ⬆️/⬇️ scroll pads, claimed hand only, newcomers ignored (interactive, with Ankit); tests pass, build ok; not tried with a real camera — done
+2026-11-15 20:28 PT — fix: Move-mode answer buttons showed small text (1.25em was relative to body text, not the button); now a --choice-scale factor (interactive, with Ankit); tests pass, build ok — done
