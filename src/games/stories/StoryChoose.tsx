@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
-import { pickStory, unlockedPattern, readMode, makeQuestion, questionSpeech, STORIES_PER_ROUND, TRACK, type QuestionItem, type ReadMode } from './generator';
+import { pickStory, unlockedPattern, readMode, makeQuestion, questionSpeech, storyWhyContext, STORIES_PER_ROUND, TRACK, type QuestionItem, type ReadMode } from './generator';
 import type { Story, StoryChoice } from '../../content/stories';
 import { tokenize } from '../../audio/readAlong';
 import { updateSkill, type SkillState } from '../../engine/adaptive';
 import { maxLevel } from '../../engine/tracks';
 import { getSkillState, getSkillStates, saveSkillState, logAttempt } from '../../store/db';
-import { say, sayAlong, tapSay } from '../../audio/speech';
+import { say, sayAlong, tapSay, isNarrationOn } from '../../audio/speech';
 import { fresh, remember } from '../../engine/recent';
 import { ai } from '../../ai/app';
+import { createWhyHinter } from '../../ai/whyHint';
 import { STORY_TOPICS, type StoryTopic } from '../../ai/request';
 import { listAiStories, saveAiStory } from '../../store/db';
 import { newStory, patternCap, playableCached, fallbackStory, TOPIC_ICONS } from './aiStory';
@@ -42,6 +43,10 @@ export function StoryChoose({ profileId, onDone, onExit }: Props) {
   const [live] = useState(() => ai.isLive());
   const [picker, setPicker] = useState(false);
   const [writing, setWriting] = useState(false);
+  /** AI3d: Claude's "Why?" hint for the current question, shown (tap to hear) while it's open. */
+  const [why, setWhy] = useState<string | null>(null);
+  const misses = useRef(0); // misses on the current question (Claude hint from the 2nd)
+  const hinter = useRef(createWhyHinter(ai));
   const cached = useRef<Story[]>([]);
   const alive = useRef(true);
   const storyNo = useRef(0);
@@ -187,6 +192,8 @@ export function StoryChoose({ profileId, onDone, onExit }: Props) {
     hinted.current = easy || readHelp.current;
     setQuestion(q);
     setTried([]);
+    setWhy(null);
+    misses.current = 0;
     setMood('idle');
     // Easing: point at the line with the answer straight away.
     setHi(easy ? { line: q.line, word: null } : null);
@@ -233,14 +240,27 @@ export function StoryChoose({ profileId, onDone, onExit }: Props) {
     hinted.current = true;
     setTried((t) => [...t, c.text]);
     setMood('oops');
-    // Hint: go back to the story and read the line that answers the question.
-    say("Let's look at the story again.");
-    later(() => readLines(story, question.line, question.line, () => setHi({ line: question.line, word: null })), 1400);
+    misses.current += 1;
+    // Hint: go back to the story and read the line that answers the question. From the 2nd miss
+    // (helpers on), a checked Claude hint pointing at that line replaces the opening words.
+    const canned = "Let's look at the story again.";
+    const r = await hinter.current.hint(question.id, misses.current, storyWhyContext(story, question, level.current, c.text), canned);
+    if (!alive.current) return;
+    const claude = r.source === 'claude';
+    if (claude) {
+      setWhy(r.text.replace(/ \| /g, ' '));
+      setHi({ line: question.line, word: null });
+    }
+    say(r.text);
+    // Give a spoken Claude hint time to be heard (~65 ms a character, ≤ 5 s) before the line is
+    // read. With narration off it is only shown (tap to hear), so no extra wait.
+    const wait = claude && isNarrationOn() ? Math.min(5000, 1400 + r.text.length * 65) : 1400;
+    later(() => readLines(story, question.line, question.line, () => setHi({ line: question.line, word: null })), wait);
     later(() => {
       setMood('idle');
       busy.current = false;
       started.current = Date.now();
-    }, 1600);
+    }, wait + 200);
   }
 
   if (!story || !state) return <div className="screen center">Loading…</div>;
@@ -339,6 +359,11 @@ export function StoryChoose({ profileId, onDone, onExit }: Props) {
         question && (
           <>
             <p className={`story-question ${mood}`}>{question.q}</p>
+            {why && (
+              <button className="story-why" onClick={() => tapSay(why)} aria-label={`Hint: ${why}`}>
+                <span aria-hidden="true">💡🔊</span> {why}
+              </button>
+            )}
             <div className="story-choices">
               {question.choices.map((c) => (
                 <button

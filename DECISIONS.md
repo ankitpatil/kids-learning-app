@@ -2,6 +2,12 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-16 — "Why?" helper in Story Choose questions (AI3d)
+- Request = the question plus the line that answers it (`What did Sam get? The story line: "Sam got a big red hat."`, ≤ 160 chars for every built-in story — tested), the answer and what the child picked. Story names are made up; nicknames are still redacted by the client.
+- Leak check: the hint must not say or spell the whole answer, nor its **key words** (`hide`, device only): answer words that aren't little words (a, the, in, on…) and aren't in a wrong choice, plus plurals ("in the hat" vs "in the box" → hat, hats). If only a little word differs ("in the box" vs "on the box"), that word is hidden. So quoting the answer line is rejected — Claude has to point at it ("Find the line about what Sam got").
+- On the 2nd miss, a passing Claude hint replaces "Let's look at the story again.", the answer line lights up at once, then the line is read as before. The hint is also shown as a 💡🔊 bubble under the question (tap to hear), because with narration off (the default) `say()` is silent and the hint would otherwise never reach the child. When narration is on, the line reading waits for the hint (≤ 5 s).
+- Noticed, not changed: in the other games the Claude hint goes through `say()` only, so with narration off it's never heard. Worth the same bubble treatment in a later item if Ankit agrees.
+
 ## 2026-11-16 — "Why?" helper in Phonics Pop, Sight-Word Catch, Word Builder (AI3c)
 - **Phonics Pop**: the answer is a letter, so the leak check (`namesLetter`) rejects the letter on its own ("s", "S", "/s/", "s-u-n", "capital S") and its spoken name ("ess", "bee", "tee"…). Letters inside words don't count. For a / i / o this also rejects the words "a", "I", "oh" — conservative on purpose; those hints fall back to the canned one. The picture word (sun) may be said. On a miss the child still hears "That's B, like ball"; the Claude hint replaces the repeated prompt.
 - **Sight-Word Catch**: the word is spoken in the prompt, so the hint may say it (`sayWordOk`) but not spell it — the canned hint spells it, Claude's must help another way. One-letter words (a, I) can't leak.
