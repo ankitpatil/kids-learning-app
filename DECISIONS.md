@@ -2,6 +2,10 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-15 — Merged two parallel "narration off" builds
+- Two sessions built narration-off-by-default at the same time. Kept the local design (`tapSay`, 🗣️/🤫 toggle, Silent mode, age bands), which later commits, SPEC.md and CLAUDE.md build on; the remote `speak()` version was dropped. Both use the same `localStorage.narration` key, so a device's setting carries over.
+- Its one different behaviour (L1 stories wait for "read to me" when narration is off) was not kept: Ankit's call below is that read-to-you stories still read themselves.
+
 ## 2026-11-15 — Subject tiles open the levels (Ankit)
 - Math / Reading tiles now open Level Select (after the one-time starting point) instead of jumping into the auto-picked game. The auto pick lives on as a big ▶️ Play next button at the top of Level Select. Picking a starting point also lands on Level Select.
 - Tiles show the subject name ("Math", "Reading") above 1 2 3 / a b c; the "🗺️ … levels" links under the tiles are gone (the tiles do that now). Level Select's title is the subject name.
@@ -21,6 +25,10 @@ Judgment calls made during autonomous runs. Newest first. Ankit reviews and can 
 - Speech the child asks for still plays with narration off: 🔊 "say again", tapping a picture, a story word, an avatar, a sticker, the voice preview (`tapSay`). Without this, pre-reader games (Phonics Pop's letter sound, Build it's spoken word) would be unplayable. Stories at the "read to you" level still read themselves (`sayAlong`), since reading to the child is that level's content.
 - The old all-sound mute moved to Grown-ups as "Silent mode" (no voice, no sound effects, even on tap). Sound effects stay on by default.
 - Age bands per level from US Common Core (K.CC, K.OA, 1.OA, 1.NBT, K.RF, 1.RF, 2.RF; Dolch lists for tricky words). A track can span bands (e.g. Add within 10: two K levels, then Grade 1 for numbers only); Level Select shows the track in each age section with only that section's level chips. ▶ plays the child's current level when it's in that section, else the section's first level. Grade 2 shows only where a level is Grade 2 (vowel-team look-alikes, read-it-yourself stories) — math Grade 2 tracks aren't built yet.
+## 2026-11-15 — Narration off by default (superseded by the merge above — remote build, not shipped)
+- New Grown-ups toggle "💬 Talk by itself", **off by default**, per device (`localStorage.narration`). Off: screen prompts, answer feedback, hints and Move-mode prompts are silent; speech the child asks for still plays — every 🔊 "say again" button, tapping a title, word, picture or sticker, avatar names, the voice sample and "read to me". The 🔊/🔇 mute button still silences everything.
+- In code: `say()` is narration (gated); `speak()` is asked-for speech (always, unless muted). New tap-to-hear code should use `speak()`.
+- Stories: on read-to-you levels (L1) with narration off, the story isn't read aloud by itself — the "read to me" speaker is shown instead, and using it there doesn't count as a hint.
 
 ## 2026-11-15 — Hosted on Vercel (Ankit's call)
 - Static Vite build on Vercel (Hobby, `*.vercel.app`), connected to this repo: every push to `main` deploys. No login, no custom domain for now. HTTPS there is also what the camera (Move mode) needs.
