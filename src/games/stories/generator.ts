@@ -3,6 +3,7 @@ import { STORIES, PATTERNS, type Story, type StoryChoice, type Pattern } from '.
 import { SIGHT_WORDS } from '../../content/sightWords';
 import { getLevel, MASTERED } from '../../engine/tracks';
 import type { Rng } from '../feedMonster/generator';
+import type { WhyContext } from '../../ai/whyHint';
 
 export const TRACK = 'stories';
 
@@ -124,3 +125,39 @@ export function questionSpeech(item: QuestionItem, level: number): string {
 }
 
 export const STORIES_PER_ROUND = 2;
+
+// ---- AI3d "Why?" helper ----
+/** Little words that never give a story answer away on their own ("in the box" vs "on the bus"). */
+const FUNCTION_WORDS = new Set(['a', 'an', 'the', 'and', 'of', 'to', 'in', 'on', 'at', 'by', 'up', 'with', 'his', 'her', 'my', 'its', 'it', 'is', 'was']);
+
+/**
+ * Words of the answer that would give it away: not a little function word and not in any of
+ * the wrong choices ("a cup of pop" vs "a bun" → cup, pop). If every word is shared or little
+ * (only "in"/"on" differ), all of the answer's words are hidden. Plurals count too (hat → hats).
+ */
+export function answerKeyWords(answer: string, wrong: string[]): string[] {
+  const words = (s: string) => tokenizeWords(s.toLowerCase());
+  const answerWords = [...new Set(words(answer))];
+  const wrongWords = new Set(wrong.flatMap(words));
+  let key = answerWords.filter((w) => !FUNCTION_WORDS.has(w) && !wrongWords.has(w));
+  if (!key.length) key = answerWords.filter((w) => !wrongWords.has(w));
+  if (!key.length) key = answerWords;
+  return [...new Set(key.flatMap((w) => (w.endsWith('s') ? [w] : [w, `${w}s`])))];
+}
+
+/**
+ * AI3d "Why?" helper for a comprehension question: the request carries the question and the line
+ * that answers it, so Claude can point the child back to that line. The hint must not say or
+ * spell the answer or any of its key words (`hide`, checked on the device only).
+ */
+export function storyWhyContext(story: Story, item: QuestionItem, level: number, picked?: string): WhyContext {
+  return {
+    subject: 'reading',
+    track: TRACK,
+    level,
+    question: `${item.q} The story line: "${story.lines[item.line].text}"`,
+    answer: item.answer.text,
+    picked,
+    hide: answerKeyWords(item.answer.text, item.choices.filter((c) => c.text !== item.answer.text).map((c) => c.text)),
+  };
+}

@@ -1,6 +1,7 @@
 import { SIGHT_WORDS, SIGHT_CONFUSABLES, type SightWord } from '../../content/sightWords';
 import { getLevel } from '../../engine/tracks';
 import type { Rng } from '../feedMonster/generator';
+import type { WhyContext } from '../../ai/whyHint';
 
 export interface SightItem {
   id: string;
@@ -48,4 +49,20 @@ export function makeSightItem(level: number, rng: Rng = Math.random, ease = fals
     .filter((w) => !avoidNear.includes(w))
     .forEach(add);
   return { id: `sight-${target.word}`, word: target.word, example: target.example, choices: shuffle([target.word, ...decoys], rng) };
+}
+
+/**
+ * AI3c "Why?" helper: the word is spoken ("Catch the word: said"), so the hint may say it, but
+ * must not spell it out — finding its shape among look-alikes is the skill.
+ */
+export function sightWhyContext(item: SightItem, level: number, picked?: string): WhyContext {
+  return {
+    subject: 'reading',
+    track: 'sightWords',
+    level,
+    question: `Hear the tricky word "${item.word}", then catch the bubble that shows it.`,
+    answer: item.word,
+    picked,
+    sayWordOk: true,
+  };
 }

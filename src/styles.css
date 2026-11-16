@@ -484,6 +484,8 @@ body.move-mode .icon-btn { min-width: 4.5rem; min-height: 4.5rem; }
 .play-next { display: flex; align-items: center; justify-content: center; gap: 0.875rem; width: min(96vw, 40rem); margin: 0.25rem auto 0.875rem; }
 .play-next.reading { background: var(--reading); }
 .play-next-label { font-size: 2.25rem; font-weight: 900; }
+/* AI3d: Claude's "Why?" hint under a story question (tap to hear). */
+.story-why { display: block; margin: 0.25rem auto 0.5rem; max-width: 34em; min-height: 3.5rem; padding: 0.625rem 1rem; border: 0.1875rem dashed #f5b700; border-radius: 1.125rem; background: #fff8dc; color: #333; font: inherit; font-size: clamp(1.125rem, 4vw, 1.5rem); font-weight: 700; cursor: pointer; }
 
 /* Phones held sideways: tighter home screen (kept last so it wins over the rules above) */
 @media (orientation: landscape) and (max-height: 500px) { .subject { min-height: 9.5rem; } .big-emoji { font-size: 3.75rem; } .title { margin: 0; } }

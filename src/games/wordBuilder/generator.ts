@@ -1,6 +1,7 @@
 import { ENDING_VERBS, ENDING_NOUNS, ENDING_FRAMES, type Ending } from '../../content/endings';
 import { getLevel } from '../../engine/tracks';
 import type { Rng } from '../feedMonster/generator';
+import type { WhyContext } from '../../ai/whyHint';
 
 export interface EndingItem {
   id: string;
@@ -74,4 +75,20 @@ export function sentenceWith(item: EndingItem, word: string): string {
 /** The sentence spoken with a blank, for the scaffolded prompt. */
 export function promptSentence(item: EndingItem): string {
   return sentenceWith(item, `${item.base}, blank`);
+}
+
+/**
+ * AI3c "Why?" helper: the answer is the ending (s / ed / ing). The hint must not name it, spell
+ * it, or say the finished word ("jumping"); it can point at the time clue or the picture.
+ */
+export function endingWhyContext(item: EndingItem, level: number, picked?: string): WhyContext {
+  return {
+    subject: 'reading',
+    track: 'endings',
+    level,
+    question: `Pick the ending (s, ed or ing) for "${item.base}": ${sentenceWith(item, `${item.base}___`)}`,
+    answer: item.ending,
+    picked,
+    hide: [item.word],
+  };
 }

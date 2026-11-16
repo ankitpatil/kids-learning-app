@@ -27,6 +27,8 @@ export interface WhyContext {
    * not spelled out. Default false: the word must not appear at all (Read it, sentences).
    */
   sayWordOk?: boolean;
+  /** Reading only: other words that would give the answer away (e.g. "jumping" when the answer is the ending "ing"); never said or spelled. */
+  hide?: string[];
 }
 
 export type WhyCheck = { ok: true; text: string } | { ok: false; problems: string[] };
@@ -65,8 +67,28 @@ export function saysWord(text: string, word: string): boolean {
   return new RegExp(`(?<![a-z])${w}(?![a-z])`).test(text.toLowerCase());
 }
 
+/** Spoken letter names, so "the letter bee" counts as naming b. */
+export const LETTER_NAMES: Record<string, string[]> = {
+  a: ['ay'], b: ['bee', 'be'], c: ['see', 'sea', 'cee'], d: ['dee'], e: ['ee'], f: ['ef', 'eff'], g: ['gee'],
+  h: ['aitch', 'haitch'], i: ['eye'], j: ['jay'], k: ['kay'], l: ['el', 'ell'], m: ['em'], n: ['en'], o: ['oh'],
+  p: ['pee'], q: ['cue', 'queue'], r: ['ar', 'are'], s: ['ess'], t: ['tee', 'tea'], u: ['you'], v: ['vee'],
+  w: ['double u', 'double-u', 'double you'], x: ['ex'], y: ['why', 'wye'], z: ['zed', 'zee'],
+};
+
+/**
+ * The letter is named: on its own ("s", "S", "/s/", "s-u-n", "capital S") or by its spoken name
+ * ("ess"). Letters inside words ("sun", "it's" excepted) don't count. Conservative on purpose:
+ * for a, i, o the hint can't use "a", "I" or "oh" — it falls back to the canned hint.
+ */
+export function namesLetter(text: string, letter: string): boolean {
+  const l = letter.toLowerCase();
+  const t = text.toLowerCase();
+  if (new RegExp(`(?<![a-z’'])${escapeRe(l)}(?![a-z])`).test(t)) return true;
+  return (LETTER_NAMES[l] ?? []).some((name) => saysWord(t, name));
+}
+
 /** Does the hint give the answer away? */
-export function leaksAnswer(text: string, ctx: Pick<WhyContext, 'subject' | 'answer' | 'sayWordOk'>): boolean {
+export function leaksAnswer(text: string, ctx: Pick<WhyContext, 'subject' | 'answer' | 'sayWordOk' | 'hide'>): boolean {
   const answer = String(ctx.answer).trim();
   if (ctx.subject === 'math') {
     if (/^\d+$/.test(answer)) return mentionsNumber(text, Number(answer));
@@ -77,6 +99,9 @@ export function leaksAnswer(text: string, ctx: Pick<WhyContext, 'subject' | 'ans
     const t = norm(text);
     return t.includes(norm(answer)) || t.includes(norm(asWords));
   }
+  if ((ctx.hide ?? []).some((w) => saysWord(text, w) || spellsWord(text, w))) return true;
+  // A single letter (Phonics Pop target, the -s ending): naming it at all is the answer.
+  if (/^[a-z]$/i.test(answer)) return !ctx.sayWordOk && namesLetter(text, answer);
   if (spellsWord(text, answer)) return true;
   return !ctx.sayWordOk && saysWord(text, answer);
 }
@@ -87,7 +112,7 @@ export function sentences(text: string): string[] {
 }
 
 /** Check a hint from Claude. Returns speech-ready text (sentences joined with a pause). */
-export function checkWhyHint(raw: unknown, ctx: Pick<WhyContext, 'subject' | 'answer' | 'sayWordOk'>): WhyCheck {
+export function checkWhyHint(raw: unknown, ctx: Pick<WhyContext, 'subject' | 'answer' | 'sayWordOk' | 'hide'>): WhyCheck {
   const problems: string[] = [];
   const text = typeof raw === 'string' ? raw.replace(/\s+/g, ' ').trim() : '';
   if (!text) return { ok: false, problems: ['empty'] };

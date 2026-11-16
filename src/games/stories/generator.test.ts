@@ -1,6 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { STORIES, PATTERNS } from '../../content/stories';
 import { blockedWords } from '../../content/kidSafe';
+import { whyRequest, leaksAnswer, checkWhyHint, createWhyHinter } from '../../ai/whyHint';
+import { sanitizeRequest } from '../../ai/request';
+import { createAiClient, createMockProvider } from '../../ai/client';
 import {
   undecodable,
   wordPattern,
@@ -10,6 +13,8 @@ import {
   pickStory,
   readMode,
   makeQuestion,
+  storyWhyContext,
+  answerKeyWords,
   questionSpeech,
 } from './generator';
 import { tokenize, wordIndexAt, estimateWordStarts, estimateDuration } from '../../audio/readAlong';
@@ -170,5 +175,77 @@ describe('read-along timing', () => {
     const fast = estimateWordStarts('Sam has a cat.', 1);
     expect(slow[3]).toBeGreaterThan(fast[3]);
     expect(estimateDuration('Sam has a cat.')).toBeGreaterThan(estimateWordStarts('Sam has a cat.')[3]);
+  });
+});
+
+describe('storyWhyContext (AI3d)', () => {
+  it('answerKeyWords: drops little words and words shared with wrong choices, adds plurals', () => {
+    expect(answerKeyWords('in the hat', ['in the box', 'on the bed'])).toEqual(['hat', 'hats']);
+    expect(answerKeyWords('a cup of pop', ['a bun', 'a hat'])).toEqual(['cup', 'cups', 'pop', 'pops']);
+    expect(answerKeyWords('the fish', ['a duck', 'a hat'])).toEqual(['fish', 'fishs']);
+    // Only the little word differs: hide it rather than nothing.
+    expect(answerKeyWords('in the box', ['on the box'])).toEqual(['in', 'ins']);
+  });
+
+  it('every question of every story makes a whitelisted request carrying the question and its line', () => {
+    for (const s of STORIES) {
+      s.questions.forEach((sq, qi) => {
+        for (const ease of [false, true]) {
+          const item = makeQuestion(s, qi, Math.random, ease);
+          const picked = item.choices.find((c) => c.text !== item.answer.text)!.text;
+          const ctx = storyWhyContext(s, item, 3, picked);
+          const req = sanitizeRequest(whyRequest(ctx));
+          expect(req).toEqual({ kind: 'why', subject: 'reading', track: 'stories', level: 4, item: { question: ctx.question, answer: sq.answer.text, picked } });
+          // Nothing truncated by the whitelist limits.
+          expect(ctx.question).toContain(sq.q);
+          expect(ctx.question).toContain(s.lines[sq.line].text);
+          // `hide` stays on the device.
+          expect(Object.keys((req as { item: object }).item)).not.toContain('hide');
+          expect(ctx.hide!.length).toBeGreaterThan(0);
+          // Quoting the line (which holds the answer) or saying the answer is a leak.
+          expect(leaksAnswer(`It says ${sq.answer.text}.`, ctx)).toBe(true);
+          for (const w of ctx.hide!) expect(leaksAnswer(`Look for ${w} in the story.`, ctx)).toBe(true);
+          // Pointing at the line without the answer is fine.
+          expect(leaksAnswer('Look at the line that tells us. Read it again slowly.', ctx)).toBe(false);
+        }
+      });
+    }
+  });
+
+  it('a hint that quotes the answer line is rejected; spelling the key word too', () => {
+    const s = STORIES[0];
+    const item = makeQuestion(s, 0, () => 0);
+    const ctx = storyWhyContext(s, item, 1, 'a cup');
+    expect(checkWhyHint(`Look at this line. ${s.lines[s.questions[0].line].text}`, ctx)).toMatchObject({ ok: false });
+    const key = ctx.hide!.find((w) => !w.endsWith('s'))!;
+    expect(checkWhyHint(`It goes ${key.split('').join('-')}.`, ctx)).toMatchObject({ ok: false });
+    expect(checkWhyHint('Find the line about what Sam got. What is on his head?', ctx)).toMatchObject({ ok: true });
+  });
+
+  it('with the mock provider: good hint used, leaking hint or offline → the canned hint', async () => {
+    const s = STORIES[0];
+    const item = makeQuestion(s, 0, () => 0);
+    const ctx = storyWhyContext(s, item, 1, 'a cup');
+    const make = (text: string, online = true) => {
+      const mock = createMockProvider({ responses: { why: { text } } });
+      const c = createAiClient({
+        settings: () => ({ enabled: true, proxyUrl: 'https://proxy.example.workers.dev/', passcode: 'mango42' }),
+        online: () => online,
+        identifiers: () => ['Riya', 'p_1'],
+        proxy: () => mock,
+      });
+      return { h: createWhyHinter(c), mock };
+    };
+    const canned = "Let's look at the story again.";
+    const good = make('Find the line about what Sam got. What is on his head?');
+    expect((await good.h.hint(item.id, 1, ctx, canned)).source).toBe('builtin'); // first miss: canned
+    expect(await good.h.hint(item.id, 2, ctx, canned)).toMatchObject({ source: 'claude' });
+    expect(good.mock.calls).toHaveLength(1);
+    expect(JSON.stringify(good.mock.calls[0])).not.toMatch(/Riya|p_1|hats/);
+    const leaky = make('Sam got a big red hat.');
+    expect(await leaky.h.hint(item.id, 2, ctx, canned)).toMatchObject({ source: 'builtin', text: canned });
+    const offline = make('Find the line about what Sam got.', false);
+    expect(await offline.h.hint(item.id, 2, ctx, canned)).toMatchObject({ source: 'builtin', text: canned });
+    expect(offline.mock.calls).toHaveLength(0);
   });
 });

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { makePhonicsItem, PHONICS_MAX_LEVEL, type PhonicsItem } from './generator';
+import { makePhonicsItem, phonicsWhyContext, PHONICS_MAX_LEVEL, type PhonicsItem } from './generator';
 import { LETTERS } from './letters';
 import { updateSkill, type SkillState } from '../../engine/adaptive';
 import { getSkillState, getSkillStates, saveSkillState, logAttempt } from '../../store/db';
@@ -7,6 +7,8 @@ import { planRound, resolveSlot, type Slot } from '../../engine/roundMix';
 import { say, tapSay } from '../../audio/speech';
 import { fresh } from '../../engine/recent';
 import { feedback } from '../../components/Feedback';
+import { ai } from '../../ai/app';
+import { createWhyHinter } from '../../ai/whyHint';
 
 const ROUND_LENGTH = 8;
 const SKILL = 'phonics';
@@ -34,6 +36,8 @@ export function PhonicsPop({ profileId, onDone, onExit }: Props) {
   const ease = useRef(false);
   const started = useRef(Date.now());
   const busy = useRef(false);
+  const misses = useRef(0); // misses on the current item (AI3: Claude hint from the 2nd)
+  const hinter = useRef(createWhyHinter(ai));
   const plan = useRef(planRound(ROUND_LENGTH));
   const all = useRef<Awaited<ReturnType<typeof getSkillStates>>>({});
   const slot = useRef<Slot>({ kind: 'current', trackId: SKILL, level: 0 });
@@ -55,6 +59,7 @@ export function PhonicsPop({ profileId, onDone, onExit }: Props) {
     ease.current = false;
     setItem(it);
     setTried([]);
+    misses.current = 0;
     setPopped(null);
     setWiggle(null);
     started.current = Date.now();
@@ -98,7 +103,10 @@ export function PhonicsPop({ profileId, onDone, onExit }: Props) {
       setWiggle(letter);
       setTried((t) => [...t, letter]);
       const info = LETTERS[letter];
-      say(`That's ${letter.toUpperCase()}, | like ${info?.word ?? letter}. || ${prompt(item)}`);
+      // From the 2nd miss (helpers on): a checked Claude hint in place of repeating the prompt.
+      misses.current += 1;
+      const hint = (await hinter.current.hint(item.id, misses.current, phonicsWhyContext(item, sl.level, letter), prompt(item))).text;
+      say(`That's ${letter.toUpperCase()}, | like ${info?.word ?? letter}. || ${hint}`);
       setTimeout(() => {
         setWiggle(null);
         busy.current = false;

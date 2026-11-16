@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { makeSightItem, wordsFor } from './generator';
+import { makeSightItem, wordsFor, sightWhyContext } from './generator';
+import { whyRequest, leaksAnswer } from '../../ai/whyHint';
+import { sanitizeRequest } from '../../ai/request';
+
 import { SIGHT_WORDS, SIGHT_CONFUSABLES } from '../../content/sightWords';
 import { getTrack, pickTrack } from '../../engine/tracks';
 
@@ -66,5 +69,24 @@ describe('sight-word items (#17)', () => {
     const done = Object.fromEntries(['phonics', 'cvc', 'digraphs', 'blends', 'silentE', 'vowelTeams', 'endings'].map((id) => [id, { level: 9, mastery: 0.95 }]));
     expect(pickTrack('reading', done)).toBe('sightWords');
     expect(pickTrack('reading', { ...done, sightWords: { level: 9, mastery: 0.95 } })).toBe('sentences');
+  });
+});
+
+describe('sightWhyContext (AI3c)', () => {
+  it('every request passes the whitelist; the word may be said but not spelled', () => {
+    for (let level = 0; level < SIGHT_WORDS.length; level++) {
+      for (let i = 0; i < 20; i++) {
+        const it = makeSightItem(level);
+        const ctx = sightWhyContext(it, level, it.choices.find((c) => c !== it.word));
+        expect(ctx.answer).toBe(it.word);
+        expect(sanitizeRequest(whyRequest(ctx))).toMatchObject({ kind: 'why', subject: 'reading', track: 'sightWords', item: { answer: it.word } });
+        expect(leaksAnswer(`Listen for ${it.word}.`, ctx)).toBe(false);
+        // One-letter words (a, I) can't be spelled out; saying them is allowed.
+        if (it.word.length > 1) {
+          expect(leaksAnswer(`It goes ${it.word.split('').join(', ')}.`, ctx)).toBe(true);
+          expect(leaksAnswer(`It goes ${it.word.split('').join(' ')}.`, ctx)).toBe(true);
+        } else expect(leaksAnswer(`Find ${it.word}.`, ctx)).toBe(false);
+      }
+    }
   });
 });
