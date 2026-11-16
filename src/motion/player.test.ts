@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   L_HIP, L_SHOULDER, L_WRIST, NOSE, R_HIP, R_SHOULDER, R_WRIST,
-  activeWrist, createPlayerLock, raisedWrist, reachToScreen, torso, type Pose,
+  activeWrist, createBodyFrame, createHandPicker, createPlayerLock, handCentre, raisedWrist, reachToScreen, torso, type Pose,
 } from './player';
 
 /** A body standing at x (shoulders 0.1 wide at y = 0.4); hand 'up' (above head), 'mid' (chest) or 'down'. */
@@ -127,5 +127,71 @@ describe('createPlayerLock', () => {
     const b = body(0.7, 'up');
     b[R_WRIST].y = 0.05; // higher
     expect(lock.update([a, b], 0).candidate).toBe(1);
+  });
+});
+
+describe('steadier TV cursor', () => {
+  /** Body with both hands at chosen heights (relative to the shoulder line at y = 0.4). */
+  function twoHands(leftY: number, rightY: number): Pose {
+    const p = body(0.5);
+    p[L_WRIST] = { x: 0.58, y: leftY, visibility: 1 };
+    p[R_WRIST] = { x: 0.42, y: rightY, visibility: 1 };
+    return p;
+  }
+
+  it('picks the higher lifted hand to start with', () => {
+    expect(createHandPicker().update(twoHands(0.35, 0.3))!.side).toBe('right');
+    expect(createHandPicker().update(twoHands(0.3, 0.35))!.side).toBe('left');
+    expect(createHandPicker().update(body(0.5, 'down'))).toBeNull();
+  });
+
+  it('stays with the same hand when both are up at about the same height', () => {
+    const pick = createHandPicker();
+    expect(pick.update(twoHands(0.32, 0.3))!.side).toBe('right');
+    // left now a little higher (by less than the switch margin of 0.6 shoulder widths = 0.06)
+    expect(pick.update(twoHands(0.27, 0.3))!.side).toBe('right');
+    // clearly higher: hand over
+    expect(pick.update(twoHands(0.2, 0.3))!.side).toBe('left');
+  });
+
+  it('keeps the cursor hand while it sags a little below the lift line', () => {
+    // lift line = halfway between shoulders (0.4) and hips (0.65) = 0.525
+    const pick = createHandPicker();
+    expect(pick.update(twoHands(0.7, 0.5))!.side).toBe('right');
+    expect(pick.update(twoHands(0.7, 0.54))!.side).toBe('right'); // a fresh picker would say no hand here
+    expect(createHandPicker().update(twoHands(0.7, 0.54))).toBeNull();
+    expect(pick.update(twoHands(0.7, 0.7))).toBeNull(); // arm down: cursor gone
+  });
+
+  it('hand point weights each point by the tracker’s confidence (no jump when a knuckle fades)', () => {
+    const p = body(0.5, 'mid'); // right wrist at (0.42, 0.45)
+    p[20] = { x: 0.52, y: 0.45, visibility: 0.3 }; // barely seen: no weight
+    expect(handCentre(p, 'right').x).toBeCloseTo(0.42);
+    p[20].visibility = 1;
+    expect(handCentre(p, 'right').x).toBeCloseTo(0.47);
+    p[20].visibility = 0.55; // in between: a partial nudge, not all-or-nothing
+    const x = handCentre(p, 'right').x;
+    expect(x).toBeGreaterThan(0.42);
+    expect(x).toBeLessThan(0.47);
+  });
+
+  it('body frame eases shoulder wobble but snaps when the player is somewhere else', () => {
+    const f = createBodyFrame(350);
+    f.update({ x: 0.5, y: 0.4, size: 0.1 }, 0);
+    const wob = f.update({ x: 0.52, y: 0.4, size: 0.11 }, 33);
+    expect(wob.x).toBeGreaterThan(0.5);
+    expect(wob.x).toBeLessThan(0.505); // ~9% of the way in one frame
+    expect(wob.size).toBeLessThan(0.1025);
+    const moved = f.update({ x: 0.9, y: 0.4, size: 0.1 }, 66);
+    expect(moved.x).toBe(0.9);
+  });
+
+  it('reach box can use the smoothed frame', () => {
+    const p = body(0.5);
+    const w = { x: 0.5, y: 0.37, visibility: 1 };
+    const a = reachToScreen(w, p, 1000, 1000)!;
+    const b = reachToScreen(w, p, 1000, 1000, { x: 0.5, y: 0.4, size: 0.1 })!;
+    expect(b.x).toBeCloseTo(a.x);
+    expect(b.y).toBeCloseTo(a.y);
   });
 });

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ACTIVE_ZONE, HOLD_MS, createDwell, createOneEuro, glide, smooth, toScreen } from './pointer';
+import { ACTIVE_ZONE, HOLD_MS, createDwell, createOneEuro, glide, nearBox, smooth, toScreen } from './pointer';
 
 describe('toScreen', () => {
   it('mirrors x so the cursor moves the way the hand moves', () => {
@@ -108,5 +108,15 @@ describe('glide', () => {
     const two = glide(glide({ x: 0, y: 0 }, { x: 100, y: 0 }, 8), { x: 100, y: 0 }, 8);
     const one = glide({ x: 0, y: 0 }, { x: 100, y: 0 }, 16);
     expect(two.x).toBeCloseTo(one.x);
+  });
+});
+
+describe('nearBox (sticky hold)', () => {
+  const b = { left: 100, top: 100, right: 200, bottom: 160 };
+  it('counts points on the button or just off its edge', () => {
+    expect(nearBox(b, { x: 150, y: 130 })).toBe(true);
+    expect(nearBox(b, { x: 220, y: 130 }, 28)).toBe(true);
+    expect(nearBox(b, { x: 240, y: 130 }, 28)).toBe(false);
+    expect(nearBox(b, { x: 150, y: 50 }, 28)).toBe(false);
   });
 });

@@ -45,3 +45,4 @@
 2026-11-15 13:25 PT — subject tiles open Level Select with ▶️ Play next; tiles named Math / Reading (interactive, with Ankit); tests pass, build ok — done
 2026-11-15 14:15 PT — narration off by default (interactive, with Ankit) — Grown-ups "Talk by itself" toggle (off); say() gated, speak() for tap-to-hear; L1 stories wait for "read to me" when off; 337 tests pass, build ok — done
 2026-11-15 17:20 PT — merge origin/main (parallel narration-off build) — kept local tapSay/Silent-mode design, dropped remote speak() version; see DECISIONS — done
+2026-11-15 20:17 PT — responsive scaling (rem + fluid root size) + steadier TV cursor + tracked hand in preview (interactive, with Ankit); 346 tests pass, build ok; not tried with a real camera — done

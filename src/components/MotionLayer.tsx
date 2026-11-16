@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import type { HandLandmarker, PoseLandmarker } from '@mediapipe/tasks-vision';
 import { MOTION_EVENT, loadMotionSettings, saveMotionSettings, type MotionSettings, type TrackingMode } from '../motion/settings';
-import { LOST_GRACE_MS, createDwell, createOneEuro, glide, toScreen, type Pt } from '../motion/pointer';
+import { EURO_BODY, EURO_HAND, LOST_GRACE_MS, createDwell, createOneEuro, glide, nearBox, toScreen, type Pt } from '../motion/pointer';
 import { INDEX_TIP, loadHandTracker, loadPoseTracker } from '../motion/tracker';
-import { activeWrist, createPlayerLock, reachToScreen, type LockStep, type Pose } from '../motion/player';
+import { ARM, createBodyFrame, createHandPicker, createPlayerLock, reachToScreen, torso, type ActiveHand, type LockStep, type Pose } from '../motion/player';
 import { say } from '../audio/speech';
 
 /** Live Move-mode settings; re-render when they change anywhere in the app. */
@@ -104,6 +104,38 @@ function drawBodies(ctx: CanvasRenderingContext2D, poses: Pose[], step: LockStep
   });
 }
 
+/** The player's tracked hand in the preview: the arm drawn bright, a big ring + ✋ on the hand. */
+function drawTrackedHand(ctx: CanvasRenderingContext2D, p: Pose, hand: ActiveHand, h: number, map: ToPreview) {
+  const arm = ARM[hand.side];
+  const pts = [arm.shoulder, arm.elbow, arm.wrist].map((i) => p[i]).filter((l) => l && (l.visibility ?? 1) >= 0.3).map((l) => map(l.x, l.y));
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  if (pts.length >= 2) {
+    ctx.beginPath();
+    pts.forEach((q, i) => (i ? ctx.lineTo(q.x, q.y) : ctx.moveTo(q.x, q.y)));
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 9;
+    ctx.stroke();
+    ctx.strokeStyle = COLORS.player;
+    ctx.lineWidth = 5;
+    ctx.stroke();
+  }
+  const c = map(hand.at.x, hand.at.y);
+  const r = Math.max(14, h * 0.085);
+  ctx.beginPath();
+  ctx.arc(c.x, c.y, r, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(0, 184, 148, .35)';
+  ctx.fill();
+  ctx.lineWidth = 4;
+  ctx.strokeStyle = '#fff';
+  ctx.stroke();
+  ctx.font = `${Math.round(r * 1.2)}px system-ui, sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('✋', c.x, c.y + 1);
+  ctx.textAlign = 'start';
+}
+
 function MotionSession({ mode }: { mode: TrackingMode }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -123,6 +155,8 @@ function MotionSession({ mode }: { mode: TrackingMode }) {
     let current: Status = 'starting';
     const dwell = createDwell<HTMLElement>();
     const lock = createPlayerLock();
+    const picker = createHandPicker();
+    const frameOf = createBodyFrame();
 
     const set = (s: Status) => {
       if (s === current) return;
@@ -141,7 +175,8 @@ function MotionSession({ mode }: { mode: TrackingMode }) {
     };
     // Tracking (≈15–30 fps) only sets where the hand is; the cursor is drawn every screen refresh,
     // gliding toward that point, so it moves smoothly between camera frames.
-    const euro = createOneEuro();
+    const tune = mode === 'body' ? EURO_BODY : EURO_HAND;
+    const euro = createOneEuro(tune.minCutoff, tune.beta);
     let target: Pt | null = null;
     let lastRender = 0;
     /** New tracked hand point from the camera (or null = hand gone). */
@@ -171,7 +206,9 @@ function MotionSession({ mode }: { mode: TrackingMode }) {
       pos = pos ? glide(pos, target, dt) : target;
       cursor.style.opacity = '1';
       cursor.style.transform = `translate3d(${pos.x}px, ${pos.y}px, 0)`;
-      const hit = pickTarget(document.elementFromPoint(pos.x, pos.y));
+      let hit = pickTarget(document.elementFromPoint(pos.x, pos.y));
+      // Sticky: a small wobble off the edge of the button being held doesn't restart the hold.
+      if (!hit && hovered?.isConnected && nearBox(hovered.getBoundingClientRect(), pos)) hit = hovered;
       hover(hit);
       const step = dwell.update(hit, now);
       cursor.style.setProperty('--p', String(step.progress));
@@ -218,14 +255,21 @@ function MotionSession({ mode }: { mode: TrackingMode }) {
         // Body mode: raise a hand to claim the turn, then only that body's lifted hand drives the cursor.
         const poses = pose.detectForVideo(video, now).landmarks as Pose[];
         const step = lock.update(poses, now);
+        if (step.justLocked || step.justLost) {
+          picker.reset();
+          frameOf.reset();
+        }
         const { ctx, h, map } = overlay();
         drawBodies(ctx, poses, step, h, map);
         set(step.phase === 'locked' ? 'tracking' : step.phase === 'claiming' ? 'claiming' : 'raise');
         const p = step.player >= 0 ? poses[step.player] : null;
-        const wrist = p ? activeWrist(p) : null;
-        if (p && wrist) {
+        const t = p ? torso(p) : null;
+        const frame = t ? frameOf.update(t, now) : null;
+        const active = p ? picker.update(p) : null;
+        if (p && active && frame) {
+          drawTrackedHand(ctx, p, active, h, map);
           lastSeen = now;
-          drive(reachToScreen(wrist, p, vw, vh), now);
+          drive(reachToScreen(active.at, p, vw, vh, frame), now);
         } else if (step.phase !== 'locked' || now - lastSeen > LOST_GRACE_MS) {
           drive(null, now);
         }

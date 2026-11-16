@@ -2,6 +2,13 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-15 — Screens scale to any size; steadier TV cursor (Ankit)
+- All CSS sizes are now `rem` (were px). One root rule scales everything: `clamp(16px, min(1.25vw, 2vh), 40px)`. 16px up to laptop size (what the layouts were tuned at); a 1080p TV gets ~1.35×. Taking the smaller of width and height keeps wide-and-short screens (16:9 TV, 21:9) from spilling off the bottom. Phones held sideways (≤500px tall) drop to 13px; long games there still scroll.
+- Move-mode camera preview is now at most 25% of the screen width (was 30%), so it doesn't eat the game area on a TV.
+- TV jitter, four fixes: (1) the reach box is built from a *smoothed* body frame (shoulder wobble × box scale was the main shake); (2) the cursor sticks with the hand it started on unless the other hand is clearly higher (it used to flick between two raised hands), and may sag a little below the lift line before stopping; (3) hand point is a confidence-weighted average, so a knuckle fading in/out nudges instead of jumps; (4) a hold on a button survives the cursor wobbling up to 28px off its edge. Body mode also uses a steadier One Euro setting than fingertip mode.
+- TV mode now shows the tracked hand in the camera preview: the player's driving arm in green and a ring with ✋ on the hand.
+- Not verified with a real camera at TV distance (no camera in the build environment); the filter numbers (`EURO_BODY`, `createBodyFrame` 350 ms, `STICKY_PX`) are the knobs if it feels laggy or still shaky.
+
 ## 2026-11-15 — Merged two parallel "narration off" builds
 - Two sessions built narration-off-by-default at the same time. Kept the local design (`tapSay`, 🗣️/🤫 toggle, Silent mode, age bands), which later commits, SPEC.md and CLAUDE.md build on; the remote `speak()` version was dropped. Both use the same `localStorage.narration` key, so a device's setting carries over.
 - Its one different behaviour (L1 stories wait for "read to me" when narration is off) was not kept: Ankit's call below is that read-to-you stories still read themselves.

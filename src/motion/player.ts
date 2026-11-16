@@ -51,6 +51,21 @@ export function raisedWrist(p: Pose): Lm | null {
   return highest(wrists(p).filter((w) => w.y < headY));
 }
 
+export const L_ELBOW = 13;
+export const R_ELBOW = 14;
+export type Side = 'left' | 'right'; // the person's own left / right
+export const ARM: Record<Side, { shoulder: number; elbow: number; wrist: number; hand: number[] }> = {
+  left: { shoulder: L_SHOULDER, elbow: L_ELBOW, wrist: L_WRIST, hand: L_HAND },
+  right: { shoulder: R_SHOULDER, elbow: R_ELBOW, wrist: R_WRIST, hand: R_HAND },
+};
+
+/** How high a wrist must be to drive the cursor: halfway between shoulders and hips. */
+function liftLimit(p: Pose, t: Torso): number {
+  const lh = p[L_HIP];
+  const rh = p[R_HIP];
+  return seen(lh) && seen(rh) ? (t.y + (lh.y + rh.y) / 2) / 2 : t.y + t.size;
+}
+
 /**
  * The hand that drives the cursor: the higher wrist, but only when it is lifted above the middle of the
  * body. Arms resting at the sides = no cursor, so nothing gets pressed by accident.
@@ -58,17 +73,110 @@ export function raisedWrist(p: Pose): Lm | null {
 export function activeWrist(p: Pose): Lm | null {
   const t = torso(p);
   if (!t) return null;
-  const lh = p[L_HIP];
-  const rh = p[R_HIP];
-  const limit = seen(lh) && seen(rh) ? (t.y + (lh.y + rh.y) / 2) / 2 : t.y + t.size;
+  const limit = liftLimit(p, t);
   const w = highest(wrists(p).filter((x) => x.y < limit));
-  return w ? handCentre(p, w) : null;
+  return w ? handCentre(p, w === p[L_WRIST] ? 'left' : 'right') : null;
 }
 
-/** Average the wrist with the visible hand points on the same side: much steadier than the wrist alone. */
-function handCentre(p: Pose, wrist: Lm): Lm {
-  const pts = [wrist, ...(wrist === p[L_WRIST] ? L_HAND : R_HAND).map((i) => p[i]).filter(seen)];
-  return { x: pts.reduce((s, l) => s + l.x, 0) / pts.length, y: pts.reduce((s, l) => s + l.y, 0) / pts.length, visibility: wrist.visibility };
+/**
+ * Average the wrist with the hand points on the same side: much steadier than the wrist alone.
+ * Weighted by how sure the tracker is about each point, so a knuckle fading in and out nudges the point
+ * a little instead of making it jump.
+ */
+export function handCentre(p: Pose, side: Side): Lm {
+  const wrist = p[ARM[side].wrist];
+  const pts = [wrist, ...ARM[side].hand.map((i) => p[i])].filter(Boolean);
+  let sx = 0, sy = 0, sw = 0;
+  for (const l of pts) {
+    const w = Math.max(0, (l.visibility ?? 1) - 0.3);
+    sx += l.x * w;
+    sy += l.y * w;
+    sw += w;
+  }
+  if (sw === 0) return wrist;
+  return { x: sx / sw, y: sy / sw, visibility: wrist.visibility };
+}
+
+export interface ActiveHand {
+  side: Side;
+  at: Lm; // the steadied hand point (drives the cursor)
+}
+
+export interface HandPickOptions {
+  switchMargin: number; // the other hand must be this much higher (shoulder widths) to take over
+  dropMargin: number; // the cursor hand may sag this far below the lift line (shoulder widths) before it stops
+}
+export const DEFAULT_HAND_PICK: HandPickOptions = { switchMargin: 0.6, dropMargin: 0.35 };
+
+/**
+ * Like `activeWrist`, but it remembers which hand is driving: with both hands up at about the same
+ * height the cursor stays with the hand it started on instead of flicking between them, and a hand that
+ * sags a little while holding on a low button keeps the cursor.
+ */
+export function createHandPicker(opts: Partial<HandPickOptions> = {}) {
+  const o = { ...DEFAULT_HAND_PICK, ...opts };
+  let side: Side | null = null;
+  return {
+    update(p: Pose): ActiveHand | null {
+      const t = torso(p);
+      if (!t) {
+        side = null;
+        return null;
+      }
+      const limit = liftLimit(p, t);
+      const wristOf = (s: Side) => {
+        const w = p[ARM[s].wrist];
+        return seen(w) ? w : null;
+      };
+      const lifted = (s: Side, extra = 0) => {
+        const w = wristOf(s);
+        return w && w.y < limit + extra ? w : null;
+      };
+      let next: Side | null = null;
+      if (side && lifted(side, o.dropMargin * t.size)) {
+        next = side;
+        const other: Side = side === 'left' ? 'right' : 'left';
+        const ow = lifted(other);
+        if (ow && ow.y < wristOf(side)!.y - o.switchMargin * t.size) next = other;
+      } else {
+        const l = lifted('left');
+        const r = lifted('right');
+        next = l && r ? (l.y < r.y ? 'left' : 'right') : l ? 'left' : r ? 'right' : null;
+      }
+      side = next;
+      return next ? { side: next, at: handCentre(p, next) } : null;
+    },
+    reset() {
+      side = null;
+    },
+  };
+}
+
+/**
+ * The player's body frame (shoulder centre + width), smoothed over time. The reach box is built from it,
+ * so it must hold still: raw shoulders wobble a little every frame, and that wobble — multiplied by the
+ * box's scale — used to shake the cursor even with the hand held still. `tauMs` is the time constant.
+ */
+export function createBodyFrame(tauMs = 350, snap = 0.25) {
+  let f: Torso | null = null;
+  let last = 0;
+  return {
+    update(next: Torso, now: number): Torso {
+      if (!f || Math.hypot(next.x - f.x, next.y - f.y) > snap) {
+        f = next; // first frame, or a different spot entirely: no point easing over
+      } else {
+        const dt = Math.max(0, now - last);
+        const k = 1 - Math.exp(-dt / tauMs);
+        const ks = 1 - Math.exp(-dt / (tauMs * 2)); // scale changes only when someone walks closer / back
+        f = { x: f.x + (next.x - f.x) * k, y: f.y + (next.y - f.y) * k, size: f.size + (next.size - f.size) * ks };
+      }
+      last = now;
+      return f;
+    },
+    reset() {
+      f = null;
+    },
+  };
 }
 
 /** Reach box, in shoulder widths: how far a child can comfortably move a hand around their own body. */
@@ -79,8 +187,8 @@ export const REACH_H = 3;
  * Wrist → screen point, relative to the player's own body, so the whole screen is reachable without
  * walking, wherever they stand. Mirrored like a mirror.
  */
-export function reachToScreen(w: Lm, p: Pose, width: number, height: number): Pt | null {
-  const t = torso(p);
+export function reachToScreen(w: Lm, p: Pose, width: number, height: number, frame: Torso | null = torso(p)): Pt | null {
+  const t = frame;
   if (!t) return null;
   const boxW = t.size * REACH_W;
   const boxH = t.size * REACH_H;

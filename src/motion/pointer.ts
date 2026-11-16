@@ -113,3 +113,22 @@ export function glide(from: Pt, to: Pt, dtMs: number, rate = GLIDE_RATE): Pt {
   const k = 1 - Math.exp((-rate * Math.max(0, dtMs)) / 1000);
   return { x: from.x + (to.x - from.x) * k, y: from.y + (to.y - from.y) * k };
 }
+
+/** One Euro settings per Move mode. Body tracking at TV distance is noisier, so it is held steadier at rest. */
+export const EURO_HAND = { minCutoff: 1.2, beta: 0.004 };
+export const EURO_BODY = { minCutoff: 0.55, beta: 0.0018 };
+
+/** How far (px) the cursor can drift off the button it is holding on before the hold is lost. */
+export const STICKY_PX = 28;
+
+export interface Box {
+  left: number;
+  top: number;
+  right: number;
+  bottom: number;
+}
+
+/** Is the point on the box, or within `margin` px of its edge? Used to keep a hold through small wobbles. */
+export function nearBox(b: Box, p: Pt, margin = STICKY_PX): boolean {
+  return p.x >= b.left - margin && p.x <= b.right + margin && p.y >= b.top - margin && p.y <= b.bottom + margin;
+}
