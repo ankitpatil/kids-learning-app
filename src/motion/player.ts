@@ -117,11 +117,18 @@ export function createHandPicker(opts: Partial<HandPickOptions> = {}) {
   const o = { ...DEFAULT_HAND_PICK, ...opts };
   let side: Side | null = null;
   return {
-    update(p: Pose): ActiveHand | null {
+    /** `only`: the hand chosen for this turn — then only that hand drives, never the other one. */
+    update(p: Pose, only?: Side | null): ActiveHand | null {
       const t = torso(p);
       if (!t) {
         side = null;
         return null;
+      }
+      if (only) {
+        const w = p[ARM[only].wrist];
+        const lim = liftLimit(p, t) + (side === only ? o.dropMargin * t.size : 0);
+        side = seen(w) && w.y < lim ? only : null;
+        return side ? { side, at: handCentre(p, side) } : null;
       }
       const limit = liftLimit(p, t);
       const wristOf = (s: Side) => {
@@ -202,9 +209,10 @@ export function reachToScreen(w: Lm, p: Pose, width: number, height: number, fra
 export type Phase = 'waiting' | 'claiming' | 'locked';
 export interface LockStep {
   phase: Phase;
-  player: number; // index into this frame's poses, or -1 (none / ambiguous this frame)
+  player: number; // index into this frame's poses, or -1 (not seen this frame)
   candidate: number; // index of the person claiming the turn, or -1
   progress: number; // claim progress 0–1
+  side: Side | null; // the hand the player raised to claim the turn: it drives the cursor for the whole turn
   justLocked: boolean;
   justLost: boolean;
 }
@@ -212,22 +220,35 @@ export interface LockStep {
 export interface LockOptions {
   claimMs: number; // how long a hand must stay raised to claim the turn
   lostMs: number; // how long the player can be out of view before the turn is free again
-  maxJump: number; // largest believable move between frames (in image widths)
-  ambiguity: number; // if the 2nd-closest body is within this factor of the closest, don't guess
+  maxJump: number; // largest believable move, however long the player was missed (in image widths)
+  stepPerSec: number; // how far (in the player's shoulder widths) they can move per second they're unseen
+  sizeRatio: number; // a body more than this much bigger/smaller (closer/further away) isn't the player
 }
-export const DEFAULT_LOCK: LockOptions = { claimMs: 1000, lostMs: 2000, maxJump: 0.25, ambiguity: 1.2 };
+export const DEFAULT_LOCK: LockOptions = { claimMs: 1000, lostMs: 2000, maxJump: 0.25, stepPerSec: 3, sizeRatio: 1.5 };
 
 const dist = (a: Torso, b: Torso) => Math.hypot(a.x - b.x, a.y - b.y);
 
-/** Raise-hand-to-claim, then follow the nearest body each frame. */
+/** Which hand is raised above the head (the higher one if both). */
+export function raisedSide(p: Pose): Side | null {
+  const w = raisedWrist(p);
+  return w ? (w === p[L_WRIST] ? 'left' : 'right') : null;
+}
+
+/**
+ * Raise-hand-to-claim, then follow that body. Someone walking into the picture is ignored: a body only
+ * counts as the player if it is about where the player just was (how far depends on how long the player
+ * was unseen) and about the same size in the picture (so not someone closer or further back).
+ * People crossing right in front of each other are not handled specially.
+ */
 export function createPlayerLock(opts: Partial<LockOptions> = {}) {
   const o = { ...DEFAULT_LOCK, ...opts };
   let phase: Phase = 'waiting';
   let anchor: Torso | null = null;
+  let side: Side | null = null;
   let since = 0;
   let lastMatch = 0;
 
-  const step = (s: Partial<LockStep>): LockStep => ({ phase, player: -1, candidate: -1, progress: 0, justLocked: false, justLost: false, ...s });
+  const step = (s: Partial<LockStep>): LockStep => ({ phase, player: -1, candidate: -1, progress: 0, side, justLocked: false, justLost: false, ...s });
 
   /** Bodies sorted by distance to the anchor (only those with visible shoulders). */
   const ranked = (ts: (Torso | null)[]) =>
@@ -236,23 +257,25 @@ export function createPlayerLock(opts: Partial<LockOptions> = {}) {
       .filter((r): r is { i: number; t: Torso; d: number } => r !== null)
       .sort((a, b) => a.d - b.d);
 
+  const sameSize = (t: Torso) => anchor !== null && t.size <= anchor.size * o.sizeRatio && t.size * o.sizeRatio >= anchor.size;
+
   return {
     update(poses: Pose[], now: number): LockStep {
       const ts = poses.map(torso);
 
       if (phase === 'locked') {
-        const [best, second] = ranked(ts);
-        if (best && best.d <= o.maxJump) {
+        const gap = Math.max(0, now - lastMatch) / 1000;
+        const reach = Math.min(o.maxJump, anchor!.size * (1 + o.stepPerSec * gap));
+        const best = ranked(ts).find((r) => r.d <= reach && sameSize(r.t));
+        if (best) {
           lastMatch = now;
-          if (second && second.d <= o.maxJump && second.d < best.d * o.ambiguity) {
-            return step({ progress: 1 }); // two bodies equally close (crossing paths): hold, no cursor this frame
-          }
           anchor = best.t;
           return step({ player: best.i, progress: 1 });
         }
         if (now - lastMatch <= o.lostMs) return step({ progress: 1 });
         phase = 'waiting';
         anchor = null;
+        side = null;
         return step({ justLost: true });
       }
 
@@ -261,6 +284,7 @@ export function createPlayerLock(opts: Partial<LockOptions> = {}) {
         const c = raised[0];
         if (c) {
           anchor = c.t;
+          side = raisedSide(poses[c.i]);
           const progress = Math.min(1, (now - since) / o.claimMs);
           if (progress >= 1) {
             phase = 'locked';
@@ -271,6 +295,7 @@ export function createPlayerLock(opts: Partial<LockOptions> = {}) {
         }
         phase = 'waiting'; // hand came down too soon
         anchor = null;
+        side = null;
       }
 
       // waiting: whoever raises a hand first (highest hand if several at once)
@@ -286,6 +311,7 @@ export function createPlayerLock(opts: Partial<LockOptions> = {}) {
       if (pick >= 0) {
         phase = 'claiming';
         anchor = ts[pick];
+        side = raisedSide(poses[pick]);
         since = now;
         return step({ candidate: pick, progress: 0 });
       }
@@ -294,6 +320,7 @@ export function createPlayerLock(opts: Partial<LockOptions> = {}) {
     reset() {
       phase = 'waiting';
       anchor = null;
+      side = null;
     },
   };
 }

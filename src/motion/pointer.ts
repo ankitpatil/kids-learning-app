@@ -132,3 +132,16 @@ export interface Box {
 export function nearBox(b: Box, p: Pt, margin = STICKY_PX): boolean {
   return p.x >= b.left - margin && p.x <= b.right + margin && p.y >= b.top - margin && p.y <= b.bottom + margin;
 }
+
+/** Scroll pads (Move mode): hand on ⬆️/⬇️ scrolls the page — no hold needed, it speeds up the longer it stays. */
+export const SCROLL_DELAY_MS = 200; // passing over a pad doesn't scroll
+export const SCROLL_RAMP_MS = 900; // from slow to full speed
+export const SCROLL_MIN = 0.2; // screen heights per second, at the start
+export const SCROLL_MAX = 0.9; // …and at full speed
+
+/** Scroll speed in px/s after the hand has been on a scroll pad for `heldMs`, for a screen `viewH` px tall. */
+export function scrollSpeed(heldMs: number, viewH: number): number {
+  if (heldMs < SCROLL_DELAY_MS) return 0;
+  const t = Math.min(1, (heldMs - SCROLL_DELAY_MS) / SCROLL_RAMP_MS);
+  return viewH * (SCROLL_MIN + (SCROLL_MAX - SCROLL_MIN) * t * t);
+}

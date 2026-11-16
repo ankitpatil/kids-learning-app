@@ -83,6 +83,9 @@ Kids can play with their hands in front of the camera instead of touching — e.
 - Gentle failure: if no hand is seen for 2 s, say "Show me your hand!" — never count a miss because tracking dropped.
 - Bigger, roomier targets in Move mode (`body.move-mode`).
 - TV mode shows the tracked hand in the camera preview (the player's arm + a ✋ ring), so the child can see which hand is driving.
+- The hand raised to claim the turn is the cursor hand for the whole turn (the other hand never takes over). To switch hands, step away until the turn frees up, then raise the other hand.
+- Someone walking into the picture is ignored: the player is only matched to a body about where they just were and about the same size.
+- Scrolling by hand: on screens that scroll, ⬆️ / ⬇️ pads appear in the space kept free for the camera preview; holding the hand on one scrolls (slow at first, then faster). No hold-to-press needed.
 - Two distances: **standing back (TV, default)** — whole-body tracking; **close to the laptop** — fingertip.
 - Who's playing (TV mode): with several people in view, the player raises a hand (held 1 s) to take the turn; the app follows that body and ignores everyone else; raising a hand again after the player leaves hands the turn over. No face recognition and nothing stored — only where the player's body was last frame.
 - The corner camera preview is big enough to read from the couch and boxes the active player (green ⭐) so everyone can see who is being tracked.

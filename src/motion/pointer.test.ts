@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ACTIVE_ZONE, HOLD_MS, createDwell, createOneEuro, glide, nearBox, smooth, toScreen } from './pointer';
+import { ACTIVE_ZONE, HOLD_MS, createDwell, createOneEuro, glide, nearBox, scrollSpeed, SCROLL_DELAY_MS, SCROLL_RAMP_MS, smooth, toScreen } from './pointer';
 
 describe('toScreen', () => {
   it('mirrors x so the cursor moves the way the hand moves', () => {
@@ -118,5 +118,22 @@ describe('nearBox (sticky hold)', () => {
     expect(nearBox(b, { x: 220, y: 130 }, 28)).toBe(true);
     expect(nearBox(b, { x: 240, y: 130 }, 28)).toBe(false);
     expect(nearBox(b, { x: 150, y: 50 }, 28)).toBe(false);
+  });
+});
+
+describe('scrollSpeed', () => {
+  it('does not scroll when the hand just passes over a pad', () => {
+    expect(scrollSpeed(0, 1000)).toBe(0);
+    expect(scrollSpeed(SCROLL_DELAY_MS - 1, 1000)).toBe(0);
+  });
+  it('starts slow and speeds up to a cap, relative to the screen height', () => {
+    const start = scrollSpeed(SCROLL_DELAY_MS, 1000);
+    const mid = scrollSpeed(SCROLL_DELAY_MS + SCROLL_RAMP_MS / 2, 1000);
+    const full = scrollSpeed(SCROLL_DELAY_MS + SCROLL_RAMP_MS, 1000);
+    expect(start).toBeGreaterThan(0);
+    expect(mid).toBeGreaterThan(start);
+    expect(full).toBeGreaterThan(mid);
+    expect(scrollSpeed(60_000, 1000)).toBe(full);
+    expect(scrollSpeed(60_000, 2000)).toBeCloseTo(full * 2);
   });
 });

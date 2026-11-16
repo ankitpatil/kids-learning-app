@@ -428,6 +428,24 @@ button { font: inherit; cursor: pointer; touch-action: manipulation; }
 .motion-hover { outline: 0.375rem solid var(--primary) !important; outline-offset: 0.25rem; transform: scale(1.06); transition: transform .15s; }
 .move-toggle.on { background: var(--primary); }
 
+/* Scroll pads: hand on ⬆️ / ⬇️ scrolls the page. They live in the space kept free for the camera preview
+   (right column in landscape, bottom band in portrait), so they never cover a game button. */
+.motion-layer { --cam-h: calc(var(--cam-w) * .75); }
+.motion-layer.body { --cam-h: calc(var(--cam-w) * 9 / 16); }
+.motion-scroll { position: fixed; display: flex; align-items: center; justify-content: center; font-size: 3.5rem; border-radius: 1.375rem; border: 0.3125rem dashed #6c5ce799; background: #fffffff2; opacity: 0; visibility: hidden; transition: opacity .2s, background .2s, transform .2s, visibility 0s .2s; }
+.motion-scroll.show { opacity: 1; visibility: visible; transition: opacity .2s, background .2s, transform .2s; }
+.motion-scroll.on { background: var(--primary); border-style: solid; border-color: #fff; transform: scale(1.03); }
+@media (orientation: landscape) {
+  .motion-scroll { right: 1rem; width: var(--cam-w); height: calc((100dvh - var(--cam-h) - 4rem) / 2); }
+  .motion-scroll.up { top: 1rem; }
+  .motion-scroll.down { bottom: calc(var(--cam-h) + 2rem); }
+}
+@media (orientation: portrait) {
+  .motion-scroll { bottom: 1rem; height: var(--cam-h); width: calc((100vw - var(--cam-w) - 5rem) / 2); }
+  .motion-scroll.up { left: 1rem; }
+  .motion-scroll.down { left: calc(2rem + (100vw - var(--cam-w) - 5rem) / 2); }
+}
+
 /* Bigger, roomier targets when playing from a few steps back (TV) */
 body.move-mode .btn { min-width: 7.5rem; min-height: 6.25rem; }
 body.move-mode .btn.huge { min-width: 13.75rem; min-height: 8.75rem; }

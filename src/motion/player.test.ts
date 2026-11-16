@@ -98,12 +98,41 @@ describe('createPlayerLock', () => {
     expect(s2.player).toBe(0);
   });
 
-  it('does not guess when two bodies are equally close (crossing paths)', () => {
+  it('someone walking in next to the player does not freeze or steal the cursor', () => {
     const lock = createPlayerLock({ claimMs: 0 });
     lock.update([body(0.5, 'up')], 0);
     lock.update([body(0.5, 'up')], 1);
-    const s = lock.update([body(0.45), body(0.55)], 50);
-    expect(s).toMatchObject({ phase: 'locked', player: -1 });
+    // a newcomer steps in close beside the player, listed first, waving
+    const s = lock.update([body(0.62, 'up'), body(0.5, 'mid')], 50);
+    expect(s).toMatchObject({ phase: 'locked', player: 1 });
+  });
+
+  it('while the player is unseen for a moment, a newcomer near that spot is not taken for them', () => {
+    const lock = createPlayerLock({ claimMs: 0 });
+    lock.update([body(0.5, 'up')], 0);
+    lock.update([body(0.5, 'up')], 1);
+    // player missed for a frame; a newcomer is 0.2 away (more than they could have moved in 50 ms)
+    expect(lock.update([body(0.7, 'up')], 50).player).toBe(-1);
+    // someone at the same spot but much closer to the camera (twice the size) isn't the player either
+    const big = body(0.5, 'mid');
+    big[L_SHOULDER].x = 0.6;
+    big[R_SHOULDER].x = 0.4;
+    expect(lock.update([big], 100).player).toBe(-1);
+    // the player comes back
+    expect(lock.update([body(0.7), body(0.52, 'mid')], 150).player).toBe(1);
+  });
+
+  it('remembers which hand claimed the turn', () => {
+    const lock = createPlayerLock({ claimMs: 0 });
+    const p = body(0.5, 'up'); // right hand up
+    lock.update([p], 0);
+    expect(lock.update([p], 1)).toMatchObject({ phase: 'locked', side: 'right' });
+    expect(lock.update([body(0.5)], 50).side).toBe('right'); // still the right hand with it down
+    lock.reset();
+    const q = body(0.5);
+    q[L_WRIST] = { x: 0.58, y: 0.15, visibility: 1 }; // left hand up
+    lock.update([q], 100);
+    expect(lock.update([q], 101).side).toBe('left');
   });
 
   it('frees the turn when the player has been gone for lostMs', () => {
@@ -193,5 +222,17 @@ describe('steadier TV cursor', () => {
     const b = reachToScreen(w, p, 1000, 1000, { x: 0.5, y: 0.4, size: 0.1 })!;
     expect(b.x).toBeCloseTo(a.x);
     expect(b.y).toBeCloseTo(a.y);
+  });
+});
+
+describe('the hand that claimed the turn is the only cursor hand', () => {
+  it('ignores the other hand, even when it is higher', () => {
+    const pick = createHandPicker();
+    const p = body(0.5, 'mid'); // right hand lifted to the chest
+    p[L_WRIST] = { x: 0.58, y: 0.1, visibility: 1 }; // left hand way up
+    expect(pick.update(p, 'right')!.side).toBe('right');
+    const down = body(0.5, 'down');
+    down[L_WRIST] = { x: 0.58, y: 0.1, visibility: 1 };
+    expect(pick.update(down, 'right')).toBeNull(); // right hand down: no cursor, not the left hand
   });
 });

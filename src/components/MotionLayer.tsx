@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { HandLandmarker, PoseLandmarker } from '@mediapipe/tasks-vision';
 import { MOTION_EVENT, loadMotionSettings, saveMotionSettings, type MotionSettings, type TrackingMode } from '../motion/settings';
-import { EURO_BODY, EURO_HAND, LOST_GRACE_MS, createDwell, createOneEuro, glide, nearBox, toScreen, type Pt } from '../motion/pointer';
+import { EURO_BODY, EURO_HAND, LOST_GRACE_MS, createDwell, createOneEuro, glide, nearBox, scrollSpeed, toScreen, type Pt } from '../motion/pointer';
 import { INDEX_TIP, loadHandTracker, loadPoseTracker } from '../motion/tracker';
 import { ARM, createBodyFrame, createHandPicker, createPlayerLock, reachToScreen, torso, type ActiveHand, type LockStep, type Pose } from '../motion/player';
 import { say } from '../audio/speech';
@@ -140,6 +140,8 @@ function MotionSession({ mode }: { mode: TrackingMode }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
+  const upRef = useRef<HTMLDivElement>(null);
+  const downRef = useRef<HTMLDivElement>(null);
   const [status, setStatus] = useState<Status>('starting');
 
   useEffect(() => {
@@ -188,12 +190,43 @@ function MotionSession({ mode }: { mode: TrackingMode }) {
       }
       target = euro.filter(pt, now);
     };
+    // Scroll pads: shown only while someone is playing and the page can scroll that way.
+    let scrollDir = 0;
+    let scrollSince = 0;
+    const onPad = (el: HTMLElement | null, p: Pt) => {
+      if (!el || !el.classList.contains('show')) return false;
+      const r = el.getBoundingClientRect();
+      return p.x >= r.left && p.x <= r.right && p.y >= r.top && p.y <= r.bottom;
+    };
+    /** Show/hide the pads; scroll if the hand is on one. Returns true when the hand is on a pad. */
+    const pads = (p: Pt | null, now: number, dt: number) => {
+      const up = upRef.current;
+      const down = downRef.current;
+      const doc = document.scrollingElement ?? document.documentElement;
+      const max = doc.scrollHeight - window.innerHeight;
+      const live = current === 'tracking';
+      up?.classList.toggle('show', live && doc.scrollTop > 1);
+      down?.classList.toggle('show', live && doc.scrollTop < max - 1);
+      const dir = p ? (onPad(up, p) ? -1 : onPad(down, p) ? 1 : 0) : 0;
+      if (dir !== scrollDir) {
+        scrollDir = dir;
+        scrollSince = now;
+      }
+      up?.classList.toggle('on', dir === -1);
+      down?.classList.toggle('on', dir === 1);
+      if (dir) {
+        const v = scrollSpeed(now - scrollSince, window.innerHeight);
+        if (v) window.scrollBy({ top: (dir * v * dt) / 1000, behavior: 'instant' });
+      }
+      return dir !== 0;
+    };
     /** Every display frame: glide the cursor, then run hold-to-choose under it. */
     const render = (now: number) => {
       const cursor = cursorRef.current;
-      const dt = lastRender ? now - lastRender : 16;
+      const dt = lastRender ? Math.min(100, now - lastRender) : 16;
       lastRender = now;
       if (!cursor) return;
+      if (!target) pads(null, now, dt);
       if (!target) {
         if (pos) {
           cursor.style.opacity = '0';
@@ -206,6 +239,13 @@ function MotionSession({ mode }: { mode: TrackingMode }) {
       pos = pos ? glide(pos, target, dt) : target;
       cursor.style.opacity = '1';
       cursor.style.transform = `translate3d(${pos.x}px, ${pos.y}px, 0)`;
+      if (pads(pos, now, dt)) {
+        // on a scroll pad: scrolling, not choosing
+        hover(null);
+        dwell.update(null, now);
+        cursor.style.setProperty('--p', '0');
+        return;
+      }
       let hit = pickTarget(document.elementFromPoint(pos.x, pos.y));
       // Sticky: a small wobble off the edge of the button being held doesn't restart the hold.
       if (!hit && hovered?.isConnected && nearBox(hovered.getBoundingClientRect(), pos)) hit = hovered;
@@ -265,7 +305,7 @@ function MotionSession({ mode }: { mode: TrackingMode }) {
         const p = step.player >= 0 ? poses[step.player] : null;
         const t = p ? torso(p) : null;
         const frame = t ? frameOf.update(t, now) : null;
-        const active = p ? picker.update(p) : null;
+        const active = p ? picker.update(p, step.side) : null; // only the hand that claimed the turn
         if (p && active && frame) {
           drawTrackedHand(ctx, p, active, h, map);
           lastSeen = now;
@@ -334,12 +374,14 @@ function MotionSession({ mode }: { mode: TrackingMode }) {
     : '';
 
   return (
-    <div className="motion-layer">
+    <div className={`motion-layer ${mode}`}>
       <div className={`motion-preview ${mode} ${failed ? 'off' : ''} ${status === 'tracking' ? 'live' : ''}`} aria-hidden>
         <video ref={videoRef} playsInline muted />
         <canvas ref={canvasRef} />
         {badge && <span className="motion-badge">{badge}</span>}
       </div>
+      <div ref={upRef} className="motion-scroll up">⬆️</div>
+      <div ref={downRef} className="motion-scroll down">⬇️</div>
       <div ref={cursorRef} className="motion-cursor" style={{ opacity: 0 }}>
         <span className="motion-dot">✋</span>
       </div>

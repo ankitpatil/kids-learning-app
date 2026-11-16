@@ -2,6 +2,11 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-15 — Move mode: scroll pads, claimed hand only, newcomers ignored (Ankit)
+- Scrolling: Ankit picked "edge strips". A full-width strip at the top would sit on ⬅️ Back / Levels, so the ⬆️ / ⬇️ pads go in the space Move mode already keeps free for the camera: the right column above the preview (landscape) or beside the preview at the bottom (portrait; content can scroll under them there). They show only while someone is playing and the page can scroll that way. Speed: nothing for 0.2 s (passing over), then 0.2 → 0.9 screen heights/s over 0.9 s. Hand on a pad never presses buttons.
+- Hand: the hand raised to claim the turn is the only cursor hand for that turn; the other hand is ignored even when higher. Switching hands = let the turn lapse (2 s out of view) and claim again with the other hand.
+- Who's playing: dropped the "two bodies equally close → no cursor" rule (it froze the cursor whenever someone stood next to the player; Ankit: don't handle crossovers). A body now counts as the player only if it is within ~1 shoulder width + 3 per second unseen (max 0.25 of the picture) of where they were, and within 1.5× their size in the picture.
+
 ## 2026-11-15 — Screens scale to any size; steadier TV cursor (Ankit)
 - All CSS sizes are now `rem` (were px). One root rule scales everything: `clamp(16px, min(1.25vw, 2vh), 40px)`. 16px up to laptop size (what the layouts were tuned at); a 1080p TV gets ~1.35×. Taking the smaller of width and height keeps wide-and-short screens (16:9 TV, 21:9) from spilling off the bottom. Phones held sideways (≤500px tall) drop to 13px; long games there still scroll.
 - Move-mode camera preview is now at most 25% of the screen width (was 30%), so it doesn't eat the game area on a TV.
