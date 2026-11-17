@@ -31,6 +31,16 @@ export function smooth(prev: Pt | null, next: Pt, a = 0.35): Pt {
   return { x: prev.x + (next.x - prev.x) * a, y: prev.y + (next.y - prev.y) * a };
 }
 
+/** Short hold for touch-to-pop targets (`data-motion-hold`): long enough that a hand sweeping past doesn't pop. */
+export const TOUCH_HOLD_MS = 250;
+
+/** Hold time asked for by an element's `data-motion-hold` (ms), clamped to 150 ms – HOLD_MS. */
+export function holdFor(attr: string | null | undefined): number {
+  const n = Number(attr);
+  if (!attr || !Number.isFinite(n)) return HOLD_MS;
+  return Math.max(150, Math.min(HOLD_MS, n));
+}
+
 export interface DwellStep {
   progress: number; // 0–1, drives the filling ring
   fire: boolean; // true on the frame the choice is made
@@ -40,19 +50,20 @@ export interface DwellStep {
  * Hold-to-choose. Feed it the thing under the hand every frame (or null).
  * Fires once the same target has been held for `holdMs`; holding on keeps firing every `holdMs`
  * (so a child can feed the monster cookie after cookie without moving away).
+ * `hold` overrides the hold time for this target (Pop the Answer balloons pop on a short touch).
  */
 export function createDwell<T>(holdMs = HOLD_MS) {
   let target: T | null = null;
   let start = 0;
   return {
-    update(next: T | null, now: number): DwellStep {
+    update(next: T | null, now: number, hold = holdMs): DwellStep {
       if (next !== target) {
         target = next;
         start = now;
         return { progress: 0, fire: false };
       }
       if (next === null) return { progress: 0, fire: false };
-      const p = (now - start) / holdMs;
+      const p = (now - start) / hold;
       if (p >= 1) {
         start = now;
         return { progress: 1, fire: true };

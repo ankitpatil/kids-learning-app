@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { HandLandmarker, PoseLandmarker } from '@mediapipe/tasks-vision';
 import { MOTION_EVENT, loadMotionSettings, saveMotionSettings, type MotionSettings, type TrackingMode } from '../motion/settings';
-import { EURO_BODY, EURO_HAND, LOST_GRACE_MS, createDwell, createOneEuro, glide, nearBox, scrollSpeed, toScreen, type Pt } from '../motion/pointer';
+import { EURO_BODY, EURO_HAND, LOST_GRACE_MS, createDwell, createOneEuro, holdFor, glide, nearBox, scrollSpeed, toScreen, type Pt } from '../motion/pointer';
 import { INDEX_TIP, loadHandTracker, loadPoseTracker } from '../motion/tracker';
 import { ARM, createBodyFrame, createHandPicker, createPlayerLock, reachToScreen, torso, type ActiveHand, type LockStep, type Pose } from '../motion/player';
 import { say } from '../audio/speech';
@@ -250,7 +250,7 @@ function MotionSession({ mode }: { mode: TrackingMode }) {
       // Sticky: a small wobble off the edge of the button being held doesn't restart the hold.
       if (!hit && hovered?.isConnected && nearBox(hovered.getBoundingClientRect(), pos)) hit = hovered;
       hover(hit);
-      const step = dwell.update(hit, now);
+      const step = dwell.update(hit, now, holdFor(hit?.dataset.motionHold));
       cursor.style.setProperty('--p', String(step.progress));
       if (step.fire && hit?.isConnected) {
         hit.click();

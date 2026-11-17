@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ACTIVE_ZONE, HOLD_MS, createDwell, createOneEuro, glide, nearBox, scrollSpeed, SCROLL_DELAY_MS, SCROLL_RAMP_MS, smooth, toScreen } from './pointer';
+import { ACTIVE_ZONE, HOLD_MS, holdFor, createDwell, createOneEuro, glide, nearBox, scrollSpeed, SCROLL_DELAY_MS, SCROLL_RAMP_MS, smooth, toScreen } from './pointer';
 
 describe('toScreen', () => {
   it('mirrors x so the cursor moves the way the hand moves', () => {
@@ -135,5 +135,23 @@ describe('scrollSpeed', () => {
     expect(full).toBeGreaterThan(mid);
     expect(scrollSpeed(60_000, 1000)).toBe(full);
     expect(scrollSpeed(60_000, 2000)).toBeCloseTo(full * 2);
+  });
+});
+
+describe('per-target hold (data-motion-hold)', () => {
+  it('a balloon pops on a short touch, other buttons keep the long hold', () => {
+    const d = createDwell<string>();
+    d.update('balloon', 0, 250);
+    expect(d.update('balloon', 200, 250).fire).toBe(false);
+    expect(d.update('balloon', 250, 250).fire).toBe(true);
+    d.update('button', 300);
+    expect(d.update('button', 600).fire).toBe(false);
+  });
+  it('holdFor reads and clamps the attribute', () => {
+    expect(holdFor(null)).toBe(HOLD_MS);
+    expect(holdFor('abc')).toBe(HOLD_MS);
+    expect(holdFor('250')).toBe(250);
+    expect(holdFor('10')).toBe(150);
+    expect(holdFor('5000')).toBe(HOLD_MS);
   });
 });

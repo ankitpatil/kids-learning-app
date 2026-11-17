@@ -11,12 +11,14 @@ interface Props {
   onPlay: (trackId: string, level?: number) => void;
   /** ▶️ Play next: the app picks what to practise (first unmastered skill, current level). */
   onPlayNext: () => void;
+  /** 🎈 Pop the Answer on the next skill it can play (M3). */
+  onPop?: () => void;
   onCheck: () => void;
   onBack: () => void;
 }
 
 /** Pick a skill (and optionally a level) to play. Reached from the in-game Back button. */
-export function LevelSelect({ profileId, subject, onPlay, onPlayNext, onCheck, onBack }: Props) {
+export function LevelSelect({ profileId, subject, onPlay, onPlayNext, onPop, onCheck, onBack }: Props) {
   const [states, setStates] = useState<Record<string, SkillState> | null>(null);
   useEffect(() => {
     getSkillStates(profileId).then(setStates);
@@ -34,6 +36,11 @@ export function LevelSelect({ profileId, subject, onPlay, onPlayNext, onCheck, o
       <button className={`btn primary huge play-next ${subject}`} onClick={onPlayNext} aria-label="Play next">
         ▶️ <span className="play-next-label">Play next</span>
       </button>
+      {onPop && (
+        <button className="btn primary pop-btn" onClick={onPop} aria-label="Pop the answer">
+          🎈 <span className="play-next-label">Pop!</span>
+        </button>
+      )}
       <div className="track-list">
         {AGE_BANDS.map((band) => {
           // Each age section lists the tracks with levels suggested for that age, and only those levels.

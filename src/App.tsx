@@ -7,6 +7,8 @@ import { SightWordCatch } from './games/sightWords/SightWordCatch';
 import { WordBuilder } from './games/wordBuilder/WordBuilder';
 import { StoryChoose } from './games/stories/StoryChoose';
 import { StorySums } from './games/wordProblems/StorySums';
+import { PopTheAnswer } from './games/popAnswer/PopTheAnswer';
+import { pickPopTrack, type PopTrack } from './games/popAnswer/generator';
 import { isHopTrack, type HopTrack } from './games/numberLine/generator';
 import { WORD_TRACKS, type WordTrack } from './games/wordDetective/generator';
 import { listProfiles, createProfile, touchProfile, addStars, addSticker, requestPersistence, setTrackLevels, setPlaced, getSkillStates, getSkillState, type Profile } from './store/db';
@@ -32,7 +34,8 @@ type Game = 'count' | 'missing' | 'placeValue' | 'compare2d' | HopTrack | 'phoni
 type Screen =
   | { name: 'home' }
   | { name: Game }
-  | { name: 'reward'; game: Game; stars: number; leveledUp: boolean; sticker: Sticker; isNew: boolean }
+  | { name: 'pop'; trackId: PopTrack }
+  | { name: 'reward'; game: Game; stars: number; leveledUp: boolean; sticker: Sticker; isNew: boolean; pop?: boolean }
   | { name: 'levels'; subject: Subject }
   | { name: 'vault'; from?: Screen }
   | { name: 'startpoint'; subject: Subject }
@@ -102,7 +105,7 @@ export default function App() {
 
   if (!profile) return <div className="screen center">…</div>;
 
-  async function finishRound(game: Game, r: { correct: number; total: number; leveledUp: boolean }) {
+  async function finishRound(game: Game, r: { correct: number; total: number; leveledUp: boolean }, pop = false) {
     const stars = Math.max(1, Math.round((r.correct / r.total) * 3)) + (r.leveledUp ? 1 : 0);
     const total = await addStars(profile!.id, stars);
     // One sticker per round; a level-up or a perfect round earns a rare one.
@@ -111,7 +114,7 @@ export default function App() {
     const isNew = !owned[sticker.id];
     const updated = await addSticker(profile!.id, sticker.id);
     setProfile({ ...updated, stars: total });
-    setScreen({ name: 'reward', game, stars, leveledUp: r.leveledUp, sticker, isNew });
+    setScreen({ name: 'reward', game, stars, leveledUp: r.leveledUp, sticker, isNew, pop });
     // Trumpet fanfare + applause, then the spoken praise once it quietens down.
     const quietIn = playCelebration();
     praiseTimer.current = window.setTimeout(() => say(`${r.leveledUp ? 'Amazing! | A harder level is unlocked!' : 'Great job!'} || You got a ${sticker.name} sticker!`), quietIn);
@@ -121,6 +124,13 @@ export default function App() {
     const game = pickTrack(subject, await getSkillStates(profile!.id)) as Game;
     say(game === 'phonics' ? 'Phonics pop!' : game === 'sightWords' ? 'Sight word catch!' : game === 'endings' ? 'Word builder!' : game === 'stories' ? 'Story time!' : game === 'wordProblems' ? 'Story sums!' : isWordTrack(game) ? 'Word detective!' : isHopTrack(game) ? 'Number line hop!' : 'Feed the monster!');
     setScreen({ name: game });
+  }
+
+  /** M3 🎈 Pop the Answer on the child's next skill that Pop can play. */
+  async function startPop(subject: Subject) {
+    const trackId = pickPopTrack(subject, await getSkillStates(profile!.id));
+    say('Pop the answer!');
+    setScreen({ name: 'pop', trackId });
   }
 
   async function applyStart(subject: Subject, best: number) {
@@ -159,6 +169,7 @@ export default function App() {
         subject={subject}
         onPlay={playTrack}
         onPlayNext={() => launch(subject)}
+        onPop={() => startPop(subject)}
         onCheck={() => setScreen({ name: 'startpoint', subject })}
         onBack={() => setScreen({ name: 'home' })}
       />
@@ -214,6 +225,11 @@ export default function App() {
     return <WordDetective key={track} profileId={profile.id} trackId={track} onDone={(r) => finishRound(track, r)} onExit={() => toLevels('reading')} />;
   }
 
+  if (screen.name === 'pop') {
+    const track = screen.trackId;
+    return <PopTheAnswer key={track} profileId={profile.id} trackId={track} onDone={(r) => finishRound(track, r, true)} onExit={() => toLevels(SUBJECT_OF(track))} />;
+  }
+
   if (screen.name === 'endings') {
     return <WordBuilder profileId={profile.id} onDone={(r) => finishRound('endings', r)} onExit={() => toLevels('reading')} />;
   }
@@ -246,7 +262,7 @@ export default function App() {
         </button>
         <div className="reward-actions">
           <button className="btn secondary" onClick={() => toLevels(SUBJECT_OF(screen.game))} aria-label="Pick a level">⬅️</button>
-          <button className="btn primary huge" onClick={() => launch(SUBJECT_OF(screen.game))} aria-label="Play again">▶️</button>
+          <button className="btn primary huge" onClick={() => (screen.pop ? startPop(SUBJECT_OF(screen.game)) : launch(SUBJECT_OF(screen.game)))} aria-label="Play again">▶️</button>
           <button className="btn secondary" onClick={() => setScreen({ name: 'vault', from: screen })} aria-label="Sticker book">📒</button>
         </div>
       </div>

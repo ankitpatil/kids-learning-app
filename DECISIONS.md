@@ -2,6 +2,15 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-17 — Pop the Answer (M3)
+- A mechanic over existing tracks, not a new track: no new levels, so no new age bands. Items come from the quick-item generators (counting, + / − within 10 and 20, missing number, tens & ones, compare, short-word patterns), Phonics Pop and Sight-Word Catch. Story sums, endings, sentences and stories are left out (they need more than a short label on a balloon).
+- Entry point: a pink **🎈 Pop!** button under ▶️ Play next on Level Select. It plays the child's next unmastered skill if Pop can play it, else the furthest Pop skill they've reached. Results feed the same adaptive engine (only current-level items move the level), round mix (review/stretch kept to Pop tracks), stars and stickers; reward ▶️ replays Pop.
+- At most 4 balloons (2 when easing after two misses); phonics keeps the b/d look-alike balloon on the top level. Balloons rise slowly (9–12 s a trip) and come round again, so there's no clock and no "missed it".
+- Gentle failure: a wrong pop wobbles and fades; **only the first wrong pop per item counts as a miss** (a waving hand can brush several balloons, so no penalty spiral). After two different wrong pops the answer balloon glows. No Claude "Why?" hint here yet.
+- Hand input: the backlog said "any fingertip"; the Move-mode layer drives one cursor (the claimed player's hand), so Pop uses that. New `data-motion-hold` attribute lets an element ask for a shorter hold: balloons pop after a **250 ms** touch (`TOUCH_HOLD_MS`) instead of 0.9 s, long enough that a hand sweeping past doesn't pop. Touch/mouse pop on pointer-down (a moving balloon is hard to "click").
+- Reduced motion: balloons sit still in a row. Sight-word items are listen-only (👂, tap to hear) since the word is the answer; with narration off the child taps 🔊/👂 like in Sight-Word Catch.
+- On a phone, 4 balloons in lanes can overlap sideways (at different heights). Not tried with a real camera.
+
 ## 2026-11-16 — Read-aloud coach options (AI4, write-up only)
 - Write-up in `docs/read-aloud-coach-options.md`; recommendation is **on-device Whisper tiny.en (8-bit, ≈ 40 MB, lazy-loaded, off by default)** + a deterministic word-alignment checker in code. Decision moved to "Needs Ankit".
 - Ruled out cloud Web Speech recognition (Chrome sends audio to Google; Safari to Apple) under SPEC "no third-party data sharing". Chrome's on-device mode is desktop-only for now, so it can't cover a tablet; kept as a possible later fast path.
