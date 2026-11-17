@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { HandLandmarker, PoseLandmarker } from '@mediapipe/tasks-vision';
 import { MOTION_EVENT, loadMotionSettings, saveMotionSettings, type MotionSettings, type TrackingMode } from '../motion/settings';
-import { EURO_BODY, EURO_HAND, LOST_GRACE_MS, createDwell, createOneEuro, holdFor, glide, nearBox, scrollSpeed, toScreen, type Pt } from '../motion/pointer';
+import { EURO_BODY, EURO_HAND, LOST_GRACE_MS, createDeadband, createDwell, createOneEuro, holdFor, glide, nearBox, padsVisible, scrollSpeed, steadiness, toScreen, type Pt } from '../motion/pointer';
 import { INDEX_TIP, loadHandTracker, loadPoseTracker } from '../motion/tracker';
 import { ARM, createBodyFrame, createHandPicker, createPlayerLock, reachToScreen, torso, type ActiveHand, type LockStep, type Pose } from '../motion/player';
 import { say } from '../audio/speech';
@@ -28,7 +28,9 @@ export function MotionLayer() {
 
   useEffect(() => {
     document.body.classList.toggle('move-mode', enabled);
-  }, [enabled]);
+    // Standing back from a TV: bigger menus and buttons (styles.css "TV distance").
+    document.body.classList.toggle('move-tv', enabled && tracking === 'body');
+  }, [enabled, tracking]);
 
   // Camera off whenever the tab is hidden.
   useEffect(() => {
@@ -179,6 +181,7 @@ function MotionSession({ mode }: { mode: TrackingMode }) {
     // gliding toward that point, so it moves smoothly between camera frames.
     const tune = mode === 'body' ? EURO_BODY : EURO_HAND;
     const euro = createOneEuro(tune.minCutoff, tune.beta);
+    const dead = createDeadband(); // TV distance only: hold still through small wobbles
     let target: Pt | null = null;
     let lastRender = 0;
     /** New tracked hand point from the camera (or null = hand gone). */
@@ -186,11 +189,12 @@ function MotionSession({ mode }: { mode: TrackingMode }) {
       if (!pt) {
         target = null;
         euro.reset();
+        dead.reset();
         return;
       }
-      target = euro.filter(pt, now);
+      target = dead.filter(euro.filter(pt, now), steadiness(mode, window.innerWidth, window.innerHeight).deadband);
     };
-    // Scroll pads: shown only while someone is playing and the page can scroll that way.
+    // Scroll pads: shown while the camera is running and the page can scroll that way.
     let scrollDir = 0;
     let scrollSince = 0;
     const onPad = (el: HTMLElement | null, p: Pt) => {
@@ -203,10 +207,10 @@ function MotionSession({ mode }: { mode: TrackingMode }) {
       const up = upRef.current;
       const down = downRef.current;
       const doc = document.scrollingElement ?? document.documentElement;
-      const max = doc.scrollHeight - window.innerHeight;
-      const live = current === 'tracking';
-      up?.classList.toggle('show', live && doc.scrollTop > 1);
-      down?.classList.toggle('show', live && doc.scrollTop < max - 1);
+      const running = current !== 'starting' && current !== 'blocked' && current !== 'error';
+      const show = padsVisible(running, doc.scrollTop, doc.scrollHeight, window.innerHeight);
+      up?.classList.toggle('show', show.up);
+      down?.classList.toggle('show', show.down);
       const dir = p ? (onPad(up, p) ? -1 : onPad(down, p) ? 1 : 0) : 0;
       if (dir !== scrollDir) {
         scrollDir = dir;
@@ -248,7 +252,7 @@ function MotionSession({ mode }: { mode: TrackingMode }) {
       }
       let hit = pickTarget(document.elementFromPoint(pos.x, pos.y));
       // Sticky: a small wobble off the edge of the button being held doesn't restart the hold.
-      if (!hit && hovered?.isConnected && nearBox(hovered.getBoundingClientRect(), pos)) hit = hovered;
+      if (!hit && hovered?.isConnected && nearBox(hovered.getBoundingClientRect(), pos, steadiness(mode, window.innerWidth, window.innerHeight).sticky)) hit = hovered;
       hover(hit);
       const step = dwell.update(hit, now, holdFor(hit?.dataset.motionHold));
       cursor.style.setProperty('--p', String(step.progress));

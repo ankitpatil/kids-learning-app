@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ACTIVE_ZONE, HOLD_MS, holdFor, createDwell, createOneEuro, glide, nearBox, scrollSpeed, SCROLL_DELAY_MS, SCROLL_RAMP_MS, smooth, toScreen } from './pointer';
+import { ACTIVE_ZONE, HOLD_MS, holdFor, createDwell, createOneEuro, createDeadband, glide, nearBox, padsVisible, scrollSpeed, steadiness, SCROLL_DELAY_MS, SCROLL_RAMP_MS, smooth, toScreen, DEADBAND_BODY, STICKY_BODY, STICKY_PX, EURO_BODY, type Pt } from './pointer';
 
 describe('toScreen', () => {
   it('mirrors x so the cursor moves the way the hand moves', () => {
@@ -153,5 +153,58 @@ describe('per-target hold (data-motion-hold)', () => {
     expect(holdFor('250')).toBe(250);
     expect(holdFor('10')).toBe(150);
     expect(holdFor('5000')).toBe(HOLD_MS);
+  });
+});
+
+describe('TV distance steadiness', () => {
+  it('scales the dead zone and sticky margin with the screen; hand mode unchanged', () => {
+    expect(steadiness('hand', 1920, 1080)).toEqual({ deadband: 0, sticky: STICKY_PX });
+    const hd = steadiness('body', 1920, 1080);
+    expect(hd.deadband).toBeCloseTo(1080 * DEADBAND_BODY);
+    expect(hd.sticky).toBeCloseTo(1080 * STICKY_BODY);
+    const uhd = steadiness('body', 3840, 2160);
+    expect(uhd.deadband / hd.deadband).toBeCloseTo(2);
+    // Never less sticky than close-up mode.
+    expect(steadiness('body', 320, 200).sticky).toBe(STICKY_PX);
+  });
+
+  it('dead zone: small wobbles leave the cursor still, real moves follow without a jump', () => {
+    const d = createDeadband();
+    expect(d.filter({ x: 100, y: 100 }, 16)).toEqual({ x: 100, y: 100 });
+    // Tremor inside the radius: no movement at all.
+    for (const p of [{ x: 110, y: 95 }, { x: 92, y: 106 }, { x: 105, y: 112 }]) expect(d.filter(p, 16)).toEqual({ x: 100, y: 100 });
+    // A real move: follows, staying `radius` behind.
+    const out = d.filter({ x: 200, y: 100 }, 16);
+    expect(out.x).toBeCloseTo(184);
+    expect(out.y).toBeCloseTo(100);
+    // Coming back a little doesn't move it.
+    expect(d.filter({ x: 190, y: 100 }, 16)).toEqual(out);
+    // Radius 0 (hand mode) passes straight through.
+    expect(d.filter({ x: 300, y: 300 }, 0)).toEqual({ x: 300, y: 300 });
+    d.reset();
+    expect(d.filter({ x: 5, y: 5 }, 16)).toEqual({ x: 5, y: 5 });
+  });
+
+  it('a still hand with tremor holds the hover target after smoothing + dead zone', () => {
+    const euro = createOneEuro(EURO_BODY.minCutoff, EURO_BODY.beta);
+    const d = createDeadband();
+    const { deadband } = steadiness('body', 1920, 1080);
+    let seed = 7;
+    const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647 - 0.5) * 2;
+    const outs: Pt[] = [];
+    for (let i = 0; i < 90; i++) outs.push(d.filter(euro.filter({ x: 960 + rnd() * 25, y: 540 + rnd() * 25 }, i * 33), deadband));
+    const settled = outs.slice(20);
+    const spread = Math.max(...settled.map((p) => Math.hypot(p.x - settled[0].x, p.y - settled[0].y)));
+    expect(spread).toBeLessThan(8);
+  });
+});
+
+describe('scroll pads visibility', () => {
+  it('shown while the camera runs (even before anyone claims the turn) and only where the page can scroll', () => {
+    expect(padsVisible(true, 0, 3000, 1000)).toEqual({ up: false, down: true });
+    expect(padsVisible(true, 900, 3000, 1000)).toEqual({ up: true, down: true });
+    expect(padsVisible(true, 2000, 3000, 1000)).toEqual({ up: true, down: false });
+    expect(padsVisible(true, 0, 1000, 1000)).toEqual({ up: false, down: false });
+    expect(padsVisible(false, 900, 3000, 1000)).toEqual({ up: false, down: false });
   });
 });

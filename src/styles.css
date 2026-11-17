@@ -509,3 +509,26 @@ body.move-mode .pop-balloon { width: 9.5rem; height: 11.5rem; }
 /* Reduced motion: balloons sit still in a row (the global rule stops the rise). */
 @media (prefers-reduced-motion: reduce) { .pop-lane { top: 30%; } }
 .btn.pop-btn { display: flex; align-items: center; justify-content: center; gap: 0.75rem; width: min(96vw, 40rem); margin: 0 auto 0.875rem; background: #fd79a8; }
+
+/* TV distance (Move mode, "standing back"): menus and the small buttons grow so they can be read and hit
+   from across the room. The root size is unchanged, so game screens still fit without scrolling;
+   game answer buttons are already big. */
+body.move-tv .back-btn { min-height: 5.5rem; padding: 0 1.75rem; font-size: 1.875rem; }
+body.move-tv .icon-btn { width: 5.5rem; height: 5.5rem; min-width: 5.5rem; min-height: 5.5rem; font-size: 2.75rem; }
+body.move-tv .stars { font-size: 2.5rem; padding: 0.625rem 1.5rem; }
+body.move-tv .avatar-btn { min-width: 5.5rem; min-height: 5.5rem; }
+body.move-tv .avatar-btn .avatar { font-size: 3.5rem; }
+body.move-tv .avatar-name { font-size: 1.125rem; }
+body.move-tv .avatar-grid { grid-template-columns: repeat(auto-fill, minmax(6.5rem, 1fr)); gap: 1.25rem; }
+body.move-tv .avatar-choice { font-size: 3.75rem; min-height: 6.5rem; }
+body.move-tv .profile-card { min-height: 12rem; }
+body.move-tv .preset { min-height: 6rem; font-size: 1.75rem; }
+body.move-tv .preset-emoji { font-size: 3rem; }
+body.move-tv .track-main { min-height: 6rem; gap: 1.25rem; }
+body.move-tv .track-emoji { font-size: 3.5rem; }
+body.move-tv .track-name { font-size: 2rem; }
+body.move-tv .track-done { font-size: 2.25rem; }
+body.move-tv .track-play { font-size: 3.25rem; }
+body.move-tv .level-chips { gap: 1.25rem; padding-left: 4.75rem; }
+body.move-tv .chip { min-width: 5rem; height: 5rem; border-radius: 2.5rem; font-size: 1.875rem; }
+body.move-tv .story-choice { min-height: 6.5rem; }

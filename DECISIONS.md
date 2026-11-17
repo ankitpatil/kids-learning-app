@@ -2,6 +2,12 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-17 — TV mode: scroll pads always there, bigger menus, steadier cursor (Ankit)
+- **Scroll pads**: they appeared only after a player had claimed the turn ("⭐ Playing"), so in TV mode — where the turn drops whenever the player lowers their hand or steps out — they were mostly hidden. They now show whenever Move mode's camera is running and the page can scroll that way (`padsVisible`). Hand mode already showed them almost all the time, which is why the laptop looked right.
+- **Bigger buttons**: new `body.move-tv` class (Move mode + "standing back"). Menus and small targets grow: ⬅️ Back / 🔊 / home top buttons ≈ 120 px on a 1080p TV (were ≈ 97), level chips ≈ 108 px (were 65), track rows, starting-point choices, avatars, profile cards, story answers. Kept the root size unchanged: a 1.15× / 1.35× global scale-up was tried at 1080p and pushed answer buttons below the fold in Missing number, Tens and ones, Story sums, Add within 20 and Stories. Game answer buttons were already 110–300 px.
+- **Less jitter** (body tracking only): One Euro steadier at rest (minCutoff 0.55 → 0.45), plus a dead zone — the cursor ignores wobbles under 1.5% of the screen's short side (≈ 16 px at 1080p) and follows real moves without a jump — and a wider sticky margin while holding a button (4.5% ≈ 49 px, was 28). Close-to-laptop mode is unchanged. Not yet tried with a real camera.
+- Already overflowing before this change (depends on the item): Tens and ones and some Missing number / Stories items run 20–240 px past the bottom at 1080p and 720p. The pads cover it for now; a tighter TV layout for those games would be a follow-up.
+
 ## 2026-11-17 — Pop the Answer (M3)
 - A mechanic over existing tracks, not a new track: no new levels, so no new age bands. Items come from the quick-item generators (counting, + / − within 10 and 20, missing number, tens & ones, compare, short-word patterns), Phonics Pop and Sight-Word Catch. Story sums, endings, sentences and stories are left out (they need more than a short label on a balloon).
 - Entry point: a pink **🎈 Pop!** button under ▶️ Play next on Level Select. It plays the child's next unmastered skill if Pop can play it, else the furthest Pop skill they've reached. Results feed the same adaptive engine (only current-level items move the level), round mix (review/stretch kept to Pop tracks), stars and stickers; reward ▶️ replays Pop.

@@ -127,10 +127,51 @@ export function glide(from: Pt, to: Pt, dtMs: number, rate = GLIDE_RATE): Pt {
 
 /** One Euro settings per Move mode. Body tracking at TV distance is noisier, so it is held steadier at rest. */
 export const EURO_HAND = { minCutoff: 1.2, beta: 0.004 };
-export const EURO_BODY = { minCutoff: 0.55, beta: 0.0018 };
+export const EURO_BODY = { minCutoff: 0.45, beta: 0.0018 };
 
 /** How far (px) the cursor can drift off the button it is holding on before the hold is lost. */
 export const STICKY_PX = 28;
+
+/**
+ * TV distance (body tracking): the hand is a few pixels in a wide camera picture, mapped onto the whole
+ * screen, so a still hand still trembles by many screen pixels. Two extra steadiers, as a share of the
+ * screen's shorter side so a 4K TV behaves like a 1080p one:
+ * - a dead zone: the cursor ignores wobbles smaller than this (≈ 16 px on a 1080p screen);
+ * - a wider sticky margin around the button being held.
+ */
+export const DEADBAND_BODY = 0.015;
+export const STICKY_BODY = 0.045;
+
+/** Sizes in px for a screen: dead-zone radius and sticky margin. Hand mode keeps the plain sticky margin and no dead zone. */
+export function steadiness(mode: 'body' | 'hand', width: number, height: number): { deadband: number; sticky: number } {
+  if (mode === 'hand') return { deadband: 0, sticky: STICKY_PX };
+  const side = Math.min(width, height);
+  return { deadband: side * DEADBAND_BODY, sticky: Math.max(STICKY_PX, side * STICKY_BODY) };
+}
+
+/**
+ * Dead zone with follow-through: while the point stays within `radius` of the cursor, the cursor holds
+ * still; once it moves further, the cursor follows, staying `radius` behind (no jump). Removes tremor
+ * without a lag on real moves.
+ */
+export function createDeadband() {
+  let anchor: Pt | null = null;
+  return {
+    filter(p: Pt, radius: number): Pt {
+      if (!anchor || radius <= 0) return (anchor = p);
+      const dx = p.x - anchor.x;
+      const dy = p.y - anchor.y;
+      const d = Math.hypot(dx, dy);
+      if (d <= radius) return anchor;
+      const k = (d - radius) / d;
+      anchor = { x: anchor.x + dx * k, y: anchor.y + dy * k };
+      return anchor;
+    },
+    reset() {
+      anchor = null;
+    },
+  };
+}
 
 export interface Box {
   left: number;
@@ -149,6 +190,15 @@ export const SCROLL_DELAY_MS = 200; // passing over a pad doesn't scroll
 export const SCROLL_RAMP_MS = 900; // from slow to full speed
 export const SCROLL_MIN = 0.2; // screen heights per second, at the start
 export const SCROLL_MAX = 0.9; // …and at full speed
+
+/**
+ * Which scroll pads to show: whenever Move mode's camera is running (not only once someone has claimed
+ * the turn, so a player can see there is more page) and the page can scroll that way.
+ */
+export function padsVisible(running: boolean, scrollTop: number, scrollHeight: number, viewH: number): { up: boolean; down: boolean } {
+  const max = scrollHeight - viewH;
+  return { up: running && max > 1 && scrollTop > 1, down: running && max > 1 && scrollTop < max - 1 };
+}
 
 /** Scroll speed in px/s after the hand has been on a scroll pad for `heldMs`, for a screen `viewH` px tall. */
 export function scrollSpeed(heldMs: number, viewH: number): number {
