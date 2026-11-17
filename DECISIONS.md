@@ -2,6 +2,12 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-16 — Read-aloud coach options (AI4, write-up only)
+- Write-up in `docs/read-aloud-coach-options.md`; recommendation is **on-device Whisper tiny.en (8-bit, ≈ 40 MB, lazy-loaded, off by default)** + a deterministic word-alignment checker in code. Decision moved to "Needs Ankit".
+- Ruled out cloud Web Speech recognition (Chrome sends audio to Google; Safari to Apple) under SPEC "no third-party data sharing". Chrome's on-device mode is desktop-only for now, so it can't cover a tablet; kept as a possible later fast path.
+- Claude checking the transcript adds no accuracy and needs the network; judging is done in code. Claude may later give a checked hint for a stumbled word via the AI3 `whyHint` path.
+- Sizes/speeds are from public sources and estimates; must be measured on the family's devices before building.
+
 ## 2026-11-16 — "Why?" helper in Story Choose questions (AI3d)
 - Request = the question plus the line that answers it (`What did Sam get? The story line: "Sam got a big red hat."`, ≤ 160 chars for every built-in story — tested), the answer and what the child picked. Story names are made up; nicknames are still redacted by the client.
 - Leak check: the hint must not say or spell the whole answer, nor its **key words** (`hide`, device only): answer words that aren't little words (a, the, in, on…) and aren't in a wrong choice, plus plurals ("in the hat" vs "in the box" → hat, hats). If only a little word differs ("in the box" vs "on the box"), that word is hidden. So quoting the answer line is rejected — Claude has to point at it ("Find the line about what Sam got").
