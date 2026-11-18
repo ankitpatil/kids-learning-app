@@ -3,6 +3,7 @@ import { tracksFor, MASTERED, AGE_BANDS, levelsInBand, type Subject } from '../e
 import { getSkillStates } from '../store/db';
 import type { SkillState } from '../engine/adaptive';
 import { say } from '../audio/speech';
+import { Emoji } from '../components/Icon';
 
 interface Props {
   profileId: string;
@@ -62,7 +63,7 @@ export function LevelSelect({ profileId, subject, onPlay, onPlayNext, onPop, onC
                 return (
                   <div key={t.id} className={`track-card ${subject}`}>
                     <button className="track-main" onClick={() => onPlay(t.id, playLevel)} aria-label={`Play ${t.name}`}>
-                      <span className="track-emoji">{t.emoji}</span>
+                      <span className="track-emoji"><Emoji text={t.emoji} /></span>
                       <span className="track-name">{t.name}</span>
                       {bandDone && <span className="track-done">✅</span>}
                       <span className="track-play">▶️</span>

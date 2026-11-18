@@ -29,7 +29,7 @@ describe('self-hosted files', () => {
 
   it('the build keeps MediaPipe files out of the precache and runtime-caches them', () => {
     const cfg = readFileSync(join(root, 'vite.config.ts'), 'utf8');
-    expect(cfg).toContain("globIgnores: ['mediapipe/**']");
+    expect(cfg).toMatch(/globIgnores: \[[^\]]*'mediapipe\/\*\*'/);
     expect(cfg).toContain('urlPattern: MEDIAPIPE_CACHE_PATTERN');
     expect(cfg).toContain("handler: 'CacheFirst'");
   });

@@ -9,6 +9,7 @@ import { fresh } from '../../engine/recent';
 import { feedback } from '../../components/Feedback';
 import { ai } from '../../ai/app';
 import { createWhyHinter } from '../../ai/whyHint';
+import { Emoji } from '../../components/Icon';
 
 const ROUND_LENGTH = 8;
 
@@ -231,7 +232,7 @@ export function WordDetective({ profileId, trackId, onDone, onExit }: Props) {
 
       {item.kind === 'sentence' ? (
         <>
-          {item.emoji && <div className="sentence-clue" aria-hidden="true">{item.emoji}</div>}
+          {item.emoji && <div className="sentence-clue" aria-hidden="true"><Emoji text={item.emoji} /></div>}
           <p className={`sentence-text ${mood}`}>
             {item.before}{' '}
             <span className={`blank ${mood === 'yay' ? 'filled' : ''}`}>{mood === 'yay' ? item.word : '\u00a0'}</span>
@@ -267,7 +268,7 @@ export function WordDetective({ profileId, trackId, onDone, onExit }: Props) {
                 onClick={() => pickPicture(p.emoji, p.word)}
                 aria-label={`Picture ${tried.length ? p.word : ''}`}
               >
-                {p.emoji}
+                <Emoji text={p.emoji} />
               </button>
             ))}
           </div>
@@ -275,7 +276,7 @@ export function WordDetective({ profileId, trackId, onDone, onExit }: Props) {
       ) : (
         <>
           <button className="picture-card" onClick={() => tapSay(item.word)} aria-label="Hear the word again">
-            <span className="picture">{item.emoji}</span>
+            <span className="picture"><Emoji text={item.emoji} /></span>
           </button>
           <div className={`slots ${mood}`}>
             {placed.map((p, i) => (

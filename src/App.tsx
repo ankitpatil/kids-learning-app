@@ -29,6 +29,7 @@ import { Placement, StartPoint } from './screens/Placement';
 import type { Subject } from './engine/tracks';
 import { say, isNarrationOn, setNarration, stopSpeech, tapSay } from './audio/speech';
 import { MoveModeToggle } from './components/MotionLayer';
+import { Emoji } from './components/Icon';
 
 type Game = 'count' | 'missing' | 'placeValue' | 'compare2d' | HopTrack | 'phonics' | WordTrack | 'sightWords' | 'endings' | 'stories' | 'wordProblems';
 type Screen =
@@ -257,7 +258,7 @@ export default function App() {
         <div className="burst">{'⭐'.repeat(screen.stars)}</div>
         {screen.leveledUp && <div className="unlock">🔓</div>}
         <button className={`sticker-reveal ${screen.sticker.rarity}`} onClick={() => setScreen({ name: 'vault', from: screen })} aria-label={`New sticker: ${screen.sticker.name}. Open sticker book`}>
-          <span className="sticker-emoji">{screen.sticker.emoji}</span>
+          <span className="sticker-emoji"><Emoji text={screen.sticker.emoji} /></span>
           {screen.isNew && <span className="new-tag">NEW</span>}
         </button>
         <div className="reward-actions">

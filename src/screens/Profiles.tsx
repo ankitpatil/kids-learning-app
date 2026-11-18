@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { AVATARS, MAX_NICKNAME, MAX_PROFILES, avatarName, suggestAvatar } from '../engine/profiles';
 import type { Profile } from '../store/db';
 import { say, tapSay } from '../audio/speech';
+import { Emoji } from '../components/Icon';
 
 interface PickerProps {
   profiles: Profile[];
@@ -87,7 +88,7 @@ export function CreateProfile({ usedAvatars, onCreate, onBack }: CreateProps) {
               tapSay(a.name);
             }}
           >
-            {a.emoji}
+            <Emoji text={a.emoji} />
           </button>
         ))}
       </div>

@@ -47,7 +47,8 @@ src/
   content/         word lists, stories, word problems, stickers (content as data)
   audio/           speech (TTS), read-along highlighting, sound effects
   screens/         level select, placement, profiles, sticker book
-public/            PWA icon
+  icons/           bundled Fluent Emoji lookup (iconMap.gen.ts is generated: `npm run icons`)
+public/            PWA icon, icons/ (Fluent Emoji SVGs), mediapipe/ (Move mode models)
 SPEC.md            product principles, data model, adaptive engine, skill tracks
 BACKLOG.md         ordered work queue (Done / Next / Needs Ankit)
 DECISIONS.md       judgment calls, newest first
@@ -102,3 +103,8 @@ These need Ankit's sign-off. Add them to **Needs Ankit** in `BACKLOG.md` instead
 ## Privacy
 
 The app keeps everything on the device in IndexedDB and asks the browser for persistent storage. Profiles hold only a nickname and an animal avatar. Nothing is sent to any server.
+
+## Credits
+
+- Pictures: [Fluent Emoji](https://github.com/microsoft/fluentui-emoji) (flat style) by Microsoft, MIT licence, via `@iconify-json/fluent-emoji-flat`. Only the icons the app uses are copied to `public/icons/` by `npm run icons`.
+- Fonts: [Nunito](https://fonts.google.com/specimen/Nunito) and [Andika](https://software.sil.org/andika/) (SIL Open Font License), self-hosted via Fontsource.

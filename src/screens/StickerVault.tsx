@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { STICKERS, STICKER_PAGES, type Sticker } from '../content/stickers';
 import { collectedCount } from '../engine/stickers';
 import { say, tapSay } from '../audio/speech';
+import { Emoji } from '../components/Icon';
 
 interface Props {
   owned: Record<string, number>;
@@ -36,12 +37,12 @@ export function StickerVault({ owned, onBack }: Props) {
               {items.map((s) =>
                 owned[s.id] ? (
                   <button key={s.id} className={`vault-sticker ${s.rarity}`} onClick={() => { setZoom(s); tapSay(s.name); }} aria-label={s.name}>
-                    <span>{s.emoji}</span>
+                    <span><Emoji text={s.emoji} /></span>
                     {owned[s.id] > 1 && <span className="dup">×{owned[s.id]}</span>}
                   </button>
                 ) : (
                   <div key={s.id} className={`vault-sticker locked ${s.rarity}`} aria-label="Not collected yet">
-                    <span>{s.emoji}</span>
+                    <span><Emoji text={s.emoji} /></span>
                   </div>
                 ),
               )}
@@ -51,7 +52,7 @@ export function StickerVault({ owned, onBack }: Props) {
       })}
       {zoom && (
         <div className="sticker-zoom" onClick={() => setZoom(null)} role="dialog" aria-label={zoom.name}>
-          <div className={`sticker-big ${zoom.rarity}`}>{zoom.emoji}</div>
+          <div className={`sticker-big ${zoom.rarity}`}><Emoji text={zoom.emoji} /></div>
           <div className="sticker-name">{zoom.name}</div>
         </div>
       )}

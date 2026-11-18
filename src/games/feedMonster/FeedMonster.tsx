@@ -12,6 +12,7 @@ import { makeCompareItem, comparePrompt, compareHint, comparePraise, type Compar
 import { feedWhyContext } from './why';
 import { ai } from '../../ai/app';
 import { createWhyHinter } from '../../ai/whyHint';
+import { Emoji } from '../../components/Icon';
 
 const ROUND_LENGTH = 8;
 const w = numberWord;
@@ -71,7 +72,7 @@ function TenFrames({ have, fed, ghost }: { have: number; fed: number; ghost: num
       {Array.from({ length: frames }, (_, f) => (
         <div key={f} className="frame">
           {cells.slice(f * 10, f * 10 + 10).map((c, i) => (
-            <span key={i} className={`cell ${c}`}>{c === 'empty' ? '' : '🍪'}</span>
+            <span key={i} className={`cell ${c}`}>{c === 'empty' ? '' : <Emoji text="🍪" />}</span>
           ))}
         </div>
       ))}
@@ -235,8 +236,8 @@ export function FeedMonster({ profileId, trackId, onDone, onExit }: Props) {
           <button className="icon-btn" onClick={() => tapSay(promptFor(item))} aria-label="Say again">🔊</button>
         </div>
         <div className={`monster cmp-monster ${mood}`} aria-hidden>
-          <div className="monster-face">{done ? '😋' : mood === 'oops' ? '😮' : item.ask === 'more' ? '🤤' : '😌'}</div>
-          <div className="cmp-ask">{item.ask === 'more' ? 'more 🍪🍪🍪' : 'fewer 🍪'}</div>
+          <div className="monster-face"><Emoji text={done ? '😋' : mood === 'oops' ? '😮' : item.ask === 'more' ? '🤤' : '😌'} /></div>
+          <div className="cmp-ask"><Emoji text={item.ask === 'more' ? 'more 🍪🍪🍪' : 'fewer 🍪'} /></div>
         </div>
         <div className="cmp-plates">
           {[item.left, item.right].map((n) => {
@@ -247,8 +248,8 @@ export function FeedMonster({ profileId, trackId, onDone, onExit }: Props) {
                 <span className="cmp-number">{n}</span>
                 {picture && (
                   <span className="cmp-pic">
-                    <span className="pv-row">{Array.from({ length: t }, (_, i) => <span key={i} className="pv-box">📦<b>10</b></span>)}</span>
-                    <span className="pv-row">{Array.from({ length: o }, (_, i) => <span key={i} className="cookie small">🍪</span>)}</span>
+                    <span className="pv-row">{Array.from({ length: t }, (_, i) => <span key={i} className="pv-box"><Emoji text="📦" /><b>10</b></span>)}</span>
+                    <span className="pv-row">{Array.from({ length: o }, (_, i) => <span key={i} className="cookie small"><Emoji text="🍪" /></span>)}</span>
                   </span>
                 )}
               </button>
@@ -281,30 +282,30 @@ export function FeedMonster({ profileId, trackId, onDone, onExit }: Props) {
 
         {item.mode === 'choose' ? (
           <div className="pv-words" aria-hidden>
-            <span className="pv-part tens">{item.tens} <span className="pv-icon">📦</span></span>
-            <span className="pv-part ones">{item.ones} <span className="pv-icon">🍪</span></span>
+            <span className="pv-part tens">{item.tens} <span className="pv-icon"><Emoji text="📦" /></span></span>
+            <span className="pv-part ones">{item.ones} <span className="pv-icon"><Emoji text="🍪" /></span></span>
           </div>
         ) : item.split ? (
           <div className="target-number pv-split" aria-hidden>
-            <span className="pv-digit tens">{item.tens}<small>📦</small></span>
-            <span className="pv-digit ones">{item.ones}<small>🍪</small></span>
+            <span className="pv-digit tens">{item.tens}<small><Emoji text="📦" /></small></span>
+            <span className="pv-digit ones">{item.ones}<small><Emoji text="🍪" /></small></span>
           </div>
         ) : (
           <div className="target-number" aria-hidden>{item.total}</div>
         )}
 
         <div className={`monster ${mood}`} onClick={item.mode === 'feed' ? takeBack : undefined} role="button" aria-label="Monster">
-          <div className="monster-face">{done ? '😋' : mood === 'oops' ? '😮' : '👾'}</div>
+          <div className="monster-face"><Emoji text={done ? '😋' : mood === 'oops' ? '😮' : '👾'} /></div>
           {(item.mode === 'feed' || done || hintUsed) && (
             <div className="belly pv-belly">
-              {Array.from({ length: shownBoxes }, (_, i) => <span key={`b${i}`} className="pv-box">📦<b>10</b></span>)}
-              {Array.from({ length: ghostBoxes }, (_, i) => <span key={`gb${i}`} className="pv-box ghost">📦<b>10</b></span>)}
-              {Array.from({ length: shownLoose }, (_, i) => <span key={`c${i}`} className="cookie small">🍪</span>)}
-              {Array.from({ length: ghostLoose }, (_, i) => <span key={`gc${i}`} className="cookie ghost">🍪</span>)}
+              {Array.from({ length: shownBoxes }, (_, i) => <span key={`b${i}`} className="pv-box"><Emoji text="📦" /><b>10</b></span>)}
+              {Array.from({ length: ghostBoxes }, (_, i) => <span key={`gb${i}`} className="pv-box ghost"><Emoji text="📦" /><b>10</b></span>)}
+              {Array.from({ length: shownLoose }, (_, i) => <span key={`c${i}`} className="cookie small"><Emoji text="🍪" /></span>)}
+              {Array.from({ length: ghostLoose }, (_, i) => <span key={`gc${i}`} className="cookie ghost"><Emoji text="🍪" /></span>)}
               {item.mode === 'choose' && !done && hintUsed && (
                 <>
-                  {Array.from({ length: item.tens }, (_, i) => <span key={`hb${i}`} className="pv-box ghost">📦<b>10</b></span>)}
-                  {Array.from({ length: item.ones }, (_, i) => <span key={`hc${i}`} className="cookie ghost">🍪</span>)}
+                  {Array.from({ length: item.tens }, (_, i) => <span key={`hb${i}`} className="pv-box ghost"><Emoji text="📦" /><b>10</b></span>)}
+                  {Array.from({ length: item.ones }, (_, i) => <span key={`hc${i}`} className="cookie ghost"><Emoji text="🍪" /></span>)}
                 </>
               )}
             </div>
@@ -319,12 +320,12 @@ export function FeedMonster({ profileId, trackId, onDone, onExit }: Props) {
             <div className="plate pv-plate">
               <div className="pv-row">
                 {Array.from({ length: item.boxSupply - boxes }, (_, i) => (
-                  <button key={i} className="pv-box big" onClick={feedBox} aria-label="Box of ten cookies">📦<b>10</b></button>
+                  <button key={i} className="pv-box big" onClick={feedBox} aria-label="Box of ten cookies"><Emoji text="📦" /><b>10</b></button>
                 ))}
               </div>
               <div className="pv-row">
                 {Array.from({ length: item.supply - fed }, (_, i) => (
-                  <button key={i} className="cookie big" onClick={feed} aria-label="Cookie">🍪</button>
+                  <button key={i} className="cookie big" onClick={feed} aria-label="Cookie"><Emoji text="🍪" /></button>
                 ))}
               </div>
             </div>
@@ -371,16 +372,16 @@ export function FeedMonster({ profileId, trackId, onDone, onExit }: Props) {
       )}
 
       <div className={`monster ${mood}`} onClick={item.mode === 'feed' ? takeBack : undefined} role="button" aria-label="Monster">
-        <div className="monster-face">{mood === 'yum' ? '😋' : mood === 'oops' ? '😮' : '👾'}</div>
+        <div className="monster-face"><Emoji text={mood === 'yum' ? '😋' : mood === 'oops' ? '😮' : '👾'} /></div>
         {item.frames && item.mode === 'choose' && !showGuide && mood !== 'yum' ? null : item.frames ? (
           <TenFrames have={item.have} fed={item.mode === 'feed' || mood === 'yum' ? (mood === 'yum' ? item.need : fed) : 0} ghost={item.mode === 'choose' && showGuide ? item.need : ghosts} />
         ) : (
           <div className="belly">
             {Array.from({ length: fed }, (_, i) => (
-              <span key={i} className="cookie small">🍪</span>
+              <span key={i} className="cookie small"><Emoji text="🍪" /></span>
             ))}
             {Array.from({ length: ghosts }, (_, i) => (
-              <span key={`g${i}`} className="cookie ghost">🍪</span>
+              <span key={`g${i}`} className="cookie ghost"><Emoji text="🍪" /></span>
             ))}
           </div>
         )}
@@ -390,7 +391,7 @@ export function FeedMonster({ profileId, trackId, onDone, onExit }: Props) {
         <>
           <div className="plate">
             {Array.from({ length: remaining }, (_, i) => (
-              <button key={i} className="cookie big" onClick={feed} aria-label="Cookie">🍪</button>
+              <button key={i} className="cookie big" onClick={feed} aria-label="Cookie"><Emoji text="🍪" /></button>
             ))}
           </div>
           <div className="actions">

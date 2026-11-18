@@ -2,6 +2,13 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-18 — Bundled icons + fonts (I1a)
+- **Split I1**: I1a = icon pipeline + fonts + the main picture spots; I1b = content files refer to icon names + the rest of the UI emoji. Converting every content file and every button in one run was too big to do well.
+- **Fluent Emoji flat** (not 3D): flat SVGs are ~1.3 KB each (234 icons ≈ 300 KB on disk, whole precache ≈ 1.1 MB), crisp at any size; 3D is PNG-only and far bigger. Source: `@iconify-json/fluent-emoji-flat` (MIT, devDependency) — its `chars.json` maps emoji → icon name, so `scripts/build-icons.mjs` scans `src/` for emoji and copies only the used icons. SVGs are committed (the build does not need the generator); a test fails if the map is stale, telling the next run to `npm run icons`.
+- **Emoji → icon at render time for now**: `<Emoji text>` swaps each emoji that has a bundled icon for `<img class="icon">` sized 1em (so existing font-size CSS keeps working, `pointer-events: none` so taps and Move-mode hits go to the button). Content still holds emoji until I1b. Only 👪 (family) has no Fluent icon → stays a system emoji.
+- **Fonts**: Nunito as the variable font (one file per subset covers 400–900; the CSS used 400–900), Andika 400 + 700 Latin only (800/900 in CSS render as 700). Precache now includes `svg` and `woff2`; `prototypes/` is kept out of it.
+- Checked in a browser (vite preview): icons and Nunito load on the profile screen. Not checked on iOS/Android devices.
+
 ## 2026-11-17 — Move mode offline (M4b)
 - **Models committed, wasm copied at build**: the two `.task` models (hand 7.8 MB, pose lite 5.8 MB, Apache 2.0) are committed under `public/mediapipe/models/`. The wasm runtime (~19 MB for SIMD + no-SIMD) is *not* committed: `scripts/copy-mediapipe.mjs` copies it from `node_modules/@mediapipe/tasks-vision/wasm` before `npm run dev` / `npm run build` (npm pre-scripts), so it always matches the installed package version and keeps git small. Both variants ship because MediaPipe picks one per browser; only the one used gets cached.
 - **Caching**: `mediapipe/**` is excluded from the precache (would add ~33 MB to every install, even for touch-only players) and runtime-cached **CacheFirst** in `mediapipe-v1` the first time Move mode starts. Bump the cache name when upgrading `@mediapipe/tasks-vision` (noted in `public/mediapipe/README.md`).

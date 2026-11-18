@@ -6,7 +6,7 @@
   --math: #00b894;
   --reading: #fd79a8;
   --soft: #ffeaa7;
-  font-family: 'Nunito', 'Baloo 2', ui-rounded, system-ui, sans-serif;
+  font-family: 'Nunito Variable', 'Nunito', 'Baloo 2', ui-rounded, system-ui, sans-serif;
   color: var(--ink);
   background: var(--bg);
   -webkit-tap-highlight-color: transparent;
@@ -532,3 +532,6 @@ body.move-tv .track-play { font-size: 3.25rem; }
 body.move-tv .level-chips { gap: 1.25rem; padding-left: 4.75rem; }
 body.move-tv .chip { min-width: 5rem; height: 5rem; border-radius: 2.5rem; font-size: 1.875rem; }
 body.move-tv .story-choice { min-height: 6.5rem; }
+
+/* Bundled Fluent Emoji pictures (I1): same size as the emoji they replace; clicks go to the parent. */
+img.icon { display: inline-block; width: 1em; height: 1em; vertical-align: -0.125em; pointer-events: none; user-select: none; -webkit-user-drag: none; }

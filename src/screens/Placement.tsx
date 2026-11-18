@@ -4,6 +4,7 @@ import { makeQuickItem, type QuickItem } from '../engine/quickItems';
 import type { Subject } from '../engine/tracks';
 import { say, stopSpeech, tapSay } from '../audio/speech';
 import { fresh } from '../engine/recent';
+import { Emoji } from '../components/Icon';
 
 interface Props {
   subject: Subject;
@@ -33,7 +34,7 @@ export function StartPoint({ subject, onPick, onCheck, onExit }: { subject: Subj
       <div className="presets">
         {presets.map((p) => (
           <button key={p.id} className="preset" onClick={() => onPick(PRESETS[p.id][subject])}>
-            <span className="preset-emoji">{p.emoji}</span>
+            <span className="preset-emoji"><Emoji text={p.emoji} /></span>
             <span>{p.label}</span>
           </button>
         ))}

@@ -13,7 +13,9 @@ export default defineConfig({
       workbox: {
         // Move mode's MediaPipe files (~23 MB) are too big to precache: skip them here and cache them
         // the first time Move mode loads them, so Move mode works offline afterwards (M4b).
-        globIgnores: ['mediapipe/**'],
+        globIgnores: ['mediapipe/**', 'prototypes/**'],
+        // Fonts and the bundled Fluent Emoji icons (I1) are precached so pictures work offline.
+        globPatterns: ['**/*.{js,css,html,svg,woff2,webmanifest}'],
         runtimeCaching: [
           {
             // A RegExp (not a function) so it is inlined into the generated sw.js.
