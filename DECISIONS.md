@@ -2,6 +2,12 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-17 — Move mode offline (M4b)
+- **Models committed, wasm copied at build**: the two `.task` models (hand 7.8 MB, pose lite 5.8 MB, Apache 2.0) are committed under `public/mediapipe/models/`. The wasm runtime (~19 MB for SIMD + no-SIMD) is *not* committed: `scripts/copy-mediapipe.mjs` copies it from `node_modules/@mediapipe/tasks-vision/wasm` before `npm run dev` / `npm run build` (npm pre-scripts), so it always matches the installed package version and keeps git small. Both variants ship because MediaPipe picks one per browser; only the one used gets cached.
+- **Caching**: `mediapipe/**` is excluded from the precache (would add ~33 MB to every install, even for touch-only players) and runtime-cached **CacheFirst** in `mediapipe-v1` the first time Move mode starts. Bump the cache name when upgrading `@mediapipe/tasks-vision` (noted in `public/mediapipe/README.md`).
+- **CDN fallback kept**: the tracker tries the self-hosted copy first and falls back to jsDelivr / Google Storage if it fails (e.g. a host build command that skips the npm pre-script). Offline with nothing cached → same error path as before.
+- Checked with `vite preview` that the files are served (wasm as `application/wasm`); not yet tried with a real camera or in airplane mode on a device.
+
 ## 2026-11-17 — TV mode: scroll pads always there, bigger menus, steadier cursor (Ankit)
 - **Scroll pads**: they appeared only after a player had claimed the turn ("⭐ Playing"), so in TV mode — where the turn drops whenever the player lowers their hand or steps out — they were mostly hidden. They now show whenever Move mode's camera is running and the page can scroll that way (`padsVisible`). Hand mode already showed them almost all the time, which is why the laptop looked right.
 - **Bigger buttons**: new `body.move-tv` class (Move mode + "standing back"). Menus and small targets grow: ⬅️ Back / 🔊 / home top buttons ≈ 120 px on a 1080p TV (were ≈ 97), level chips ≈ 108 px (were 65), track rows, starting-point choices, avatars, profile cards, story answers. Kept the root size unchanged: a 1.15× / 1.35× global scale-up was tried at 1080p and pushed answer buttons below the fold in Missing number, Tens and ones, Story sums, Add within 20 and Stories. Game answer buttons were already 110–300 px.
