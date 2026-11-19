@@ -16,6 +16,7 @@ import { newStory, patternCap, playableCached, fallbackStory, TOPIC_ICONS } from
 /** Silence between story lines when reading aloud: a breath, so each sentence lands. */
 const LINE_PAUSE_MS = 650;
 import { feedback } from '../../components/Feedback';
+import { Icon } from '../../components/Icon';
 
 const QUESTIONS_PER_STORY = 2;
 const TOTAL = STORIES_PER_ROUND * QUESTIONS_PER_STORY;
@@ -285,7 +286,7 @@ export function StoryChoose({ profileId, onDone, onExit }: Props) {
           <div className="topic-grid">
             {STORY_TOPICS.map((t) => (
               <button key={t} className="topic-btn" onClick={() => pickTopic(t)} aria-label={t}>
-                <span aria-hidden="true">{TOPIC_ICONS[t]}</span>
+                <span aria-hidden="true"><Icon name={TOPIC_ICONS[t]} /></span>
               </button>
             ))}
           </div>

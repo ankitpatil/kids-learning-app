@@ -10,7 +10,7 @@ import { fresh } from '../../engine/recent';
 import { feedback } from '../../components/Feedback';
 import { ai } from '../../ai/app';
 import { createWhyHinter } from '../../ai/whyHint';
-import { Emoji } from '../../components/Icon';
+import { Icon } from '../../components/Icon';
 
 const ROUND_LENGTH = 8;
 const TRACK = 'endings';
@@ -138,7 +138,7 @@ export function WordBuilder({ profileId, onDone, onExit }: Props) {
         <button className="icon-btn" onClick={() => tapSay(prompt(item))} aria-label="Say again">🔊</button>
       </div>
 
-      <div className="sentence-clue" aria-hidden="true"><Emoji text={item.emoji.repeat(item.emojiCount)} /></div>
+      <div className="sentence-clue" aria-hidden="true">{Array.from({ length: item.iconCount }, (_, i) => <Icon key={i} name={item.icon} />)}</div>
 
       <p className={`sentence-text ${mood}`}>
         {item.before}{' '}

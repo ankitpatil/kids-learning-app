@@ -9,7 +9,7 @@ import { fresh } from '../../engine/recent';
 import { feedback } from '../../components/Feedback';
 import { ai } from '../../ai/app';
 import { createWhyHinter } from '../../ai/whyHint';
-import { Emoji } from '../../components/Icon';
+import { Icon } from '../../components/Icon';
 
 const ROUND_LENGTH = 8;
 
@@ -130,14 +130,14 @@ export function WordDetective({ profileId, trackId, onDone, onExit }: Props) {
     return (await hinter.current.hint(it.id, misses.current, ctx, canned)).text;
   }
 
-  async function pickPicture(emoji: string, word: string) {
-    if (!item || item.kind !== 'read' || busy.current || tried.includes(emoji)) return;
+  async function pickPicture(icon: string, word: string) {
+    if (!item || item.kind !== 'read' || busy.current || tried.includes(icon)) return;
     busy.current = true;
-    if (emoji === item.answer) return success();
+    if (icon === item.answer) return success();
     await record(false);
     feedback('wrong');
     hinted.current = true;
-    setTried((t) => [...t, emoji]);
+    setTried((t) => [...t, icon]);
     setMood('oops');
     // Hint: name the picture they tapped and sound out the word by its letters.
     const look = `Look again: ${item.word.split('').join(', ')}.`;
@@ -232,7 +232,7 @@ export function WordDetective({ profileId, trackId, onDone, onExit }: Props) {
 
       {item.kind === 'sentence' ? (
         <>
-          {item.emoji && <div className="sentence-clue" aria-hidden="true"><Emoji text={item.emoji} /></div>}
+          {item.icon && <div className="sentence-clue" aria-hidden="true"><Icon name={item.icon} /></div>}
           <p className={`sentence-text ${mood}`}>
             {item.before}{' '}
             <span className={`blank ${mood === 'yay' ? 'filled' : ''}`}>{mood === 'yay' ? item.word : '\u00a0'}</span>
@@ -263,12 +263,12 @@ export function WordDetective({ profileId, trackId, onDone, onExit }: Props) {
           <div className={`picture-grid n${item.pictures.length}`}>
             {item.pictures.map((p) => (
               <button
-                key={p.emoji}
-                className={`picture-choice ${tried.includes(p.emoji) ? 'tried' : ''} ${mood === 'yay' && p.emoji === item.answer ? 'right' : ''}`}
-                onClick={() => pickPicture(p.emoji, p.word)}
+                key={p.icon}
+                className={`picture-choice ${tried.includes(p.icon) ? 'tried' : ''} ${mood === 'yay' && p.icon === item.answer ? 'right' : ''}`}
+                onClick={() => pickPicture(p.icon, p.word)}
                 aria-label={`Picture ${tried.length ? p.word : ''}`}
               >
-                <Emoji text={p.emoji} />
+                <Icon name={p.icon} />
               </button>
             ))}
           </div>
@@ -276,7 +276,7 @@ export function WordDetective({ profileId, trackId, onDone, onExit }: Props) {
       ) : (
         <>
           <button className="picture-card" onClick={() => tapSay(item.word)} aria-label="Hear the word again">
-            <span className="picture"><Emoji text={item.emoji} /></span>
+            <span className="picture"><Icon name={item.icon} /></span>
           </button>
           <div className={`slots ${mood}`}>
             {placed.map((p, i) => (

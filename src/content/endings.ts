@@ -2,35 +2,35 @@
 // so the child only has to choose the ending from the sentence's time clue.
 export interface EndingVerb {
   base: string;
-  emoji: string;
+  icon: string;
 }
 export interface EndingNoun {
   base: string;
-  emoji: string;
+  icon: string;
 }
 
 export const ENDING_VERBS: EndingVerb[] = [
-  { base: 'jump', emoji: '🦘' },
-  { base: 'play', emoji: '🧸' },
-  { base: 'walk', emoji: '🚶' },
-  { base: 'cook', emoji: '🍳' },
-  { base: 'paint', emoji: '🎨' },
-  { base: 'climb', emoji: '🧗' },
-  { base: 'rest', emoji: '😴' },
-  { base: 'laugh', emoji: '😂' },
-  { base: 'kick', emoji: '⚽' },
-  { base: 'help', emoji: '🤝' },
+  { base: 'jump', icon: 'kangaroo' },
+  { base: 'play', icon: 'teddy-bear' },
+  { base: 'walk', icon: 'person-walking' },
+  { base: 'cook', icon: 'cooking' },
+  { base: 'paint', icon: 'artist-palette' },
+  { base: 'climb', icon: 'person-climbing' },
+  { base: 'rest', icon: 'sleeping-face' },
+  { base: 'laugh', icon: 'face-with-tears-of-joy' },
+  { base: 'kick', icon: 'soccer-ball' },
+  { base: 'help', icon: 'handshake' },
 ];
 
 export const ENDING_NOUNS: EndingNoun[] = [
-  { base: 'cat', emoji: '🐱' },
-  { base: 'dog', emoji: '🐶' },
-  { base: 'duck', emoji: '🦆' },
-  { base: 'frog', emoji: '🐸' },
-  { base: 'hat', emoji: '🎩' },
-  { base: 'ship', emoji: '🚢' },
-  { base: 'kite', emoji: '🪁' },
-  { base: 'cup', emoji: '☕' },
+  { base: 'cat', icon: 'cat-face' },
+  { base: 'dog', icon: 'dog-face' },
+  { base: 'duck', icon: 'duck' },
+  { base: 'frog', icon: 'frog' },
+  { base: 'hat', icon: 'top-hat' },
+  { base: 'ship', icon: 'ship' },
+  { base: 'kite', icon: 'kite' },
+  { base: 'cup', icon: 'hot-beverage' },
 ];
 
 export type Ending = 's' | 'ed' | 'ing';

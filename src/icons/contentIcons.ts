@@ -1,0 +1,31 @@
+// I1b: every icon *name* the content refers to (words, stories, stickers, tracks…). Content stores
+// Fluent Emoji names, not raw emoji; `npm run icons` loads this module (through Vite) to know which
+// SVGs to bundle, and a test checks each name resolves to a bundled file.
+import { WORDS, MAGIC_E, SENTENCES } from '../content/words';
+import { ENDING_VERBS, ENDING_NOUNS } from '../content/endings';
+import { STICKERS } from '../content/stickers';
+import { THINGS } from '../content/wordProblems';
+import { STORIES } from '../content/stories';
+import { TRACKS } from '../engine/tracks';
+import { LETTERS } from '../games/phonicsPop/letters';
+import { TOPIC_ICONS } from '../games/stories/aiStory';
+
+/** Icon names used by each content source (for clear test failures). */
+export function contentIconSources(): Record<string, string[]> {
+  return {
+    words: Object.values(WORDS).flat().map((w) => w.icon),
+    magicE: MAGIC_E.flatMap((p) => [p.shortIcon, p.longIcon]),
+    sentences: SENTENCES.map((s) => s.icon),
+    endings: [...ENDING_VERBS, ...ENDING_NOUNS].map((e) => e.icon),
+    stickers: STICKERS.map((s) => s.icon),
+    wordProblems: THINGS.map((t) => t.icon),
+    stories: STORIES.map((s) => s.icon),
+    tracks: TRACKS.map((t) => t.icon),
+    letters: Object.values(LETTERS).map((l) => l.icon),
+    storyTopics: Object.values(TOPIC_ICONS),
+  };
+}
+
+export function contentIconNames(): string[] {
+  return [...new Set(Object.values(contentIconSources()).flat())].sort();
+}

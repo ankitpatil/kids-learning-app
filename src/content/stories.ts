@@ -22,7 +22,7 @@ export interface StoryQuestion {
 export interface Story {
   id: string;
   title: string;
-  emoji: string;
+  icon: string;
   /** Hardest phonics pattern the story uses. */
   pattern: Pattern;
   /** One sentence per line. Text only: no pictures beside the lines, so a child can't match a picture to an answer (SPEC "Stories"). */
@@ -35,7 +35,7 @@ const C = (text: string): StoryChoice => ({ text });
 export const STORIES: Story[] = [
   // ---------- CVC ----------
   {
-    id: 'sam-cat', title: 'Sam and the Cat', emoji: '🐱', pattern: 'cvc',
+    id: 'sam-cat', title: 'Sam and the Cat', icon: 'cat-face', pattern: 'cvc',
     lines: [
       { text: 'Sam has a fat cat.' },
       { text: 'Sam got a big red hat.' },
@@ -49,7 +49,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'raj-bus', title: 'Raj on the Bus', emoji: '🚌', pattern: 'cvc',
+    id: 'raj-bus', title: 'Raj on the Bus', icon: 'bus', pattern: 'cvc',
     lines: [
       { text: 'Raj got on the bus.' },
       { text: 'The bus is big and red.' },
@@ -63,7 +63,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'meg-pup', title: 'Meg and the Pup', emoji: '🐶', pattern: 'cvc',
+    id: 'meg-pup', title: 'Meg and the Pup', icon: 'dog-face', pattern: 'cvc',
     lines: [
       { text: 'Meg has a pup.' },
       { text: 'The pup can dig.' },
@@ -77,7 +77,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'fox-box', title: 'The Fox and the Box', emoji: '🦊', pattern: 'cvc',
+    id: 'fox-box', title: 'The Fox and the Box', icon: 'fox', pattern: 'cvc',
     lines: [
       { text: 'A fox sat on a log.' },
       { text: 'The fox can see a big box.' },
@@ -91,7 +91,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'ben-sun', title: 'Ben in the Sun', emoji: '☀️', pattern: 'cvc',
+    id: 'ben-sun', title: 'Ben in the Sun', icon: 'sun', pattern: 'cvc',
     lines: [
       { text: 'It is hot in the sun.' },
       { text: 'Ben has a big hat.' },
@@ -105,7 +105,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'ved-jam', title: 'Ved and the Jam', emoji: '🍞', pattern: 'cvc',
+    id: 'ved-jam', title: 'Ved and the Jam', icon: 'bread', pattern: 'cvc',
     lines: [
       { text: 'Ved has a bun.' },
       { text: 'Mom got jam.' },
@@ -119,7 +119,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'kim-hen', title: 'Kim and the Hen', emoji: '🐔', pattern: 'cvc',
+    id: 'kim-hen', title: 'Kim and the Hen', icon: 'chicken', pattern: 'cvc',
     lines: [
       { text: 'Kim has a hen.' },
       { text: 'The hen is red.' },
@@ -133,7 +133,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'dev-van', title: 'Dev and the Van', emoji: '🚐', pattern: 'cvc',
+    id: 'dev-van', title: 'Dev and the Van', icon: 'minibus', pattern: 'cvc',
     lines: [
       { text: 'Dad has a tan van.' },
       { text: 'Dev got in the van.' },
@@ -147,7 +147,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'pam-pig', title: 'Pam and the Pig', emoji: '🐷', pattern: 'cvc',
+    id: 'pam-pig', title: 'Pam and the Pig', icon: 'pig-face', pattern: 'cvc',
     lines: [
       { text: 'Pam has a pet pig.' },
       { text: 'Pam got a big tub.' },
@@ -161,7 +161,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'ram-rug', title: 'The Big Rug', emoji: '🧶', pattern: 'cvc',
+    id: 'ram-rug', title: 'The Big Rug', icon: 'yarn', pattern: 'cvc',
     lines: [
       { text: 'Ram has a big rug.' },
       { text: 'Mom said, Sit on the rug.' },
@@ -175,7 +175,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'jen-mop', title: 'Jen Can Mop', emoji: '🧹', pattern: 'cvc',
+    id: 'jen-mop', title: 'Jen Can Mop', icon: 'broom', pattern: 'cvc',
     lines: [
       { text: 'Jen had a cup of pop.' },
       { text: 'Bam! The pop is on the mat.' },
@@ -189,7 +189,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'gus-wig', title: 'Gus and the Wig', emoji: '🐕', pattern: 'cvc',
+    id: 'gus-wig', title: 'Gus and the Wig', icon: 'dog', pattern: 'cvc',
     lines: [
       { text: 'Gus has a big red wig.' },
       { text: 'Gus put the wig on his dog.' },
@@ -203,7 +203,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'pip-yak', title: 'Pip the Yak', emoji: '🐂', pattern: 'cvc',
+    id: 'pip-yak', title: 'Pip the Yak', icon: 'ox', pattern: 'cvc',
     lines: [
       { text: 'Pip is a big yak.' },
       { text: 'Pip got a pot and a lid.' },
@@ -219,7 +219,7 @@ export const STORIES: Story[] = [
 
   // ---------- Digraphs (sh ch th ck, ll ss ff) ----------
   {
-    id: 'josh-ship', title: 'The Big Ship', emoji: '🚢', pattern: 'digraphs',
+    id: 'josh-ship', title: 'The Big Ship', icon: 'ship', pattern: 'digraphs',
     lines: [
       { text: 'Josh is on a ship.' },
       { text: 'Josh can see a fish.' },
@@ -233,7 +233,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'chen-chick', title: 'Chen and the Chick', emoji: '🐥', pattern: 'digraphs',
+    id: 'chen-chick', title: 'Chen and the Chick', icon: 'front-facing-baby-chick', pattern: 'digraphs',
     lines: [
       { text: 'Chen has a chick.' },
       { text: 'The chick can peck.' },
@@ -247,7 +247,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'duck-path', title: 'Duck on the Path', emoji: '🦆', pattern: 'digraphs',
+    id: 'duck-path', title: 'Duck on the Path', icon: 'duck', pattern: 'digraphs',
     lines: [
       { text: 'A duck is on the path.' },
       { text: 'The duck can get a bug.' },
@@ -261,7 +261,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'ash-ball', title: 'Ash Hits the Ball', emoji: '🏏', pattern: 'digraphs',
+    id: 'ash-ball', title: 'Ash Hits the Ball', icon: 'cricket-game', pattern: 'digraphs',
     lines: [
       { text: 'Ash has a bat and a ball.' },
       { text: 'Dad will toss the ball.' },
@@ -275,7 +275,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'beth-fish', title: 'Beth at the Fish Shop', emoji: '🐟', pattern: 'digraphs',
+    id: 'beth-fish', title: 'Beth at the Fish Shop', icon: 'fish', pattern: 'digraphs',
     lines: [
       { text: 'Beth and Mom go to the shop.' },
       { text: 'The shop has pet fish.' },
@@ -289,7 +289,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'chad-sock', title: 'Where Is the Sock?', emoji: '🧦', pattern: 'digraphs',
+    id: 'chad-sock', title: 'Where Is the Sock?', icon: 'socks', pattern: 'digraphs',
     lines: [
       { text: 'Chad has one red sock.' },
       { text: 'Where is the sock?' },
@@ -303,7 +303,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'king-ring', title: 'The King and the Ring', emoji: '👑', pattern: 'digraphs',
+    id: 'king-ring', title: 'The King and the Ring', icon: 'crown', pattern: 'digraphs',
     lines: [
       { text: 'A king had a ring.' },
       { text: 'The ring fell in the well!' },
@@ -317,7 +317,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'seth-chips', title: 'Seth and the Chips', emoji: '🍟', pattern: 'digraphs',
+    id: 'seth-chips', title: 'Seth and the Chips', icon: 'french-fries', pattern: 'digraphs',
     lines: [
       { text: 'Seth has ten chips.' },
       { text: 'His pal Shan has six chips.' },
@@ -331,7 +331,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'chip-nap', title: 'The Long Nap', emoji: '🐶', pattern: 'digraphs',
+    id: 'chip-nap', title: 'The Long Nap', icon: 'dog-face', pattern: 'digraphs',
     lines: [
       { text: 'Chip the dog had a nap.' },
       { text: 'It was a long, long nap.' },
@@ -345,7 +345,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'yak-bath', title: 'Bath for a Yak', emoji: '🛁', pattern: 'digraphs',
+    id: 'yak-bath', title: 'Bath for a Yak', icon: 'bathtub', pattern: 'digraphs',
     lines: [
       { text: 'Ash has a pet yak.' },
       { text: 'The yak has much mud on it.' },
@@ -361,7 +361,7 @@ export const STORIES: Story[] = [
 
   // ---------- Blends ----------
   {
-    id: 'frog-pond', title: 'The Frog in the Pond', emoji: '🐸', pattern: 'blends',
+    id: 'frog-pond', title: 'The Frog in the Pond', icon: 'frog', pattern: 'blends',
     lines: [
       { text: 'A frog sits on a log in the pond.' },
       { text: 'The frog can jump and swim.' },
@@ -375,7 +375,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'dev-drum', title: 'Dev and the Drum', emoji: '🥁', pattern: 'blends',
+    id: 'dev-drum', title: 'Dev and the Drum', icon: 'drum', pattern: 'blends',
     lines: [
       { text: 'Dev has a drum.' },
       { text: 'Dev hits the drum. Bam! Bam!' },
@@ -389,7 +389,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'fran-tent', title: 'The Camp Trip', emoji: '⛺', pattern: 'blends',
+    id: 'fran-tent', title: 'The Camp Trip', icon: 'tent', pattern: 'blends',
     lines: [
       { text: 'Fran and Dad went on a trip.' },
       { text: 'They set up a tent.' },
@@ -403,7 +403,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'drip-drop', title: 'Drip, Drop!', emoji: '🌧️', pattern: 'blends',
+    id: 'drip-drop', title: 'Drip, Drop!', icon: 'cloud-with-rain', pattern: 'blends',
     lines: [
       { text: 'Drip, drop! It is wet.' },
       { text: 'Trish and Brad jump and splash.' },
@@ -417,7 +417,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'glen-plan', title: 'Glen Has a Plan', emoji: '🚀', pattern: 'blends',
+    id: 'glen-plan', title: 'Glen Has a Plan', icon: 'rocket', pattern: 'blends',
     lines: [
       { text: 'Glen has a plan.' },
       { text: 'He will get a box and a lid.' },
@@ -431,7 +431,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'fran-crab', title: 'The Crab on the Sand', emoji: '🦀', pattern: 'blends',
+    id: 'fran-crab', title: 'The Crab on the Sand', icon: 'crab', pattern: 'blends',
     lines: [
       { text: 'Fran is on the sand.' },
       { text: 'A crab runs past.' },
@@ -445,7 +445,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'dev-lamps', title: 'Ten Lamps', emoji: '🪔', pattern: 'blends',
+    id: 'dev-lamps', title: 'Ten Lamps', icon: 'diya-lamp', pattern: 'blends',
     lines: [
       { text: 'Mom and Dev lit lamps.' },
       { text: 'Dev lit ten lamps.' },
@@ -459,7 +459,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'brad-swim', title: 'Brad Can Swim', emoji: '🏊', pattern: 'blends',
+    id: 'brad-swim', title: 'Brad Can Swim', icon: 'person-swimming', pattern: 'blends',
     lines: [
       { text: 'Brad and Mom went to the pond.' },
       { text: 'Brad will swim.' },
@@ -473,7 +473,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'pig-dress', title: 'Pig in a Pink Dress', emoji: '👗', pattern: 'blends',
+    id: 'pig-dress', title: 'Pig in a Pink Dress', icon: 'dress', pattern: 'blends',
     lines: [
       { text: 'Pig has a pink dress.' },
       { text: 'Pig has a pink hat.' },
@@ -487,7 +487,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'stan-gift', title: 'The Big Gift', emoji: '🎁', pattern: 'blends',
+    id: 'stan-gift', title: 'The Big Gift', icon: 'wrapped-gift', pattern: 'blends',
     lines: [
       { text: 'Stan has a gift for Gran.' },
       { text: 'It is in a big box.' },
@@ -503,7 +503,7 @@ export const STORIES: Story[] = [
 
   // ---------- Silent e ----------
   {
-    id: 'kate-kite', title: 'Kate and the Kite', emoji: '🪁', pattern: 'silentE',
+    id: 'kate-kite', title: 'Kate and the Kite', icon: 'kite', pattern: 'silentE',
     lines: [
       { text: 'Kate has a kite.' },
       { text: 'The kite is red and white.' },
@@ -517,7 +517,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'mike-bike', title: 'A Bike Ride', emoji: '🚲', pattern: 'silentE',
+    id: 'mike-bike', title: 'A Bike Ride', icon: 'bicycle', pattern: 'silentE',
     lines: [
       { text: 'Mike has a red bike.' },
       { text: 'Mike rides his bike to the lake.' },
@@ -531,7 +531,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'jane-cake', title: 'Jane Bakes a Cake', emoji: '🎂', pattern: 'silentE',
+    id: 'jane-cake', title: 'Jane Bakes a Cake', icon: 'birthday-cake', pattern: 'silentE',
     lines: [
       { text: 'Jane will bake a cake.' },
       { text: 'She has a pan and a plate.' },
@@ -545,7 +545,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'rose-rope', title: 'Jump Rope', emoji: '🪢', pattern: 'silentE',
+    id: 'rose-rope', title: 'Jump Rope', icon: 'knot', pattern: 'silentE',
     lines: [
       { text: 'Rose has a long rope.' },
       { text: 'Rose and Kate skip in the lane.' },
@@ -559,7 +559,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'pete-space', title: 'The Space Ride', emoji: '🚀', pattern: 'silentE',
+    id: 'pete-space', title: 'The Space Ride', icon: 'rocket', pattern: 'silentE',
     lines: [
       { text: 'Pete made a ship from a tube.' },
       { text: 'Pete and Jane ride in space.' },
@@ -573,7 +573,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'kate-lime', title: 'Grapes and a Lime', emoji: '🍋', pattern: 'silentE',
+    id: 'kate-lime', title: 'Grapes and a Lime', icon: 'lemon', pattern: 'silentE',
     lines: [
       { text: 'Mom has grapes and a lime.' },
       { text: 'Kate likes grapes.' },
@@ -587,7 +587,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'jane-hide', title: 'Can You Hide?', emoji: '🙈', pattern: 'silentE',
+    id: 'jane-hide', title: 'Can You Hide?', icon: 'see-no-evil-monkey', pattern: 'silentE',
     lines: [
       { text: 'Jane and Pete hide.' },
       { text: 'Pete hides in the shed.' },
@@ -601,7 +601,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'mike-home', title: 'Time to Go Home', emoji: '🏠', pattern: 'silentE',
+    id: 'mike-home', title: 'Time to Go Home', icon: 'house', pattern: 'silentE',
     lines: [
       { text: 'It is late.' },
       { text: 'The sun sets.' },
@@ -615,7 +615,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'snake-cake', title: 'The Snake and the Cake', emoji: '🐍', pattern: 'silentE',
+    id: 'snake-cake', title: 'The Snake and the Cake', icon: 'snake', pattern: 'silentE',
     lines: [
       { text: 'Jake bakes a cake.' },
       { text: 'He sets it on a plate.' },
@@ -629,7 +629,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'mule-flute', title: 'Duke and the Flute', emoji: '🎵', pattern: 'silentE',
+    id: 'mule-flute', title: 'Duke and the Flute', icon: 'musical-note', pattern: 'silentE',
     lines: [
       { text: 'Duke the mule has a flute.' },
       { text: 'Duke can make a tune.' },
@@ -645,7 +645,7 @@ export const STORIES: Story[] = [
 
   // ---------- Vowel teams (ee ai oa) ----------
   {
-    id: 'goat-rain', title: 'The Goat in the Rain', emoji: '🐐', pattern: 'vowelTeams',
+    id: 'goat-rain', title: 'The Goat in the Rain', icon: 'goat', pattern: 'vowelTeams',
     lines: [
       { text: 'A goat is in the rain.' },
       { text: 'The goat is wet. It wants a coat.' },
@@ -659,7 +659,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'neel-boat', title: 'Sail the Boat', emoji: '⛵', pattern: 'vowelTeams',
+    id: 'neel-boat', title: 'Sail the Boat', icon: 'sailboat', pattern: 'vowelTeams',
     lines: [
       { text: 'Neel and his dad sail in a boat.' },
       { text: 'The boat floats on the lake.' },
@@ -673,7 +673,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'jai-train', title: 'Jai and the Train', emoji: '🚆', pattern: 'vowelTeams',
+    id: 'jai-train', title: 'Jai and the Train', icon: 'train', pattern: 'vowelTeams',
     lines: [
       { text: 'Jai and Mom wait for the train.' },
       { text: 'The train is late.' },
@@ -687,7 +687,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'neel-seeds', title: 'Neel and the Seeds', emoji: '🌱', pattern: 'vowelTeams',
+    id: 'neel-seeds', title: 'Neel and the Seeds', icon: 'seedling', pattern: 'vowelTeams',
     lines: [
       { text: 'Neel has a green tree.' },
       { text: 'A bee sits on the tree.' },
@@ -701,7 +701,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'gail-snail', title: 'Gail and the Snail', emoji: '🐌', pattern: 'vowelTeams',
+    id: 'gail-snail', title: 'Gail and the Snail', icon: 'snail', pattern: 'vowelTeams',
     lines: [
       { text: 'Gail has a pet snail.' },
       { text: 'The snail sits on a pail.' },
@@ -715,7 +715,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'neel-toast', title: 'Toast for Dad', emoji: '🍞', pattern: 'vowelTeams',
+    id: 'neel-toast', title: 'Toast for Dad', icon: 'bread', pattern: 'vowelTeams',
     lines: [
       { text: 'Neel wakes up.' },
       { text: 'He makes toast for Dad.' },
@@ -729,7 +729,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'jai-coat', title: 'The Red Coat', emoji: '🧥', pattern: 'vowelTeams',
+    id: 'jai-coat', title: 'The Red Coat', icon: 'coat', pattern: 'vowelTeams',
     lines: [
       { text: 'Jai has a red coat.' },
       { text: 'He and Mom go on the road.' },
@@ -743,7 +743,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'gail-sheep', title: 'Feed the Sheep', emoji: '🐑', pattern: 'vowelTeams',
+    id: 'gail-sheep', title: 'Feed the Sheep', icon: 'ewe', pattern: 'vowelTeams',
     lines: [
       { text: 'Gail and Neel feed the sheep.' },
       { text: 'The sheep need oats.' },
@@ -757,7 +757,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'toad-boat', title: 'Toad on a Boat', emoji: '🐸', pattern: 'vowelTeams',
+    id: 'toad-boat', title: 'Toad on a Boat', icon: 'frog', pattern: 'vowelTeams',
     lines: [
       { text: 'A toad gets on a boat.' },
       { text: 'The toad has a coat and a pail.' },
@@ -771,7 +771,7 @@ export const STORIES: Story[] = [
     ],
   },
   {
-    id: 'dee-sheep', title: 'Dee Can Not Sleep', emoji: '🐑', pattern: 'vowelTeams',
+    id: 'dee-sheep', title: 'Dee Can Not Sleep', icon: 'ewe', pattern: 'vowelTeams',
     lines: [
       { text: 'Dee the sheep can not sleep.' },
       { text: 'She sees goats jump a gate.' },

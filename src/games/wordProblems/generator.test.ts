@@ -183,7 +183,7 @@ describe('story sums: C2 content', () => {
   });
   it('every thing has a picture; animals have a place; everything else has a category with a setting', () => {
     for (const t of THINGS) {
-      expect(t.emoji).toBeTruthy();
+      expect(t.icon).toBeTruthy();
       if (t.comes) expect(t.place).toBeTruthy();
       else expect(settingsFor(t).length).toBeGreaterThan(0);
     }

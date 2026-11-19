@@ -4,35 +4,35 @@
 export interface LetterInfo {
   letter: string;
   word: string;
-  emoji: string;
+  icon: string;
 }
 
 export const LETTERS: Record<string, LetterInfo> = {
-  s: { letter: 's', word: 'sun', emoji: '☀️' },
-  a: { letter: 'a', word: 'apple', emoji: '🍎' },
-  t: { letter: 't', word: 'tiger', emoji: '🐯' },
-  p: { letter: 'p', word: 'pig', emoji: '🐷' },
-  i: { letter: 'i', word: 'insect', emoji: '🐜' },
-  n: { letter: 'n', word: 'nest', emoji: '🪺' },
-  m: { letter: 'm', word: 'moon', emoji: '🌙' },
-  d: { letter: 'd', word: 'dog', emoji: '🐶' },
-  g: { letter: 'g', word: 'goat', emoji: '🐐' },
-  o: { letter: 'o', word: 'octopus', emoji: '🐙' },
-  c: { letter: 'c', word: 'cat', emoji: '🐱' },
-  k: { letter: 'k', word: 'kite', emoji: '🪁' },
-  e: { letter: 'e', word: 'egg', emoji: '🥚' },
-  u: { letter: 'u', word: 'umbrella', emoji: '☂️' },
-  r: { letter: 'r', word: 'rabbit', emoji: '🐰' },
-  h: { letter: 'h', word: 'hat', emoji: '🎩' },
-  b: { letter: 'b', word: 'ball', emoji: '⚽' },
-  f: { letter: 'f', word: 'fish', emoji: '🐟' },
-  l: { letter: 'l', word: 'lion', emoji: '🦁' },
-  j: { letter: 'j', word: 'jellyfish', emoji: '🪼' },
-  v: { letter: 'v', word: 'van', emoji: '🚐' },
-  w: { letter: 'w', word: 'worm', emoji: '🪱' },
-  y: { letter: 'y', word: 'yo-yo', emoji: '🪀' },
-  z: { letter: 'z', word: 'zebra', emoji: '🦓' },
-  q: { letter: 'q', word: 'queen', emoji: '👑' },
+  s: { letter: 's', word: 'sun', icon: 'sun' },
+  a: { letter: 'a', word: 'apple', icon: 'red-apple' },
+  t: { letter: 't', word: 'tiger', icon: 'tiger-face' },
+  p: { letter: 'p', word: 'pig', icon: 'pig-face' },
+  i: { letter: 'i', word: 'insect', icon: 'ant' },
+  n: { letter: 'n', word: 'nest', icon: 'nest-with-eggs' },
+  m: { letter: 'm', word: 'moon', icon: 'crescent-moon' },
+  d: { letter: 'd', word: 'dog', icon: 'dog-face' },
+  g: { letter: 'g', word: 'goat', icon: 'goat' },
+  o: { letter: 'o', word: 'octopus', icon: 'octopus' },
+  c: { letter: 'c', word: 'cat', icon: 'cat-face' },
+  k: { letter: 'k', word: 'kite', icon: 'kite' },
+  e: { letter: 'e', word: 'egg', icon: 'egg' },
+  u: { letter: 'u', word: 'umbrella', icon: 'umbrella' },
+  r: { letter: 'r', word: 'rabbit', icon: 'rabbit-face' },
+  h: { letter: 'h', word: 'hat', icon: 'top-hat' },
+  b: { letter: 'b', word: 'ball', icon: 'soccer-ball' },
+  f: { letter: 'f', word: 'fish', icon: 'fish' },
+  l: { letter: 'l', word: 'lion', icon: 'lion' },
+  j: { letter: 'j', word: 'jellyfish', icon: 'jellyfish' },
+  v: { letter: 'v', word: 'van', icon: 'minibus' },
+  w: { letter: 'w', word: 'worm', icon: 'worm' },
+  y: { letter: 'y', word: 'yo-yo', icon: 'yo-yo' },
+  z: { letter: 'z', word: 'zebra', icon: 'zebra' },
+  q: { letter: 'q', word: 'queen', icon: 'crown' },
   // 'x' is left out: no common picture word starts with its /ks/ sound.
 };
 

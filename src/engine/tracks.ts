@@ -19,7 +19,7 @@ export interface TrackDef {
   id: string;
   subject: Subject;
   name: string;
-  emoji: string;
+  icon: string;
   /** True when a game can be played for this track today. */
   playable: boolean;
   levels: LevelConfig[];
@@ -36,70 +36,70 @@ const L = (label: string, range: number, representation: Representation, distrac
 export const TRACKS: TrackDef[] = [
   // ---------- Math ----------
   {
-    id: 'count', subject: 'math', name: 'Counting', emoji: '🍪', playable: true,
+    id: 'count', subject: 'math', name: 'Counting', icon: 'cookie', playable: true,
     levels: [3, 5, 7, 10, 15, 20].map((n, i) => L(`up to ${n}`, n, 'concrete', 'far', i < 2)),
   },
   {
-    id: 'add10', subject: 'math', name: 'Add within 10', emoji: '➕', playable: true,
+    id: 'add10', subject: 'math', name: 'Add within 10', icon: 'plus', playable: true,
     levels: [L('within 5, pictures', 5, 'pictorial', 'far', true), L('within 10, pictures', 10, 'pictorial', 'near', true), L('within 10, numbers', 10, 'abstract', 'near', false)],
   },
   {
-    id: 'sub10', subject: 'math', name: 'Subtract within 10', emoji: '➖', playable: true,
+    id: 'sub10', subject: 'math', name: 'Subtract within 10', icon: 'minus', playable: true,
     levels: [L('within 5, pictures', 5, 'pictorial', 'far', true), L('within 10, pictures', 10, 'pictorial', 'near', true), L('within 10, numbers', 10, 'abstract', 'near', false)],
   },
   {
-    id: 'missing', subject: 'math', name: 'Missing number', emoji: '❓', playable: true,
+    id: 'missing', subject: 'math', name: 'Missing number', icon: 'red-question-mark', playable: true,
     levels: [L('a + __ = c to 10, pictures', 10, 'pictorial', 'far', true), L('a + __ = c to 10', 10, 'abstract', 'near', false), L('a + __ = c to 20', 20, 'abstract', 'near', false)],
   },
   {
-    id: 'add20', subject: 'math', name: 'Add within 20', emoji: '🔟', playable: true,
+    id: 'add20', subject: 'math', name: 'Add within 20', icon: 'keycap-10', playable: true,
     levels: [L('make 10, number line', 20, 'pictorial', 'near', true), L('within 20, numbers', 20, 'abstract', 'near', false)],
   },
   {
-    id: 'sub20', subject: 'math', name: 'Subtract within 20', emoji: '🔢', playable: true,
+    id: 'sub20', subject: 'math', name: 'Subtract within 20', icon: 'input-numbers', playable: true,
     levels: [L('back to 10, number line', 20, 'pictorial', 'near', true), L('within 20, numbers', 20, 'abstract', 'near', false)],
   },
   {
-    id: 'placeValue', subject: 'math', name: 'Tens and ones', emoji: '📦', playable: true,
+    id: 'placeValue', subject: 'math', name: 'Tens and ones', icon: 'package', playable: true,
     levels: [L('to 50, boxes of 10', 50, 'pictorial', 'far', true), L('to 100, boxes of 10', 100, 'pictorial', 'near', false), L('to 100, words', 100, 'abstract', 'near', false)],
   },
   {
-    id: 'compare2d', subject: 'math', name: 'More or fewer', emoji: '⚖️', playable: true,
+    id: 'compare2d', subject: 'math', name: 'More or fewer', icon: 'balance-scale', playable: true,
     levels: [L('far apart, boxes of 10', 100, 'pictorial', 'far', true), L('close numbers, boxes of 10', 100, 'pictorial', 'near', true), L('close numbers, numbers only', 100, 'abstract', 'near', false)],
   },
   {
     // Level = format: 0 pick the answer (pictures), 1 pick the number sentence, 2 build it (+/− then answer).
-    id: 'wordProblems', subject: 'math', name: 'Story sums', emoji: '📖', playable: true,
+    id: 'wordProblems', subject: 'math', name: 'Story sums', icon: 'open-book', playable: true,
     levels: [L('get more / take away to 10, pictures', 10, 'pictorial', 'far', true), L('pick the number sentence, to 20', 20, 'abstract', 'near', false), L('build the number sentence, to 20', 20, 'abstract', 'near', false)],
   },
-  { id: 'money', subject: 'math', name: 'Money', emoji: '🪙', playable: false, levels: [L('pay exact', 20, 'concrete', 'far', true)] },
-  { id: 'time', subject: 'math', name: 'Clock', emoji: '🕐', playable: false, levels: [L('hour and half hour', 12, 'pictorial', 'far', true)] },
-  { id: 'grouping', subject: 'math', name: 'Groups', emoji: '🧺', playable: false, levels: [L('equal groups', 20, 'concrete', 'far', true)] },
+  { id: 'money', subject: 'math', name: 'Money', icon: 'coin', playable: false, levels: [L('pay exact', 20, 'concrete', 'far', true)] },
+  { id: 'time', subject: 'math', name: 'Clock', icon: 'one-oclock', playable: false, levels: [L('hour and half hour', 12, 'pictorial', 'far', true)] },
+  { id: 'grouping', subject: 'math', name: 'Groups', icon: 'basket', playable: false, levels: [L('equal groups', 20, 'concrete', 'far', true)] },
 
   // ---------- Reading ----------
   {
-    id: 'phonics', subject: 'reading', name: 'Letter sounds', emoji: '🎈', playable: true,
+    id: 'phonics', subject: 'reading', name: 'Letter sounds', icon: 'balloon', playable: true,
     levels: ['s a t p', '+ i n', '+ m d g o', '+ c k e u r', '+ h b f l j', '+ v w y z q', 'look-alikes'].map((label, i) =>
       L(label, i, 'concrete', i >= 4 ? 'near' : 'far', true),
     ),
   },
-  { id: 'cvc', subject: 'reading', name: 'Short words', emoji: '🐱', playable: true, levels: [L('cat, dog, sun', 0, 'pictorial', 'far', true), L('cat / cap / cot', 0, 'pictorial', 'near', false)] },
-  { id: 'digraphs', subject: 'reading', name: 'sh ch th ck', emoji: '🚢', playable: true, levels: [L('ship, fish, duck', 0, 'pictorial', 'far', true), L('ship / chip / sip', 0, 'pictorial', 'near', false)] },
-  { id: 'blends', subject: 'reading', name: 'Blends', emoji: '🐸', playable: true, levels: [L('frog, star, drum', 0, 'pictorial', 'far', true), L('crab / cab / grab', 0, 'pictorial', 'near', false)] },
-  { id: 'silentE', subject: 'reading', name: 'Magic e', emoji: '🪁', playable: true, levels: [L('kite, cake, bike', 0, 'pictorial', 'far', true), L('kite / kit / bite', 0, 'pictorial', 'near', false), L('cap / cape switch', 0, 'pictorial', 'near', false)] },
-  { id: 'vowelTeams', subject: 'reading', name: 'ee ai oa', emoji: '⛵', playable: true, levels: [L('boat, rain, feet', 0, 'pictorial', 'far', true), L('boat / bat / coat', 0, 'pictorial', 'near', false)] },
+  { id: 'cvc', subject: 'reading', name: 'Short words', icon: 'cat-face', playable: true, levels: [L('cat, dog, sun', 0, 'pictorial', 'far', true), L('cat / cap / cot', 0, 'pictorial', 'near', false)] },
+  { id: 'digraphs', subject: 'reading', name: 'sh ch th ck', icon: 'ship', playable: true, levels: [L('ship, fish, duck', 0, 'pictorial', 'far', true), L('ship / chip / sip', 0, 'pictorial', 'near', false)] },
+  { id: 'blends', subject: 'reading', name: 'Blends', icon: 'frog', playable: true, levels: [L('frog, star, drum', 0, 'pictorial', 'far', true), L('crab / cab / grab', 0, 'pictorial', 'near', false)] },
+  { id: 'silentE', subject: 'reading', name: 'Magic e', icon: 'kite', playable: true, levels: [L('kite, cake, bike', 0, 'pictorial', 'far', true), L('kite / kit / bite', 0, 'pictorial', 'near', false), L('cap / cape switch', 0, 'pictorial', 'near', false)] },
+  { id: 'vowelTeams', subject: 'reading', name: 'ee ai oa', icon: 'sailboat', playable: true, levels: [L('boat, rain, feet', 0, 'pictorial', 'far', true), L('boat / bat / coat', 0, 'pictorial', 'near', false)] },
   {
-    id: 'endings', subject: 'reading', name: '-s -ed -ing', emoji: '🏃', playable: true,
+    id: 'endings', subject: 'reading', name: '-s -ed -ing', icon: 'person-running', playable: true,
     levels: [L('jumps, jumping (read to you)', 2, 'pictorial', 'far', true), L('jumps, jumped, jumping (read to you)', 3, 'pictorial', 'near', true), L('-s -ed -ing, read it yourself', 3, 'abstract', 'near', false)],
   },
   {
-    id: 'sightWords', subject: 'reading', name: 'Tricky words', emoji: '👀', playable: true,
+    id: 'sightWords', subject: 'reading', name: 'Tricky words', icon: 'eyes', playable: true,
     levels: [L('the, you, where', 0, 'abstract', 'far', false), L('was, they, said', 1, 'abstract', 'near', false), L('of, could, once', 2, 'abstract', 'near', false)],
   },
-  { id: 'sentences', subject: 'reading', name: 'Sentences', emoji: '💬', playable: true, levels: [L('finish it, with a picture', 0, 'pictorial', 'far', true), L('finish it, look-alike words', 0, 'abstract', 'near', false)] },
+  { id: 'sentences', subject: 'reading', name: 'Sentences', icon: 'speech-balloon', playable: true, levels: [L('finish it, with a picture', 0, 'pictorial', 'far', true), L('finish it, look-alike words', 0, 'abstract', 'near', false)] },
   {
     // range = hardest phonics pattern allowed (index into content/stories PATTERNS: 0 cvc … 4 vowel teams).
-    id: 'stories', subject: 'reading', name: 'Stories', emoji: '📚', playable: true,
+    id: 'stories', subject: 'reading', name: 'Stories', icon: 'books', playable: true,
     levels: [L('short-word stories, read to you', 0, 'pictorial', 'far', true), L('sh, ch, blends: you read, help on tap', 2, 'pictorial', 'near', true), L('magic e, ee ai oa: read it yourself', 4, 'abstract', 'near', false)],
   },
 ];

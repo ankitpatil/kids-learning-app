@@ -2,6 +2,13 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-18 — Content refers to icon names (I1b)
+- **Split I1b again**: I1b = content data by icon name (+ resolution test); I1c = the rest of the UI emoji (home, buttons, badges, reward, Pop balloons). Doing both in one run was too big.
+- **Names are Fluent Emoji names** (`cat-face`, `sun`, `diya-lamp`), not our own aliases: no second mapping to keep in sync, and the name says which SVG ships. A converter swapped every emoji literal in content for its name, so the pictures are unchanged.
+- **Bundling**: `npm run icons` now also loads `src/icons/contentIcons.ts` with Vite's `ssrLoadModule` (no regex conventions in content) and fails on an unknown name. The generated map gains `ICON_EMOJI` (name → emoji, single BMP symbols get U+FE0F) used for fallback text and for places that still need a plain string (the quick-item `visual` in Placement and Pop the Answer — moves to `<Icon>` in I1c).
+- **Story topic "family"** now uses `people-hugging` (🫂): 👪 had no Fluent icon, so every picture in the app is now a bundled SVG.
+- **Not changed (saved data)**: profile avatars stay emoji strings (they're stored on the device in each profile); sticker ids are unchanged, so collected stickers keep working. AI stories already cached on a device carry an old `emoji` field and no `icon`; the story icon isn't shown anywhere, so they still play.
+
 ## 2026-11-18 — Bundled icons + fonts (I1a)
 - **Split I1**: I1a = icon pipeline + fonts + the main picture spots; I1b = content files refer to icon names + the rest of the UI emoji. Converting every content file and every button in one run was too big to do well.
 - **Fluent Emoji flat** (not 3D): flat SVGs are ~1.3 KB each (234 icons ≈ 300 KB on disk, whole precache ≈ 1.1 MB), crisp at any size; 3D is PNG-only and far bigger. Source: `@iconify-json/fluent-emoji-flat` (MIT, devDependency) — its `chars.json` maps emoji → icon name, so `scripts/build-icons.mjs` scans `src/` for emoji and copies only the used icons. SVGs are committed (the build does not need the generator); a test fails if the map is stale, telling the next run to `npm run icons`.

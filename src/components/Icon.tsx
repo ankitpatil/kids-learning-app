@@ -1,8 +1,8 @@
-import { hasIcon, iconUrl, splitIcons } from '../icons/icons';
+import { hasIcon, iconEmoji, iconUrl, splitIcons } from '../icons/icons';
 
-/** A bundled Fluent Emoji picture, sized 1em like the emoji it replaces. Falls back to `fallback` text. */
-export function Icon({ name, fallback = '', label }: { name: string; fallback?: string; label?: string }) {
-  if (!hasIcon(name)) return <>{fallback}</>;
+/** A bundled Fluent Emoji picture by icon name, sized 1em like the emoji it replaces. Falls back to `fallback` text. */
+export function Icon({ name, fallback, label }: { name: string; fallback?: string; label?: string }) {
+  if (!hasIcon(name)) return <>{fallback ?? ''}</>;
   return (
     <img
       className="icon"

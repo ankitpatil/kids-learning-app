@@ -91,7 +91,7 @@ describe('phonicsWhyContext (AI3c)', () => {
   });
 
   it('catches letter names and capitals, not letters inside words', () => {
-    const ctx = (t: string) => phonicsWhyContext({ id: 'x', target: t, word: LETTERS[t].word, emoji: '', choices: [t] }, 0);
+    const ctx = (t: string) => phonicsWhyContext({ id: 'x', target: t, word: LETTERS[t].word, icon: '', choices: [t] }, 0);
     expect(leaksAnswer('Find the letter ess.', ctx('s'))).toBe(true);
     expect(leaksAnswer('It looks like a bee with a big tummy.', ctx('b'))).toBe(true);
     expect(leaksAnswer('Capital T has a hat.', ctx('t'))).toBe(true);

@@ -1,5 +1,5 @@
 // Bundled Fluent Emoji icons (I1): look-alike pictures on every device instead of system emoji.
-import { EMOJI_ICON } from './iconMap.gen';
+import { EMOJI_ICON, ICON_EMOJI } from './iconMap.gen';
 
 export function emojiKey(e: string): string {
   return e.replace(/️/g, '');
@@ -10,9 +10,14 @@ export function iconForEmoji(e: string): string | undefined {
   return EMOJI_ICON[emojiKey(e)];
 }
 
-const NAMES = new Set(Object.values(EMOJI_ICON));
+/** True when `name` is a bundled icon (every name in content or found as emoji in source). */
 export function hasIcon(name: string): boolean {
-  return NAMES.has(name);
+  return Object.prototype.hasOwnProperty.call(ICON_EMOJI, name);
+}
+
+/** The emoji for a bundled icon name: fallback text, and for places that need a plain string. */
+export function iconEmoji(name: string): string {
+  return hasIcon(name) ? ICON_EMOJI[name] : '';
 }
 
 export function iconUrl(name: string, base: string = import.meta.env?.BASE_URL ?? './'): string {

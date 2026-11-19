@@ -9,13 +9,14 @@ import { getLevel } from '../../engine/tracks';
 import { TRACK, undecodable, wordPattern, isSightWord, tokenizeWords, pickStory } from './generator';
 import type { Rng } from '../feedMonster/generator';
 
+/** Topic picker icons (bundled icon names, I1b). */
 export const TOPIC_ICONS: Record<StoryTopic, string> = {
-  cricket: '🏏',
-  animals: '🐾',
-  space: '🚀',
-  food: '🍎',
-  family: '👪',
-  festival: '🪔',
+  cricket: 'cricket-game',
+  animals: 'paw-prints',
+  space: 'rocket',
+  food: 'red-apple',
+  family: 'people-hugging',
+  festival: 'diya-lamp',
 };
 
 export const STORY_LIMITS = {
@@ -132,7 +133,7 @@ export function checkAiStory(raw: unknown, cap: number, topic: StoryTopic): Chec
   const story: Story = {
     id: `ai-${hashId(title + lineTexts.join('|'))}`,
     title: title!,
-    emoji: TOPIC_ICONS[topic],
+    icon: TOPIC_ICONS[topic],
     pattern,
     lines,
     questions,

@@ -7,7 +7,7 @@ export interface PhonicsItem {
   id: string;
   target: string;
   word: string;
-  emoji: string;
+  icon: string;
   /** Shuffled balloon letters, always includes target. */
   choices: string[];
 }
@@ -66,7 +66,7 @@ export function makePhonicsItem(level: number, rng: Rng = Math.random, ease = fa
   }
 
   const info = LETTERS[target];
-  return { id: `phonics-${target}`, target, word: info.word, emoji: info.emoji, choices: shuffle([...choices], rng) };
+  return { id: `phonics-${target}`, target, word: info.word, icon: info.icon, choices: shuffle([...choices], rng) };
 }
 
 /**

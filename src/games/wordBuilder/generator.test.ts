@@ -41,7 +41,7 @@ describe('ending items (#18)', () => {
       const s = sentenceWith(it, it.word);
       if (it.ending === 'ed') expect(/Yesterday|Last night/.test(s)).toBe(true);
       if (it.ending === 'ing') expect(/ am | are | is /.test(` ${s} `)).toBe(true);
-      if (it.emojiCount === 2) expect(it.ending).toBe('s');
+      if (it.iconCount === 2) expect(it.ending).toBe('s');
     }
   });
   it('scaffolded levels read aloud; the top level does not unless easing', () => {

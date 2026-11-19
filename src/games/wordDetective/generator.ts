@@ -62,8 +62,8 @@ export interface ReadItem {
   kind: 'read';
   id: string;
   word: string;
-  /** Pictures to choose from (emoji); answer is the target's emoji. */
-  pictures: { emoji: string; word: string }[];
+  /** Pictures to choose from (icon names); answer is the target's icon. */
+  pictures: { icon: string; word: string }[];
   answer: string;
   /** Magic-e switch item: the short/long pair, shown after a correct answer (kit + e = kite). */
   magic?: { short: string; long: string };
@@ -73,7 +73,7 @@ export interface BuildItem {
   kind: 'build';
   id: string;
   word: string;
-  emoji: string;
+  icon: string;
   /** Correct tile sequence. */
   slots: string[];
   /** Shuffled tiles (slots + decoys). */
@@ -91,7 +91,7 @@ export interface SentenceItem {
   after: string;
   choices: string[];
   /** Picture clue, shown at the scaffolded level and when easing. */
-  emoji?: string;
+  icon?: string;
 }
 
 export type WordItem = ReadItem | BuildItem | SentenceItem;
@@ -107,14 +107,14 @@ export function makeReadItem(track: PictureTrack, level: number, rng: Rng = Math
   const pics: PictureWord[] = [target];
   for (const w of pool) {
     if (pics.length >= n) break;
-    if (!pics.some((p) => p.emoji === w.emoji)) pics.push(w);
+    if (!pics.some((p) => p.icon === w.icon)) pics.push(w);
   }
   return {
     kind: 'read',
     id: `read-${target.word}`,
     word: target.word,
-    pictures: shuffle(pics, rng).map((p) => ({ emoji: p.emoji, word: p.word })),
-    answer: target.emoji,
+    pictures: shuffle(pics, rng).map((p) => ({ icon: p.icon, word: p.word })),
+    answer: target.icon,
   };
 }
 
@@ -139,7 +139,7 @@ export function makeBuildItem(track: PictureTrack, level: number, rng: Rng = Mat
     kind: 'build',
     id: `build-${target.word}`,
     word: target.word,
-    emoji: target.emoji,
+    icon: target.icon,
     slots,
     tiles: shuffle([...slots, ...decoys], rng),
     prefilled: ease ? 1 : 0,
@@ -155,15 +155,15 @@ export function makeMagicItem(rng: Rng = Math.random, ease = false, avoid?: stri
   const pair = pairs[int(rng, 0, pairs.length - 1)];
   const showLong = rng() < 0.5;
   const word = showLong ? pair.long : pair.short;
-  const answer = showLong ? pair.longEmoji : pair.shortEmoji;
+  const answer = showLong ? pair.longIcon : pair.shortIcon;
   const pics = [
-    { emoji: pair.shortEmoji, word: pair.short },
-    { emoji: pair.longEmoji, word: pair.long },
+    { icon: pair.shortIcon, word: pair.short },
+    { icon: pair.longIcon, word: pair.long },
   ];
   if (!ease) {
     const others = MAGIC_E.filter((p) => p !== pair);
     const o = others[int(rng, 0, others.length - 1)];
-    pics.push(rng() < 0.5 ? { emoji: o.shortEmoji, word: o.short } : { emoji: o.longEmoji, word: o.long });
+    pics.push(rng() < 0.5 ? { icon: o.shortIcon, word: o.short } : { icon: o.longIcon, word: o.long });
   }
   return { kind: 'read', id: `magic-${word}`, word, pictures: shuffle(pics, rng), answer, magic: { short: pair.short, long: pair.long } };
 }
@@ -188,7 +188,7 @@ export function makeSentenceItem(level: number, rng: Rng = Math.random, ease = f
     before: before.trimEnd(),
     after: after.trimStart(),
     choices: shuffle([s.answer, ...decoys], rng),
-    emoji: near ? undefined : s.emoji,
+    icon: near ? undefined : s.icon,
   };
 }
 

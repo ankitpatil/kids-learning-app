@@ -2,6 +2,7 @@
 // test today, and reusable for review rounds later.
 import { getLevel } from './tracks';
 import { WORDS } from '../content/words';
+import { iconEmoji } from '../icons/icons';
 import { makePhonicsItem } from '../games/phonicsPop/generator';
 
 export type Rng = () => number;
@@ -148,7 +149,7 @@ function wordItem(trackId: string, level: number, rng: Rng): QuickItem {
   return {
     trackId, level,
     say: `Tap the word ${w.word}`,
-    visual: w.emoji,
+    visual: iconEmoji(w.icon),
     choices: shuffle([w.word, ...distractors], rng),
     answer: w.word,
   };
@@ -156,7 +157,7 @@ function wordItem(trackId: string, level: number, rng: Rng): QuickItem {
 
 function phonicsQuick(level: number, rng: Rng): QuickItem {
   const it = makePhonicsItem(level, rng);
-  return { trackId: 'phonics', level, say: `Which letter does ${it.word} start with?`, visual: it.emoji, choices: it.choices, answer: it.target };
+  return { trackId: 'phonics', level, say: `Which letter does ${it.word} start with?`, visual: iconEmoji(it.icon), choices: it.choices, answer: it.target };
 }
 
 export function makeQuickItem(trackId: string, level: number, rng: Rng = Math.random): QuickItem {

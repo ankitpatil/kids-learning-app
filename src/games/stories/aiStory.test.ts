@@ -58,7 +58,7 @@ describe('checkAiStory', () => {
     if (!r.ok) return;
     expect(r.story.id).toMatch(/^ai-/);
     expect(r.story.pattern).toBe('cvc');
-    expect(r.story.emoji).toBe(TOPIC_ICONS.cricket);
+    expect(r.story.icon).toBe(TOPIC_ICONS.cricket);
     expect(r.story.questions).toHaveLength(2);
     // Same content → same id (so the cache doesn't fill with duplicates).
     expect((checkAiStory(clone(), 0, 'cricket') as { story: Story }).story.id).toBe(r.story.id);

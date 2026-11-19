@@ -11,9 +11,9 @@ export interface EndingItem {
   word: string;
   before: string;
   after: string;
-  emoji: string;
+  icon: string;
   /** Picture count: 2 for plurals ("two cats"), else 1. */
-  emojiCount: number;
+  iconCount: number;
   /** Ending tiles to choose from. */
   choices: Ending[];
   /** Whether the app reads the sentence aloud (scaffolded levels). */
@@ -58,8 +58,8 @@ export function makeEndingItem(level: number, rng: Rng = Math.random, ease = fal
       word,
       before: before.trimEnd(),
       after: after.trimStart(),
-      emoji: src.emoji,
-      emojiCount: plural ? 2 : 1,
+      icon: src.icon,
+      iconCount: plural ? 2 : 1,
       choices,
       readAloud: cfg.scaffold || ease,
     };

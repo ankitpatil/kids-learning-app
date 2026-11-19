@@ -6,6 +6,7 @@ import { makeQuickItem } from '../../engine/quickItems';
 import { makeSightItem } from '../sightWords/generator';
 import { makePhonicsItem } from '../phonicsPop/generator';
 import { CONFUSABLES } from '../phonicsPop/letters';
+import { iconEmoji } from '../../icons/icons';
 import { pickTrack, tracksFor, type Subject } from '../../engine/tracks';
 import { resolveSlot, type Slot, type SlotKind } from '../../engine/roundMix';
 
@@ -62,7 +63,7 @@ export function makePopItem(trackId: string, level: number, rng: Rng = Math.rand
     // Keep the look-alike partner (b/d) when it's there: it's the point of the top level.
     const partner = CONFUSABLES[it.target];
     const ordered = [...it.choices].sort((a, b) => Number(b === partner) - Number(a === partner));
-    return { id: `pop-${it.id}`, trackId, level, say: `Which letter does ${it.word} start with?`, visual: it.emoji, answer: it.target, choices: trimChoices(ordered, it.target, ease ? 2 : MAX_BALLOONS, rng) };
+    return { id: `pop-${it.id}`, trackId, level, say: `Which letter does ${it.word} start with?`, visual: iconEmoji(it.icon), answer: it.target, choices: trimChoices(ordered, it.target, ease ? 2 : MAX_BALLOONS, rng) };
   }
   const q = makeQuickItem(trackId, level, rng);
   const id = `pop-${trackId}-${q.visual}-${q.answer}`;

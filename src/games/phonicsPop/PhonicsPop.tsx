@@ -9,7 +9,7 @@ import { fresh } from '../../engine/recent';
 import { feedback } from '../../components/Feedback';
 import { ai } from '../../ai/app';
 import { createWhyHinter } from '../../ai/whyHint';
-import { Emoji } from '../../components/Icon';
+import { Icon } from '../../components/Icon';
 
 const ROUND_LENGTH = 8;
 const SKILL = 'phonics';
@@ -131,7 +131,7 @@ export function PhonicsPop({ profileId, onDone, onExit }: Props) {
       </div>
 
       <button className="picture-card" onClick={() => tapSay(item.word)} aria-label={`Picture: ${item.word}`}>
-        <span className="picture"><Emoji text={item.emoji} /></span>
+        <span className="picture"><Icon name={item.icon} /></span>
       </button>
 
       <div className="balloons">

@@ -10,7 +10,7 @@ import { planRound, resolveSlot, type Slot } from '../../engine/roundMix';
 import { say, tapSay } from '../../audio/speech';
 import { fresh } from '../../engine/recent';
 import { feedback } from '../../components/Feedback';
-import { Emoji } from '../../components/Icon';
+import { Icon } from '../../components/Icon';
 
 const ROUND_LENGTH = 8;
 const TRACK = 'wordProblems';
@@ -25,11 +25,11 @@ const ask = (it: WordProblem) =>
   `${spokenStory(it)}${it.mode === 'equation' ? ' || Which number sentence fits the story?' : it.mode === 'build' ? ' || Plus, | or minus?' : ''}`;
 
 function Pictures({ it }: { it: WordProblem }) {
-  const e = it.thing.emoji;
+  const icon = it.thing.icon;
   const group = (n: number, cls = '') => (
     <span className={`sum-group ${cls}`}>
       {Array.from({ length: n }, (_, i) => (
-        <span key={i} className="sum-pic"><Emoji text={e} /></span>
+        <span key={i} className="sum-pic"><Icon name={icon} /></span>
       ))}
     </span>
   );
@@ -38,7 +38,7 @@ function Pictures({ it }: { it: WordProblem }) {
       <div className="sum-pictures" aria-hidden="true">
         <span className="sum-group">
           {Array.from({ length: it.a }, (_, i) => (
-            <span key={i} className={`sum-pic ${i >= it.a - it.b ? 'gone' : ''}`}><Emoji text={e} /></span>
+            <span key={i} className={`sum-pic ${i >= it.a - it.b ? 'gone' : ''}`}><Icon name={icon} /></span>
           ))}
         </span>
       </div>

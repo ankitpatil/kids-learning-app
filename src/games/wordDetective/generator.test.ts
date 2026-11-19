@@ -30,8 +30,8 @@ describe('read items', () => {
         const near = makeReadItem(t, 1);
         const easy = makeReadItem(t, 1, Math.random, true);
         for (const it of [far, near, easy]) {
-          expect(it.pictures.map((p) => p.emoji)).toContain(it.answer);
-          expect(new Set(it.pictures.map((p) => p.emoji)).size).toBe(it.pictures.length);
+          expect(it.pictures.map((p) => p.icon)).toContain(it.answer);
+          expect(new Set(it.pictures.map((p) => p.icon)).size).toBe(it.pictures.length);
         }
         expect(far.pictures.length).toBe(3);
         expect(near.pictures.length).toBe(4);
@@ -94,10 +94,10 @@ describe('magic e switch (#16)', () => {
       const it = makeMagicItem();
       const pair = MAGIC_E.find((p) => p.short === it.magic!.short)!;
       expect([pair.short, pair.long]).toContain(it.word);
-      const emojis = it.pictures.map((p) => p.emoji);
-      expect(emojis).toContain(pair.shortEmoji);
-      expect(emojis).toContain(pair.longEmoji);
-      expect(it.answer).toBe(it.word === pair.long ? pair.longEmoji : pair.shortEmoji);
+      const emojis = it.pictures.map((p) => p.icon);
+      expect(emojis).toContain(pair.shortIcon);
+      expect(emojis).toContain(pair.longIcon);
+      expect(it.answer).toBe(it.word === pair.long ? pair.longIcon : pair.shortIcon);
       expect(it.pictures.length).toBe(3);
       expect(new Set(emojis).size).toBe(3);
       seen.add(it.word === pair.long ? 'long' : 'short');
@@ -143,11 +143,11 @@ describe('finish the sentence (#16)', () => {
         expect(new Set(it.choices).size).toBe(it.choices.length);
       }
       expect(l0.choices.length).toBe(2);
-      expect(l0.emoji).toBeTruthy();
+      expect(l0.icon).toBeTruthy();
       expect(l1.choices.length).toBe(3);
-      expect(l1.emoji).toBeUndefined();
+      expect(l1.icon).toBeUndefined();
       expect(easy.choices.length).toBe(2);
-      expect(easy.emoji).toBeTruthy();
+      expect(easy.icon).toBeTruthy();
     }
   });
   it('fills the blank back into a readable sentence', () => {
@@ -186,7 +186,7 @@ describe('finish the sentence: C2 bank', () => {
     for (const s of SENTENCES) {
       expect(wordPattern(s.answer), s.answer).toBeGreaterThanOrEqual(0);
       expect(blockedWords(wordsOf(s).join(' ')), s.text).toEqual([]);
-      expect(s.emoji).toBeTruthy();
+      expect(s.icon).toBeTruthy();
     }
   });
   it('easing only uses short-vowel / blend sentences', () => {

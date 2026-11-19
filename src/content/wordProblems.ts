@@ -49,7 +49,7 @@ export type Category = 'food' | 'toy' | 'school' | 'nature' | 'festival';
 export interface Thing {
   one: string;
   many: string;
-  emoji: string;
+  icon: string;
   leave: Leave;
   category?: Category;
   /** Animals that come by themselves (birds) rather than being given; `place` is where they are. */
@@ -57,45 +57,45 @@ export interface Thing {
   place?: string;
 }
 
-const T = (one: string, many: string, emoji: string, leave: Leave, category: Category): Thing => ({ one, many, emoji, leave, category });
-const A = (one: string, many: string, emoji: string, leave: Leave, place: string): Thing => ({ one, many, emoji, leave, comes: true, place });
+const T = (one: string, many: string, icon: string, leave: Leave, category: Category): Thing => ({ one, many, icon, leave, category });
+const A = (one: string, many: string, icon: string, leave: Leave, place: string): Thing => ({ one, many, icon, leave, comes: true, place });
 
 export const THINGS: Thing[] = [
   // food
-  T('mango', 'mangoes', '🥭', 'eat', 'food'), T('apple', 'apples', '🍎', 'eat', 'food'),
-  T('banana', 'bananas', '🍌', 'eat', 'food'), T('roti', 'rotis', '🫓', 'eat', 'food'),
-  T('cookie', 'cookies', '🍪', 'eat', 'food'), T('sweet', 'sweets', '🍬', 'eat', 'food'),
-  T('orange', 'oranges', '🍊', 'eat', 'food'), T('strawberry', 'strawberries', '🍓', 'eat', 'food'),
-  T('carrot', 'carrots', '🥕', 'eat', 'food'), T('momo', 'momos', '🥟', 'eat', 'food'),
-  T('cupcake', 'cupcakes', '🧁', 'eat', 'food'), T('donut', 'donuts', '🍩', 'eat', 'food'),
-  T('lollipop', 'lollipops', '🍭', 'eat', 'food'), T('coconut', 'coconuts', '🥥', 'give', 'food'),
-  T('tomato', 'tomatoes', '🍅', 'eat', 'food'), T('egg', 'eggs', '🥚', 'eat', 'food'),
-  T('cherry', 'cherries', '🍒', 'eat', 'food'), T('pear', 'pears', '🍐', 'eat', 'food'),
+  T('mango', 'mangoes', 'mango', 'eat', 'food'), T('apple', 'apples', 'red-apple', 'eat', 'food'),
+  T('banana', 'bananas', 'banana', 'eat', 'food'), T('roti', 'rotis', 'flatbread', 'eat', 'food'),
+  T('cookie', 'cookies', 'cookie', 'eat', 'food'), T('sweet', 'sweets', 'candy', 'eat', 'food'),
+  T('orange', 'oranges', 'tangerine', 'eat', 'food'), T('strawberry', 'strawberries', 'strawberry', 'eat', 'food'),
+  T('carrot', 'carrots', 'carrot', 'eat', 'food'), T('momo', 'momos', 'dumpling', 'eat', 'food'),
+  T('cupcake', 'cupcakes', 'cupcake', 'eat', 'food'), T('donut', 'donuts', 'doughnut', 'eat', 'food'),
+  T('lollipop', 'lollipops', 'lollipop', 'eat', 'food'), T('coconut', 'coconuts', 'coconut', 'give', 'food'),
+  T('tomato', 'tomatoes', 'tomato', 'eat', 'food'), T('egg', 'eggs', 'egg', 'eat', 'food'),
+  T('cherry', 'cherries', 'cherries', 'eat', 'food'), T('pear', 'pears', 'pear', 'eat', 'food'),
   // toys and games
-  T('kite', 'kites', '🪁', 'give', 'toy'), T('ball', 'balls', '⚽', 'roll', 'toy'),
-  T('teddy', 'teddies', '🧸', 'give', 'toy'), T('toy car', 'toy cars', '🚗', 'roll', 'toy'),
-  T('yo-yo', 'yo-yos', '🪀', 'give', 'toy'), T('block', 'blocks', '🧱', 'give', 'toy'),
-  T('cricket ball', 'cricket balls', '🏏', 'roll', 'toy'), T('drum', 'drums', '🥁', 'give', 'toy'),
-  T('balloon', 'balloons', '🎈', 'balloon', 'toy'),
+  T('kite', 'kites', 'kite', 'give', 'toy'), T('ball', 'balls', 'soccer-ball', 'roll', 'toy'),
+  T('teddy', 'teddies', 'teddy-bear', 'give', 'toy'), T('toy car', 'toy cars', 'automobile', 'roll', 'toy'),
+  T('yo-yo', 'yo-yos', 'yo-yo', 'give', 'toy'), T('block', 'blocks', 'brick', 'give', 'toy'),
+  T('cricket ball', 'cricket balls', 'cricket-game', 'roll', 'toy'), T('drum', 'drums', 'drum', 'give', 'toy'),
+  T('balloon', 'balloons', 'balloon', 'balloon', 'toy'),
   // school
-  T('pencil', 'pencils', '✏️', 'give', 'school'), T('book', 'books', '📘', 'give', 'school'),
-  T('crayon', 'crayons', '🖍️', 'give', 'school'), T('notebook', 'notebooks', '📒', 'give', 'school'),
-  T('ruler', 'rulers', '📏', 'give', 'school'), T('pen', 'pens', '🖊️', 'give', 'school'),
-  T('sticker', 'stickers', '⭐', 'give', 'school'),
+  T('pencil', 'pencils', 'pencil', 'give', 'school'), T('book', 'books', 'blue-book', 'give', 'school'),
+  T('crayon', 'crayons', 'crayon', 'give', 'school'), T('notebook', 'notebooks', 'ledger', 'give', 'school'),
+  T('ruler', 'rulers', 'straight-ruler', 'give', 'school'), T('pen', 'pens', 'pen', 'give', 'school'),
+  T('sticker', 'stickers', 'star', 'give', 'school'),
   // nature
-  T('shell', 'shells', '🐚', 'give', 'nature'), T('flower', 'flowers', '🌸', 'give', 'nature'),
-  T('leaf', 'leaves', '🍃', 'give', 'nature'), T('stone', 'stones', '🪨', 'give', 'nature'),
-  T('feather', 'feathers', '🪶', 'give', 'nature'),
+  T('shell', 'shells', 'spiral-shell', 'give', 'nature'), T('flower', 'flowers', 'cherry-blossom', 'give', 'nature'),
+  T('leaf', 'leaves', 'leaf-fluttering-in-wind', 'give', 'nature'), T('stone', 'stones', 'rock', 'give', 'nature'),
+  T('feather', 'feathers', 'feather', 'give', 'nature'),
   // festivals
-  T('diya', 'diyas', '🪔', 'give', 'festival'), T('gift', 'gifts', '🎁', 'give', 'festival'),
-  T('candle', 'candles', '🕯️', 'give', 'festival'), T('lantern', 'lanterns', '🏮', 'give', 'festival'),
-  T('pumpkin', 'pumpkins', '🎃', 'give', 'festival'),
+  T('diya', 'diyas', 'diya-lamp', 'give', 'festival'), T('gift', 'gifts', 'wrapped-gift', 'give', 'festival'),
+  T('candle', 'candles', 'candle', 'give', 'festival'), T('lantern', 'lanterns', 'red-paper-lantern', 'give', 'festival'),
+  T('pumpkin', 'pumpkins', 'jack-o-lantern', 'give', 'festival'),
   // animals that come and go by themselves
-  A('bird', 'birds', '🐦', 'fly', 'in a tree'), A('butterfly', 'butterflies', '🦋', 'fly', 'in the garden'),
-  A('parrot', 'parrots', '🦜', 'fly', 'in a tree'), A('peacock', 'peacocks', '🦚', 'run', 'in the garden'),
-  A('duck', 'ducks', '🦆', 'swim', 'in the pond'), A('fish', 'fish', '🐟', 'swim', 'in the pond'),
-  A('frog', 'frogs', '🐸', 'hop', 'on a log'), A('monkey', 'monkeys', '🐒', 'run', 'in a tree'),
-  A('ant', 'ants', '🐜', 'run', 'on the path'), A('bee', 'bees', '🐝', 'fly', 'in the garden'),
+  A('bird', 'birds', 'bird', 'fly', 'in a tree'), A('butterfly', 'butterflies', 'butterfly', 'fly', 'in the garden'),
+  A('parrot', 'parrots', 'parrot', 'fly', 'in a tree'), A('peacock', 'peacocks', 'peacock', 'run', 'in the garden'),
+  A('duck', 'ducks', 'duck', 'swim', 'in the pond'), A('fish', 'fish', 'fish', 'swim', 'in the pond'),
+  A('frog', 'frogs', 'frog', 'hop', 'on a log'), A('monkey', 'monkeys', 'monkey', 'run', 'in a tree'),
+  A('ant', 'ants', 'ant', 'run', 'on the path'), A('bee', 'bees', 'honeybee', 'fly', 'in the garden'),
 ];
 
 /** An opening that sets the scene ("At the market, Riya has 5 mangoes."). */
