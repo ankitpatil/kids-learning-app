@@ -9,6 +9,7 @@ import { fresh } from '../../engine/recent';
 import { feedback } from '../../components/Feedback';
 import { ai } from '../../ai/app';
 import { createWhyHinter } from '../../ai/whyHint';
+import { Emoji } from '../../components/Icon';
 
 const ROUND_LENGTH = 8;
 const NUMBER_WORDS = ['zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen','twenty'];
@@ -45,7 +46,7 @@ function Line({ max, frog, from, mark10 }: { max: number; frog: number; from: nu
     <div className="numline" style={{ ['--n' as string]: max + 1 }} aria-hidden>
       {Array.from({ length: max + 1 }, (_, n) => (
         <div key={n} className={`tick ${n === from ? 'start' : ''} ${n > lo && n <= hi && from < frog ? 'trail' : ''} ${n >= lo && n < hi && from > frog ? 'trail' : ''} ${mark10 && n === 10 ? 'ten' : ''}`}>
-          <span className="frog-slot">{n === frog ? '🐸' : ''}</span>
+          <span className="frog-slot">{n === frog ? <Emoji text="🐸" /> : null}</span>
           <span className="tick-num">{n}</span>
         </div>
       ))}
@@ -211,13 +212,13 @@ export function NumberLineHop({ profileId, trackId, onDone, onExit }: Props) {
   return (
     <div className="screen game hop-game">
       <div className="topbar">
-        <button className="back-btn" onClick={onExit} aria-label="Back to levels">⬅️ Levels</button>
+        <button className="back-btn" onClick={onExit} aria-label="Back to levels"><Emoji text="⬅️" /> Levels</button>
         <div className="progress" aria-label={`Question ${index + 1} of ${ROUND_LENGTH}`}>
           {Array.from({ length: ROUND_LENGTH }, (_, i) => (
             <span key={i} className={i < index ? 'dot done' : i === index ? `dot now${slot.current.kind === 'stretch' ? ' bonus' : ''}` : 'dot'} />
           ))}
         </div>
-        <button className="icon-btn" onClick={() => tapSay(promptFor(item, step))} aria-label="Say again">🔊</button>
+        <button className="icon-btn" onClick={() => tapSay(promptFor(item, step))} aria-label="Say again"><Emoji text="🔊" /></button>
       </div>
 
       <div className="equation" aria-hidden>
@@ -225,10 +226,10 @@ export function NumberLineHop({ profileId, trackId, onDone, onExit }: Props) {
       </div>
       {item.mode === 'make10' && (
         <div className="split-eq" aria-hidden>
-          {step === 'split' ? `${item.a} ${item.op === '+' ? '➡️' : '⬅️'} 10 = ? 🐾` : `= ${splitText(item)}`}
+          {step === 'split' ? <Emoji text={`${item.a} ${item.op === '+' ? '➡️' : '⬅️'} 10 = ? 🐾`} /> : `= ${splitText(item)}`}
         </div>
       )}
-      {step === 'hop' && <div className="hop-count" aria-label={`${hops} hops`}>{'🐾'.repeat(hops) || ' '}</div>}
+      {step === 'hop' && <div className="hop-count" aria-label={`${hops} hops`}><Emoji text={'🐾'.repeat(hops) || ' '} /></div>}
 
       <div className={`line-wrap ${mood}`}>
         {showLine && <Line max={item.lineMax} frog={frog} from={item.a} mark10={item.mode === 'make10'} />}
@@ -236,9 +237,9 @@ export function NumberLineHop({ profileId, trackId, onDone, onExit }: Props) {
 
       {step === 'hop' ? (
         <div className="actions">
-          <button className="btn secondary" onClick={undo} disabled={hops === 0} aria-label="Hop back one">↩️</button>
-          <button className="btn primary huge" onClick={hop} aria-label="Hop">🐸 {item.op === '+' ? '➡️' : '⬅️'}</button>
-          <button className="btn primary" onClick={submitHops} disabled={hops === 0} aria-label="Done">✅</button>
+          <button className="btn secondary" onClick={undo} disabled={hops === 0} aria-label="Hop back one"><Emoji text="↩️" /></button>
+          <button className="btn primary huge" onClick={hop} aria-label="Hop"><Emoji text={`🐸 ${item.op === '+' ? '➡️' : '⬅️'}`} /></button>
+          <button className="btn primary" onClick={submitHops} disabled={hops === 0} aria-label="Done"><Emoji text="✅" /></button>
         </div>
       ) : (
         <div className="quick-choices number-pick">

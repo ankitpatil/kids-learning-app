@@ -27,10 +27,10 @@ export function StartPoint({ subject, onPick, onCheck, onExit }: { subject: Subj
   return (
     <div className="screen startpoint">
       <div className="topbar" style={{ width: "100%" }}>
-        <button className="back-btn" onClick={onExit} aria-label="Back">⬅️ Back</button>
+        <button className="back-btn" onClick={onExit} aria-label="Back"><Emoji text="⬅️" /> Back</button>
       </div>
-      <button className="btn primary huge check" onClick={onCheck} aria-label="Quick check">🎯</button>
-      <p className="parent-note">Grown-ups: tap 🎯 for a 2-minute check, or pick a starting point.</p>
+      <button className="btn primary huge check" onClick={onCheck} aria-label="Quick check"><Emoji text="🎯" /></button>
+      <p className="parent-note">Grown-ups: tap <Emoji text="🎯" /> for a 2-minute check, or pick a starting point.</p>
       <div className="presets">
         {presets.map((p) => (
           <button key={p.id} className="preset" onClick={() => onPick(PRESETS[p.id][subject])}>
@@ -77,7 +77,7 @@ export function Placement({ subject, onDone, onExit }: Props) {
   if (isDone(state)) {
     return (
       <div className="screen center reward">
-        <div className="burst">🎉</div>
+        <div className="burst"><Emoji text="🎉" /></div>
       </div>
     );
   }
@@ -95,16 +95,16 @@ export function Placement({ subject, onDone, onExit }: Props) {
           }}
           aria-label="Back, quit the quick check"
         >
-          ⬅️ Back
+          <Emoji text="⬅️" /> Back
         </button>
         <div className="progress" aria-label="Quick check">
           {Array.from({ length: 8 }, (_, i) => (
             <span key={i} className={i < Math.min(state.asked, 8) ? 'dot done' : 'dot'} />
           ))}
         </div>
-        <button className="icon-btn" onClick={() => tapSay(item.say)} aria-label="Say again">🔊</button>
+        <button className="icon-btn" onClick={() => tapSay(item.say)} aria-label="Say again"><Emoji text="🔊" /></button>
       </div>
-      <div className={`quick-visual ${item.visual.length > 24 ? 'small' : ''}`}>{item.visual}</div>
+      <div className={`quick-visual ${item.visual.length > 24 ? 'small' : ''}`}><Emoji text={item.visual} /></div>
       <div className={`quick-choices ${wordChoices ? 'words' : ''}`}>
         {item.choices.map((c) => (
           <button key={c} className={`quick-choice ${picked === c ? 'picked' : ''}`} onClick={() => choose(c)} aria-label={c}>

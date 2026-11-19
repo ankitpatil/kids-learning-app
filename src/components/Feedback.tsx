@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { playCorrect, playWrong, playSparkle } from '../audio/sfx';
+import { Emoji } from './Icon';
 
 type Kind = 'correct' | 'wrong' | 'levelup';
 const EVENT = 'll-feedback';
@@ -50,17 +51,17 @@ export function FeedbackLayer() {
   return (
     <div className={`fx-layer fx-${burst.kind}`} key={burst.id} aria-hidden>
       {burst.kind === 'wrong' ? (
-        <div className="fx-oops">🤔</div>
+        <div className="fx-oops"><Emoji text="🤔" /></div>
       ) : (
         <>
-          <div className="fx-check">{burst.kind === 'levelup' ? '🏆' : '✅'}</div>
+          <div className="fx-check"><Emoji text={burst.kind === 'levelup' ? '🏆' : '✅'} /></div>
           {burst.parts.map((p, i) => (
             <span
               key={i}
               className="fx-part"
               style={{ ['--x' as string]: `${p.x}vw`, ['--y' as string]: `${p.y}vh`, ['--r' as string]: `${p.r}deg`, animationDelay: `${p.d}s` }}
             >
-              {p.e}
+              <Emoji text={p.e} />
             </span>
           ))}
         </>

@@ -21,7 +21,7 @@ export function ProfilePicker({ profiles, currentId, onPick, onNew, onBack }: Pi
   return (
     <div className="screen profiles">
       <div className="topbar">
-        {onBack ? <button className="back-btn" onClick={onBack} aria-label="Back to home">⬅️ Back</button> : <span />}
+        {onBack ? <button className="back-btn" onClick={onBack} aria-label="Back to home"><Emoji text="⬅️" /> Back</button> : <span />}
         <span />
       </div>
       <h1 className="title" onClick={() => tapSay("Who's playing?")}>Who's playing?</h1>
@@ -36,14 +36,14 @@ export function ProfilePicker({ profiles, currentId, onPick, onNew, onBack }: Pi
             }}
             aria-label={`${p.nickname}, ${p.stars} stars`}
           >
-            <span className="profile-avatar">{p.avatar}</span>
+            <span className="profile-avatar"><Emoji text={p.avatar} /></span>
             <span className="profile-name">{p.nickname}</span>
-            <span className="profile-stars">⭐ {p.stars}</span>
+            <span className="profile-stars"><Emoji text="⭐" /> {p.stars}</span>
           </button>
         ))}
         {canAdd && (
           <button className="profile-card add" onClick={onNew} aria-label="New player">
-            <span className="profile-avatar">➕</span>
+            <span className="profile-avatar"><Emoji text="➕" /></span>
             <span className="profile-name">New</span>
           </button>
         )}
@@ -70,8 +70,8 @@ export function CreateProfile({ usedAvatars, onCreate, onBack }: CreateProps) {
   return (
     <div className="screen profiles">
       <div className="topbar">
-        {onBack ? <button className="back-btn" onClick={onBack} aria-label="Back">⬅️ Back</button> : <span />}
-        <div className="avatar big" aria-hidden>{avatar}</div>
+        {onBack ? <button className="back-btn" onClick={onBack} aria-label="Back"><Emoji text="⬅️" /> Back</button> : <span />}
+        <div className="avatar big" aria-hidden><Emoji text={avatar} /></div>
         <span style={{ width: 64 }} />
       </div>
       <h1 className="title" onClick={() => tapSay('Pick your animal!')}>Pick your animal</h1>
@@ -113,7 +113,7 @@ export function CreateProfile({ usedAvatars, onCreate, onBack }: CreateProps) {
             onCreate(nickname, avatar);
           }}
         >
-          ✅
+          <Emoji text="✅" />
         </button>
       </div>
     </div>

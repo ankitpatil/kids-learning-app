@@ -9,7 +9,7 @@ import { fresh } from '../../engine/recent';
 import { feedback } from '../../components/Feedback';
 import { ai } from '../../ai/app';
 import { createWhyHinter } from '../../ai/whyHint';
-import { Icon } from '../../components/Icon';
+import { Emoji, Icon } from '../../components/Icon';
 
 const ROUND_LENGTH = 8;
 
@@ -219,16 +219,16 @@ export function WordDetective({ profileId, trackId, onDone, onExit }: Props) {
   return (
     <div className="screen game words">
       <div className="topbar">
-        <button className="back-btn" onClick={onExit} aria-label="Back to levels">⬅️ Levels</button>
+        <button className="back-btn" onClick={onExit} aria-label="Back to levels"><Emoji text="⬅️" /> Levels</button>
         <div className="progress" aria-label={`Question ${index + 1} of ${ROUND_LENGTH}`}>
           {Array.from({ length: ROUND_LENGTH }, (_, i) => (
             <span key={i} className={i < index ? 'dot done' : i === index ? `dot now${slot.current.kind === 'stretch' ? ' bonus' : ''}` : 'dot'} />
           ))}
         </div>
-        <button className="icon-btn" onClick={() => tapSay(promptFor(item))} aria-label="Say again">🔊</button>
+        <button className="icon-btn" onClick={() => tapSay(promptFor(item))} aria-label="Say again"><Emoji text="🔊" /></button>
       </div>
 
-      <div className="mode-badge">{item.kind === 'sentence' ? '💬' : item.kind === 'read' ? (item.magic ? '✨' : '🔍') : '🧩'}</div>
+      <div className="mode-badge"><Emoji text={item.kind === 'sentence' ? '💬' : item.kind === 'read' ? (item.magic ? '✨' : '🔍') : '🧩'} /></div>
 
       {item.kind === 'sentence' ? (
         <>

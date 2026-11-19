@@ -16,7 +16,7 @@ import { newStory, patternCap, playableCached, fallbackStory, TOPIC_ICONS } from
 /** Silence between story lines when reading aloud: a breath, so each sentence lands. */
 const LINE_PAUSE_MS = 650;
 import { feedback } from '../../components/Feedback';
-import { Icon } from '../../components/Icon';
+import { Emoji, Icon } from '../../components/Icon';
 
 const QUESTIONS_PER_STORY = 2;
 const TOTAL = STORIES_PER_ROUND * QUESTIONS_PER_STORY;
@@ -273,14 +273,14 @@ export function StoryChoose({ profileId, onDone, onExit }: Props) {
           <button className="back-btn" onClick={() => {
               setPicker(false);
               beginStory(level.current, story);
-            }} disabled={writing} aria-label="Back to the story">⬅️</button>
+            }} disabled={writing} aria-label="Back to the story"><Emoji text="⬅️" /></button>
           <span />
           <span style={{ width: 64 }} />
         </div>
         {writing ? (
           <div className="story-writing" role="status" aria-label="Writing a new story">
-            <span className="story-writing-pen" aria-hidden="true">✏️</span>
-            <span aria-hidden="true">✨📖✨</span>
+            <span className="story-writing-pen" aria-hidden="true"><Emoji text="✏️" /></span>
+            <span aria-hidden="true"><Emoji text="✨📖✨" /></span>
           </div>
         ) : (
           <div className="topic-grid">
@@ -298,7 +298,7 @@ export function StoryChoose({ profileId, onDone, onExit }: Props) {
   return (
     <div className="screen game stories">
       <div className="topbar">
-        <button className="back-btn" onClick={onExit} aria-label="Back to levels">⬅️ Levels</button>
+        <button className="back-btn" onClick={onExit} aria-label="Back to levels"><Emoji text="⬅️" /> Levels</button>
         <div className="progress" aria-label={`Question ${Math.min(answered + 1, TOTAL)} of ${TOTAL}`}>
           {Array.from({ length: TOTAL }, (_, i) => (
             <span key={i} className={i < answered ? 'dot done' : i === answered && phase === 'question' ? 'dot now' : 'dot'} />
@@ -309,7 +309,7 @@ export function StoryChoose({ profileId, onDone, onExit }: Props) {
           onClick={() => (phase === 'question' && question ? tapSay(questionSpeech(question, state.level)) : tapSay(story.title))}
           aria-label="Say again"
         >
-          🔊
+          <Emoji text="🔊" />
         </button>
       </div>
 
@@ -349,12 +349,12 @@ export function StoryChoose({ profileId, onDone, onExit }: Props) {
       {phase === 'read' ? (
         <div className="story-actions">
           {live && (
-            <button className="btn secondary" onClick={openPicker} aria-label="New story">✨📖</button>
+            <button className="btn secondary" onClick={openPicker} aria-label="New story"><Emoji text="✨📖" /></button>
           )}
           {mode === 'button' && (
-            <button className="btn secondary" onClick={readToMe} disabled={reading} aria-label="Read it to me">🔊📖</button>
+            <button className="btn secondary" onClick={readToMe} disabled={reading} aria-label="Read it to me"><Emoji text="🔊📖" /></button>
           )}
-          <button className="btn primary huge done-reading" onClick={() => startQuestions()} aria-label="I read it">✅</button>
+          <button className="btn primary huge done-reading" onClick={() => startQuestions()} aria-label="I read it"><Emoji text="✅" /></button>
         </div>
       ) : (
         question && (
@@ -362,7 +362,7 @@ export function StoryChoose({ profileId, onDone, onExit }: Props) {
             <p className={`story-question ${mood}`}>{question.q}</p>
             {why && (
               <button className="story-why" onClick={() => tapSay(why)} aria-label={`Hint: ${why}`}>
-                <span aria-hidden="true">💡🔊</span> {why}
+                <span aria-hidden="true"><Emoji text="💡🔊" /></span> {why}
               </button>
             )}
             <div className="story-choices">

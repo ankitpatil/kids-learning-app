@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { listVoices, previewVoice, getVoicePref, setVoicePref, say, tapSay } from '../audio/speech';
 import { AUTO, chooseVoice, isNatural, voiceLabel } from '../audio/voices';
+import { Emoji } from '../components/Icon';
 
 /** Parent screen: pick the narrator voice. Natural (neural) voices first, each with a preview. */
 export function VoicePicker({ onBack }: { onBack: () => void }) {
@@ -31,26 +32,26 @@ export function VoicePicker({ onBack }: { onBack: () => void }) {
   return (
     <div className="screen voices">
       <div className="topbar">
-        <button className="back-btn" onClick={onBack} aria-label="Back to home">⬅️ Back</button>
-        <h2 className="voices-title">🗣️ Reading voice</h2>
+        <button className="back-btn" onClick={onBack} aria-label="Back to home"><Emoji text="⬅️" /> Back</button>
+        <h2 className="voices-title"><Emoji text="🗣️" /> Reading voice</h2>
         <span style={{ width: 64 }} />
       </div>
 
       <div className="voice-list" role="radiogroup" aria-label="Reading voice">
         <div className={`voice-row ${pref === AUTO ? 'on' : ''}`}>
           <button className="voice-pick" role="radio" aria-checked={pref === AUTO} onClick={() => pick(AUTO)}>
-            <span className="voice-name">⭐ Best available</span>
+            <span className="voice-name"><Emoji text="⭐" /> Best available</span>
             <span className="voice-sub">{auto ? voiceLabel(auto) : 'No English voice found'}</span>
           </button>
-          {auto && <button className="voice-play" aria-label="Play sample" onClick={() => previewVoice(auto)}>▶️</button>}
+          {auto && <button className="voice-play" aria-label="Play sample" onClick={() => previewVoice(auto)}><Emoji text="▶️" /></button>}
         </div>
         {voices.map((v) => (
           <div key={id(v)} className={`voice-row ${pref === id(v) ? 'on' : ''}`}>
             <button className="voice-pick" role="radio" aria-checked={pref === id(v)} onClick={() => pick(id(v))}>
-              <span className="voice-name">{isNatural(v) ? '✨ ' : ''}{voiceLabel(v)}</span>
+              <span className="voice-name">{isNatural(v) && <><Emoji text="✨" /> </>}{voiceLabel(v)}</span>
               {!v.localService && <span className="voice-sub">needs internet</span>}
             </button>
-            <button className="voice-play" aria-label={`Play ${v.name}`} onClick={() => previewVoice(v)}>▶️</button>
+            <button className="voice-play" aria-label={`Play ${v.name}`} onClick={() => previewVoice(v)}><Emoji text="▶️" /></button>
           </div>
         ))}
       </div>

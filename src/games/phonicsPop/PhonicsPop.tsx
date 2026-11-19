@@ -9,7 +9,7 @@ import { fresh } from '../../engine/recent';
 import { feedback } from '../../components/Feedback';
 import { ai } from '../../ai/app';
 import { createWhyHinter } from '../../ai/whyHint';
-import { Icon } from '../../components/Icon';
+import { Emoji, Icon } from '../../components/Icon';
 
 const ROUND_LENGTH = 8;
 const SKILL = 'phonics';
@@ -121,13 +121,13 @@ export function PhonicsPop({ profileId, onDone, onExit }: Props) {
   return (
     <div className="screen game phonics">
       <div className="topbar">
-        <button className="back-btn" onClick={onExit} aria-label="Back to levels">⬅️ Levels</button>
+        <button className="back-btn" onClick={onExit} aria-label="Back to levels"><Emoji text="⬅️" /> Levels</button>
         <div className="progress" aria-label={`Question ${index + 1} of ${ROUND_LENGTH}`}>
           {Array.from({ length: ROUND_LENGTH }, (_, i) => (
             <span key={i} className={i < index ? 'dot done' : i === index ? `dot now${slot.current.kind === 'stretch' ? ' bonus' : ''}` : 'dot'} />
           ))}
         </div>
-        <button className="icon-btn" onClick={() => tapSay(prompt(item))} aria-label="Say again">🔊</button>
+        <button className="icon-btn" onClick={() => tapSay(prompt(item))} aria-label="Say again"><Emoji text="🔊" /></button>
       </div>
 
       <button className="picture-card" onClick={() => tapSay(item.word)} aria-label={`Picture: ${item.word}`}>
@@ -147,7 +147,7 @@ export function PhonicsPop({ profileId, onDone, onExit }: Props) {
               onClick={() => choose(l)}
               aria-label={`Letter ${l}`}
             >
-              <span className="balloon-letter">{popped === l ? '💥' : l}</span>
+              <span className="balloon-letter"><Emoji text={popped === l ? '💥' : l} /></span>
               <span className="string" />
             </button>
           );

@@ -1,8 +1,14 @@
+import { useState } from 'react';
 import { hasIcon, iconEmoji, iconUrl, splitIcons } from '../icons/icons';
 
-/** A bundled Fluent Emoji picture by icon name, sized 1em like the emoji it replaces. Falls back to `fallback` text. */
+/**
+ * A bundled Fluent Emoji picture by icon name, sized 1em like the emoji it replaces.
+ * Falls back to `fallback` (default: the icon's emoji) when the name is unknown or the SVG fails to load.
+ */
 export function Icon({ name, fallback, label }: { name: string; fallback?: string; label?: string }) {
-  if (!hasIcon(name)) return <>{fallback ?? ''}</>;
+  const [failed, setFailed] = useState(false);
+  const text = fallback ?? iconEmoji(name);
+  if (!hasIcon(name) || failed) return label && text ? <span role="img" aria-label={label}>{text}</span> : <>{text}</>;
   return (
     <img
       className="icon"
@@ -11,6 +17,7 @@ export function Icon({ name, fallback, label }: { name: string; fallback?: strin
       aria-hidden={label ? undefined : true}
       draggable={false}
       decoding="async"
+      onError={() => setFailed(true)}
     />
   );
 }

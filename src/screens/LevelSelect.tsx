@@ -3,7 +3,7 @@ import { tracksFor, MASTERED, AGE_BANDS, levelsInBand, type Subject } from '../e
 import { getSkillStates } from '../store/db';
 import type { SkillState } from '../engine/adaptive';
 import { say } from '../audio/speech';
-import { Icon } from '../components/Icon';
+import { Emoji, Icon } from '../components/Icon';
 
 interface Props {
   profileId: string;
@@ -30,16 +30,16 @@ export function LevelSelect({ profileId, subject, onPlay, onPlayNext, onPop, onC
   return (
     <div className="screen levels">
       <div className="topbar">
-        <button className="back-btn" onClick={onBack} aria-label="Back to home">⬅️ Back</button>
+        <button className="back-btn" onClick={onBack} aria-label="Back to home"><Emoji text="⬅️" /> Back</button>
         <div className="levels-title">{subject === 'math' ? 'Math' : 'Reading'}</div>
         <span style={{ width: 64 }} />
       </div>
       <button className={`btn primary huge play-next ${subject}`} onClick={onPlayNext} aria-label="Play next">
-        ▶️ <span className="play-next-label">Play next</span>
+        <Emoji text="▶️" /> <span className="play-next-label">Play next</span>
       </button>
       {onPop && (
         <button className="btn primary pop-btn" onClick={onPop} aria-label="Pop the answer">
-          🎈 <span className="play-next-label">Pop!</span>
+          <Emoji text="🎈" /> <span className="play-next-label">Pop!</span>
         </button>
       )}
       <div className="track-list">
@@ -65,8 +65,8 @@ export function LevelSelect({ profileId, subject, onPlay, onPlayNext, onPop, onC
                     <button className="track-main" onClick={() => onPlay(t.id, playLevel)} aria-label={`Play ${t.name}`}>
                       <span className="track-emoji"><Icon name={t.icon} /></span>
                       <span className="track-name">{t.name}</span>
-                      {bandDone && <span className="track-done">✅</span>}
-                      <span className="track-play">▶️</span>
+                      {bandDone && <span className="track-done"><Emoji text="✅" /></span>}
+                      <span className="track-play"><Emoji text="▶️" /></span>
                     </button>
                     <div className="level-chips">
                       {idx.map((i) => (
@@ -77,7 +77,7 @@ export function LevelSelect({ profileId, subject, onPlay, onPlayNext, onPop, onC
                           aria-label={`${t.name} level ${i + 1}: ${t.levels[i].label}`}
                           title={t.levels[i].label}
                         >
-                          {i < level || done ? '⭐' : i + 1}
+                          {i < level || done ? <Emoji text="⭐" /> : i + 1}
                         </button>
                       ))}
                     </div>
@@ -88,7 +88,7 @@ export function LevelSelect({ profileId, subject, onPlay, onPlayNext, onPop, onC
           );
         })}
       </div>
-      <button className="link-btn" onClick={onCheck}>🎯 Quick check / starting point</button>
+      <button className="link-btn" onClick={onCheck}><Emoji text="🎯" /> Quick check / starting point</button>
     </div>
   );
 }

@@ -9,6 +9,7 @@ import { fresh } from '../../engine/recent';
 import { feedback } from '../../components/Feedback';
 import { ai } from '../../ai/app';
 import { createWhyHinter } from '../../ai/whyHint';
+import { Emoji } from '../../components/Icon';
 
 const ROUND_LENGTH = 8;
 const TRACK = 'sightWords';
@@ -122,17 +123,17 @@ export function SightWordCatch({ profileId, onDone, onExit }: Props) {
   return (
     <div className="screen game sight">
       <div className="topbar">
-        <button className="back-btn" onClick={onExit} aria-label="Back to levels">⬅️ Levels</button>
+        <button className="back-btn" onClick={onExit} aria-label="Back to levels"><Emoji text="⬅️" /> Levels</button>
         <div className="progress" aria-label={`Question ${index + 1} of ${ROUND_LENGTH}`}>
           {Array.from({ length: ROUND_LENGTH }, (_, i) => (
             <span key={i} className={i < index ? 'dot done' : i === index ? `dot now${slot.current.kind === 'stretch' ? ' bonus' : ''}` : 'dot'} />
           ))}
         </div>
-        <button className="icon-btn" onClick={() => tapSay(prompt(item))} aria-label="Say again">🔊</button>
+        <button className="icon-btn" onClick={() => tapSay(prompt(item))} aria-label="Say again"><Emoji text="🔊" /></button>
       </div>
 
       <button className={`catcher ${mood}`} onClick={() => tapSay(prompt(item))} aria-label="Hear the word again">
-        <span aria-hidden="true">{mood === 'yay' ? '🫙✨' : '🫙'}</span>
+        <span aria-hidden="true"><Emoji text={mood === 'yay' ? '🫙✨' : '🫙'} /></span>
       </button>
 
       <div className={`bubbles n${item.choices.length}`}>

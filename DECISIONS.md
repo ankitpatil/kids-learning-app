@@ -2,6 +2,13 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-19 — Icons everywhere in the UI (I1c)
+- **Wrap, don't rename**: UI strings keep their emoji and render through `<Emoji text>` (it splits text into bundled pictures + plain text). Fewer moving parts than switching every button to icon names, and the emoji stays the readable fallback.
+- **Load-failure fallback**: `<Icon>` swaps to its emoji (`fallback`, else `ICON_EMOJI[name]`) when the SVG fails to load (`onError`). Checked in a browser with `/icons/*.svg` blocked: every picture shows as system emoji, nothing goes blank.
+- **Data-driven text too**: profile avatars (still stored as emoji), the Pop/Placement `visual` text (🍎🍎 + 🍏 …), confetti pieces, Move-mode badge/chips and the Settings connection status all go through `<Emoji>`. `white-space: pre-line` still breaks the visual onto two lines (text pieces are spans).
+- **Guard test** (`components/rawEmoji.test.ts`) parses every `.tsx` with the TypeScript compiler: emoji in JSX text, or string literals with emoji rendered directly as a child (`{'⭐'.repeat(n)}`, `{on ? '🙌' : '👆'}`), fail. Attributes, aria-labels, comments and plain data are allowed. It can't follow variables, so a browser check confirmed no emoji text nodes on the profile and home screens.
+- **Left as-is**: the Move-mode camera preview draws its labels (⭐ Player, 🙋 Hold it…, ✋ on the hand) with canvas `fillText`; that's a grown-up/debug overlay and an `<img>` there isn't worth it. Spoken text and aria-labels never had emoji to swap.
+
 ## 2026-11-18 — Content refers to icon names (I1b)
 - **Split I1b again**: I1b = content data by icon name (+ resolution test); I1c = the rest of the UI emoji (home, buttons, badges, reward, Pop balloons). Doing both in one run was too big.
 - **Names are Fluent Emoji names** (`cat-face`, `sun`, `diya-lamp`), not our own aliases: no second mapping to keep in sync, and the name says which SVG ships. A converter swapped every emoji literal in content for its name, so the pictures are unchanged.

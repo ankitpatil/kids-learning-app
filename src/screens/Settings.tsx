@@ -5,10 +5,16 @@ import { createProxyProvider } from '../ai/client';
 import { ai } from '../ai/app';
 import { loadMotionSettings, saveMotionSettings } from '../motion/settings';
 import { isMuted, setMuted, isNarrationOn, setNarration } from '../audio/speech';
+import { Emoji } from '../components/Icon';
 
 type Test = { state: 'idle' } | { state: 'testing' } | { state: 'ok' } | { state: 'fail'; why: string };
 
 /** Parent settings (behind the parent gate): Claude helpers and the narrator voice. */
+const MOVE_CHOICES = [
+  ['body', '📺 Standing back (TV)', 'Whole body. The player raises a hand to take the turn; others are ignored.'],
+  ['hand', '💻 Close to the laptop', 'Fingertip, one hand. Best within arm’s reach.'],
+] as const;
+
 export function Settings({ onBack, onVoice }: { onBack: () => void; onVoice: () => void }) {
   const [s, setS] = useState<AiSettings>(() => loadAiSettings());
   const [move, setMove] = useState(() => loadMotionSettings());
@@ -42,14 +48,14 @@ export function Settings({ onBack, onVoice }: { onBack: () => void; onVoice: () 
   return (
     <div className="screen settings">
       <div className="topbar">
-        <button className="back-btn" onClick={onBack} aria-label="Back to home">⬅️ Back</button>
-        <h2 className="voices-title">⚙️ Grown-ups</h2>
+        <button className="back-btn" onClick={onBack} aria-label="Back to home"><Emoji text="⬅️" /> Back</button>
+        <h2 className="voices-title"><Emoji text="⚙️" /> Grown-ups</h2>
         <span style={{ width: 64 }} />
       </div>
 
       <section className="settings-card">
         <button className="voice-pick" onClick={onVoice}>
-          <span className="voice-name">🗣️ Reading voice</span>
+          <span className="voice-name"><Emoji text="🗣️" /> Reading voice</span>
           <span className="voice-sub">Pick the narrator voice</span>
         </button>
       </section>
@@ -57,15 +63,15 @@ export function Settings({ onBack, onVoice }: { onBack: () => void; onVoice: () 
       <section className="settings-card">
         <label className="toggle-row">
           <span>
-            <span className="voice-name">🗣️ Talking (narration)</span>
-            <span className="voice-sub">The app speaks instructions and praise by itself. Off by default. Tapping 🔊 or a picture always speaks. Kids can also switch it with 🗣️/🤫 on the home screen.</span>
+            <span className="voice-name"><Emoji text="🗣️" /> Talking (narration)</span>
+            <span className="voice-sub">The app speaks instructions and praise by itself. Off by default. Tapping <Emoji text="🔊" /> or a picture always speaks. Kids can also switch it with <Emoji text="🗣️" />/<Emoji text="🤫" /> on the home screen.</span>
           </span>
           <input type="checkbox" className="toggle" checked={talk} onChange={(e) => { setTalk(e.target.checked); setNarration(e.target.checked); }} />
         </label>
         <label className="toggle-row">
           <span>
-            <span className="voice-name">🔇 Silent mode</span>
-            <span className="voice-sub">No voice and no sound effects at all — even when 🔊 is tapped.</span>
+            <span className="voice-name"><Emoji text="🔇" /> Silent mode</span>
+            <span className="voice-sub">No voice and no sound effects at all — even when <Emoji text="🔊" /> is tapped.</span>
           </span>
           <input type="checkbox" className="toggle" checked={silent} onChange={(e) => { setSilent(e.target.checked); setMuted(e.target.checked); }} />
         </label>
@@ -74,7 +80,7 @@ export function Settings({ onBack, onVoice }: { onBack: () => void; onVoice: () 
       <section className="settings-card">
         <label className="toggle-row">
           <span>
-            <span className="voice-name">🙌 Move mode (camera)</span>
+            <span className="voice-name"><Emoji text="🙌" /> Move mode (camera)</span>
             <span className="voice-sub">Play with hands in front of the camera — great with the laptop on the TV. Hold a hand on a button to pick it. Video stays on this device. Saved for this device only.</span>
           </span>
           <input
@@ -89,10 +95,7 @@ export function Settings({ onBack, onVoice }: { onBack: () => void; onVoice: () 
           />
         </label>
         <div className="move-choice" role="radiogroup" aria-label="How far from the camera">
-          {([
-            ['body', '📺 Standing back (TV)', 'Whole body. The player raises a hand to take the turn; others are ignored.'],
-            ['hand', '💻 Close to the laptop', 'Fingertip, one hand. Best within arm’s reach.'],
-          ] as const).map(([value, label, sub]) => (
+          {MOVE_CHOICES.map(([value, label, sub]) => (
             <label key={value} className={`move-option ${move.tracking === value ? 'on' : ''}`}>
               <input
                 type="radio"
@@ -105,7 +108,7 @@ export function Settings({ onBack, onVoice }: { onBack: () => void; onVoice: () 
                 }}
               />
               <span>
-                <span className="voice-name">{label}</span>
+                <span className="voice-name"><Emoji text={label} /></span>
                 <span className="voice-sub">{sub}</span>
               </span>
             </label>
@@ -116,7 +119,7 @@ export function Settings({ onBack, onVoice }: { onBack: () => void; onVoice: () 
       <section className="settings-card">
         <label className="toggle-row">
           <span>
-            <span className="voice-name">✨ Claude helpers</span>
+            <span className="voice-name"><Emoji text="✨" /> Claude helpers</span>
             <span className="voice-sub">New stories and “Why?” hints from Claude, through your family proxy. Off by default.</span>
           </span>
           <input type="checkbox" className="toggle" checked={s.enabled} onChange={(e) => update({ ...s, enabled: e.target.checked })} />
@@ -148,12 +151,12 @@ export function Settings({ onBack, onVoice }: { onBack: () => void; onVoice: () 
             Test connection
           </button>
           <span className="voice-sub" role="status">
-            {test.state === 'testing' ? 'Checking…' : test.state === 'ok' ? '✅ Connected' : test.state === 'fail' ? `❌ ${test.why}` : ''}
+            <Emoji text={test.state === 'testing' ? 'Checking…' : test.state === 'ok' ? '✅ Connected' : test.state === 'fail' ? `❌ ${test.why}` : ''} />
           </span>
         </div>
 
         <div className="test-row">
-          <span className="voice-sub">📚 Saved Claude stories on this device: {saved ?? '…'}</span>
+          <span className="voice-sub"><Emoji text="📚" /> Saved Claude stories on this device: {saved ?? '…'}</span>
           <button className="link-btn strong" disabled={!saved} onClick={clearSaved}>
             Clear
           </button>

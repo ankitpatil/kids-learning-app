@@ -29,7 +29,7 @@ import { Placement, StartPoint } from './screens/Placement';
 import type { Subject } from './engine/tracks';
 import { say, isNarrationOn, setNarration, stopSpeech, tapSay } from './audio/speech';
 import { MoveModeToggle } from './components/MotionLayer';
-import { Icon } from './components/Icon';
+import { Emoji, Icon } from './components/Icon';
 
 type Game = 'count' | 'missing' | 'placeValue' | 'compare2d' | HopTrack | 'phonics' | WordTrack | 'sightWords' | 'endings' | 'stories' | 'wordProblems';
 type Screen =
@@ -255,16 +255,16 @@ export default function App() {
     return (
       <div className="screen center reward">
         <Confetti />
-        <div className="burst">{'⭐'.repeat(screen.stars)}</div>
-        {screen.leveledUp && <div className="unlock">🔓</div>}
+        <div className="burst"><Emoji text={'⭐'.repeat(screen.stars)} /></div>
+        {screen.leveledUp && <div className="unlock"><Emoji text="🔓" /></div>}
         <button className={`sticker-reveal ${screen.sticker.rarity}`} onClick={() => setScreen({ name: 'vault', from: screen })} aria-label={`New sticker: ${screen.sticker.name}. Open sticker book`}>
           <span className="sticker-emoji"><Icon name={screen.sticker.icon} /></span>
           {screen.isNew && <span className="new-tag">NEW</span>}
         </button>
         <div className="reward-actions">
-          <button className="btn secondary" onClick={() => toLevels(SUBJECT_OF(screen.game))} aria-label="Pick a level">⬅️</button>
-          <button className="btn primary huge" onClick={() => (screen.pop ? startPop(SUBJECT_OF(screen.game)) : launch(SUBJECT_OF(screen.game)))} aria-label="Play again">▶️</button>
-          <button className="btn secondary" onClick={() => setScreen({ name: 'vault', from: screen })} aria-label="Sticker book">📒</button>
+          <button className="btn secondary" onClick={() => toLevels(SUBJECT_OF(screen.game))} aria-label="Pick a level"><Emoji text="⬅️" /></button>
+          <button className="btn primary huge" onClick={() => (screen.pop ? startPop(SUBJECT_OF(screen.game)) : launch(SUBJECT_OF(screen.game)))} aria-label="Play again"><Emoji text="▶️" /></button>
+          <button className="btn secondary" onClick={() => setScreen({ name: 'vault', from: screen })} aria-label="Sticker book"><Emoji text="📒" /></button>
         </div>
       </div>
     );
@@ -274,11 +274,11 @@ export default function App() {
     <div className="screen home">
       <div className="topbar">
         <button className="avatar-btn" onClick={openProfiles} aria-label={`${profile.nickname}. Switch player`}>
-          <span className="avatar">{profile.avatar}</span>
+          <span className="avatar"><Emoji text={profile.avatar} /></span>
           <span className="avatar-name">{profile.nickname}</span>
         </button>
-        <div className="stars" aria-label={`${profile.stars} stars`}>⭐ {profile.stars}</div>
-        <button className="icon-btn" onClick={() => setScreen({ name: 'vault' })} aria-label="Sticker book">📒</button>
+        <div className="stars" aria-label={`${profile.stars} stars`}><Emoji text="⭐" /> {profile.stars}</div>
+        <button className="icon-btn" onClick={() => setScreen({ name: 'vault' })} aria-label="Sticker book"><Emoji text="📒" /></button>
         <MoveModeToggle />
         <button
           className={`icon-btn ${narrating ? '' : 'quiet'}`}
@@ -290,7 +290,7 @@ export default function App() {
             if (!narrating) tapSay('Talking on!');
           }}
         >
-          {narrating ? '🗣️' : '🤫'}
+          <Emoji text={narrating ? '🗣️' : '🤫'} />
         </button>
       </div>
       <h1 className="title" onClick={() => tapSay('Pick a game!')}>Little Learners</h1>
@@ -300,7 +300,7 @@ export default function App() {
           onClick={() => openSubject('math')}
           aria-label="Math games"
         >
-          <span className="big-emoji">👾🍪</span>
+          <span className="big-emoji"><Emoji text="👾🍪" /></span>
           <span className="subject-name">Math</span>
           <span className="label">1 2 3</span>
         </button>
@@ -309,13 +309,13 @@ export default function App() {
           onClick={() => openSubject('reading')}
           aria-label="Reading games"
         >
-          <span className="big-emoji">🎈🔤</span>
+          <span className="big-emoji"><Emoji text="🎈🔤" /></span>
           <span className="subject-name">Reading</span>
           <span className="label">a b c</span>
         </button>
       </div>
       <div className="parent-links">
-        <button className="link-btn" onClick={() => setScreen({ name: 'gate' })}>⚙️ Grown-ups</button>
+        <button className="link-btn" onClick={() => setScreen({ name: 'gate' })}><Emoji text="⚙️" /> Grown-ups</button>
       </div>
     </div>
   );

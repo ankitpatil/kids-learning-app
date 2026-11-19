@@ -5,6 +5,7 @@ import { EURO_BODY, EURO_HAND, LOST_GRACE_MS, createDeadband, createDwell, creat
 import { INDEX_TIP, loadHandTracker, loadPoseTracker } from '../motion/tracker';
 import { ARM, createBodyFrame, createHandPicker, createPlayerLock, reachToScreen, torso, type ActiveHand, type LockStep, type Pose } from '../motion/player';
 import { say } from '../audio/speech';
+import { Emoji } from './Icon';
 
 /** Live Move-mode settings; re-render when they change anywhere in the app. */
 export function useMotionSettings(): MotionSettings {
@@ -382,18 +383,18 @@ function MotionSession({ mode }: { mode: TrackingMode }) {
       <div className={`motion-preview ${mode} ${failed ? 'off' : ''} ${status === 'tracking' ? 'live' : ''}`} aria-hidden>
         <video ref={videoRef} playsInline muted />
         <canvas ref={canvasRef} />
-        {badge && <span className="motion-badge">{badge}</span>}
+        {badge && <span className="motion-badge"><Emoji text={badge} /></span>}
       </div>
-      <div ref={upRef} className="motion-scroll up">⬆️</div>
-      <div ref={downRef} className="motion-scroll down">⬇️</div>
+      <div ref={upRef} className="motion-scroll up"><Emoji text="⬆️" /></div>
+      <div ref={downRef} className="motion-scroll down"><Emoji text="⬇️" /></div>
       <div ref={cursorRef} className="motion-cursor" style={{ opacity: 0 }}>
-        <span className="motion-dot">✋</span>
+        <span className="motion-dot"><Emoji text="✋" /></span>
       </div>
-      {status === 'raise' && <div className="motion-chip">🙋 Whoever is playing — raise your hand!</div>}
-      {status === 'noHand' && <div className="motion-chip">✋ Show me your hand!</div>}
+      {status === 'raise' && <div className="motion-chip"><Emoji text="🙋" /> Whoever is playing — raise your hand!</div>}
+      {status === 'noHand' && <div className="motion-chip"><Emoji text="✋" /> Show me your hand!</div>}
       {failed && (
         <div className="motion-chip warn" role="alert">
-          {status === 'blocked' ? '📷 Camera is blocked — allow it in the browser, or' : '📷 Move mode could not start (needs internet the first time) —'}{' '}
+          <Emoji text="📷" /> {status === 'blocked' ? 'Camera is blocked — allow it in the browser, or' : 'Move mode could not start (needs internet the first time) —'}{' '}
           <button className="link-btn strong" onClick={() => saveMotionSettings({ enabled: false })}>
             use touch
           </button>
@@ -417,7 +418,7 @@ export function MoveModeToggle() {
         say(on ? 'Touch mode.' : 'Move mode!');
       }}
     >
-      {on ? '🙌' : '👆'}
+      <Emoji text={on ? '🙌' : '👆'} />
     </button>
   );
 }

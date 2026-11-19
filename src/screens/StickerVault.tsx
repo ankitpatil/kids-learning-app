@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { STICKERS, STICKER_PAGES, type Sticker } from '../content/stickers';
 import { collectedCount } from '../engine/stickers';
 import { say, tapSay } from '../audio/speech';
-import { Icon } from '../components/Icon';
+import { Emoji, Icon } from '../components/Icon';
 
 interface Props {
   owned: Record<string, number>;
@@ -21,8 +21,8 @@ export function StickerVault({ owned, onBack }: Props) {
   return (
     <div className="screen vault">
       <div className="topbar">
-        <button className="back-btn" onClick={onBack} aria-label="Back to home">⬅️ Back</button>
-        <div className="vault-count" aria-label={`${got} of ${STICKERS.length} stickers`}>📒 {got} / {STICKERS.length}</div>
+        <button className="back-btn" onClick={onBack} aria-label="Back to home"><Emoji text="⬅️" /> Back</button>
+        <div className="vault-count" aria-label={`${got} of ${STICKERS.length} stickers`}><Emoji text="📒" /> {got} / {STICKERS.length}</div>
         <span style={{ width: 64 }} />
       </div>
       {STICKER_PAGES.map(({ page, title }) => {

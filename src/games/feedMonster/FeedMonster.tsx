@@ -227,13 +227,13 @@ export function FeedMonster({ profileId, trackId, onDone, onExit }: Props) {
     return (
       <div className="screen game">
         <div className="topbar">
-          <button className="back-btn" onClick={onExit} aria-label="Back to levels">⬅️ Levels</button>
+          <button className="back-btn" onClick={onExit} aria-label="Back to levels"><Emoji text="⬅️" /> Levels</button>
           <div className="progress" aria-label={`Question ${index + 1} of ${ROUND_LENGTH}`}>
             {Array.from({ length: ROUND_LENGTH }, (_, i) => (
               <span key={i} className={i < index ? 'dot done' : i === index ? `dot now${slot.current.kind === 'stretch' ? ' bonus' : ''}` : 'dot'} />
             ))}
           </div>
-          <button className="icon-btn" onClick={() => tapSay(promptFor(item))} aria-label="Say again">🔊</button>
+          <button className="icon-btn" onClick={() => tapSay(promptFor(item))} aria-label="Say again"><Emoji text="🔊" /></button>
         </div>
         <div className={`monster cmp-monster ${mood}`} aria-hidden>
           <div className="monster-face"><Emoji text={done ? '😋' : mood === 'oops' ? '😮' : item.ask === 'more' ? '🤤' : '😌'} /></div>
@@ -271,13 +271,13 @@ export function FeedMonster({ profileId, trackId, onDone, onExit }: Props) {
     return (
       <div className="screen game">
       <div className="topbar">
-        <button className="back-btn" onClick={onExit} aria-label="Back to levels">⬅️ Levels</button>
+        <button className="back-btn" onClick={onExit} aria-label="Back to levels"><Emoji text="⬅️" /> Levels</button>
         <div className="progress" aria-label={`Question ${index + 1} of ${ROUND_LENGTH}`}>
           {Array.from({ length: ROUND_LENGTH }, (_, i) => (
             <span key={i} className={i < index ? 'dot done' : i === index ? `dot now${slot.current.kind === 'stretch' ? ' bonus' : ''}` : 'dot'} />
           ))}
         </div>
-        <button className="icon-btn" onClick={() => tapSay(promptFor(item))} aria-label="Say again">🔊</button>
+        <button className="icon-btn" onClick={() => tapSay(promptFor(item))} aria-label="Say again"><Emoji text="🔊" /></button>
       </div>
 
         {item.mode === 'choose' ? (
@@ -330,8 +330,8 @@ export function FeedMonster({ profileId, trackId, onDone, onExit }: Props) {
               </div>
             </div>
             <div className="actions">
-              <button className="btn secondary" onClick={takeBack} disabled={fed === 0 && boxes === 0} aria-label="Take one back">↩️</button>
-              <button className="btn primary" onClick={() => submit(boxes * 10 + fed)} disabled={fed === 0 && boxes === 0} aria-label="Done">✅</button>
+              <button className="btn secondary" onClick={takeBack} disabled={fed === 0 && boxes === 0} aria-label="Take one back"><Emoji text="↩️" /></button>
+              <button className="btn primary" onClick={() => submit(boxes * 10 + fed)} disabled={fed === 0 && boxes === 0} aria-label="Done"><Emoji text="✅" /></button>
             </div>
           </>
         ) : (
@@ -354,13 +354,13 @@ export function FeedMonster({ profileId, trackId, onDone, onExit }: Props) {
   return (
     <div className="screen game">
       <div className="topbar">
-        <button className="back-btn" onClick={onExit} aria-label="Back to levels">⬅️ Levels</button>
+        <button className="back-btn" onClick={onExit} aria-label="Back to levels"><Emoji text="⬅️" /> Levels</button>
         <div className="progress" aria-label={`Question ${index + 1} of ${ROUND_LENGTH}`}>
           {Array.from({ length: ROUND_LENGTH }, (_, i) => (
             <span key={i} className={i < index ? 'dot done' : i === index ? `dot now${slot.current.kind === 'stretch' ? ' bonus' : ''}` : 'dot'} />
           ))}
         </div>
-        <button className="icon-btn" onClick={() => tapSay(promptFor(item))} aria-label="Say again">🔊</button>
+        <button className="icon-btn" onClick={() => tapSay(promptFor(item))} aria-label="Say again"><Emoji text="🔊" /></button>
       </div>
 
       {item.have > 0 ? (
@@ -395,8 +395,8 @@ export function FeedMonster({ profileId, trackId, onDone, onExit }: Props) {
             ))}
           </div>
           <div className="actions">
-            <button className="btn secondary" onClick={takeBack} disabled={fed === 0} aria-label="Take one back">↩️</button>
-            <button className="btn primary" onClick={() => submit(fed)} disabled={fed === 0} aria-label="Done">✅</button>
+            <button className="btn secondary" onClick={takeBack} disabled={fed === 0} aria-label="Take one back"><Emoji text="↩️" /></button>
+            <button className="btn primary" onClick={() => submit(fed)} disabled={fed === 0} aria-label="Done"><Emoji text="✅" /></button>
           </div>
         </>
       ) : (
