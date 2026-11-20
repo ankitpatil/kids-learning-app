@@ -14,6 +14,8 @@ export interface QuickItem {
   say: string;
   /** Big visual shown above the choices (emoji or equation text). */
   visual: string;
+  /** Bundled icon name for a picture item (word, phonics). Shown instead of `visual`, which holds its emoji as fallback text (I2: OpenMoji pictures have no exact emoji). */
+  icon?: string;
   choices: string[];
   answer: string;
 }
@@ -150,6 +152,7 @@ function wordItem(trackId: string, level: number, rng: Rng): QuickItem {
     trackId, level,
     say: `Tap the word ${w.word}`,
     visual: iconEmoji(w.icon),
+    icon: w.icon,
     choices: shuffle([w.word, ...distractors], rng),
     answer: w.word,
   };
@@ -157,7 +160,7 @@ function wordItem(trackId: string, level: number, rng: Rng): QuickItem {
 
 function phonicsQuick(level: number, rng: Rng): QuickItem {
   const it = makePhonicsItem(level, rng);
-  return { trackId: 'phonics', level, say: `Which letter does ${it.word} start with?`, visual: iconEmoji(it.icon), choices: it.choices, answer: it.target };
+  return { trackId: 'phonics', level, say: `Which letter does ${it.word} start with?`, visual: iconEmoji(it.icon), icon: it.icon, choices: it.choices, answer: it.target };
 }
 
 export function makeQuickItem(trackId: string, level: number, rng: Rng = Math.random): QuickItem {

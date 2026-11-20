@@ -8,7 +8,7 @@ import { say, tapSay } from '../../audio/speech';
 import { fresh } from '../../engine/recent';
 import { feedback } from '../../components/Feedback';
 import { TOUCH_HOLD_MS } from '../../motion/pointer';
-import { Emoji } from '../../components/Icon';
+import { Emoji, Icon } from '../../components/Icon';
 
 const ROUND_LENGTH = 8;
 
@@ -135,7 +135,7 @@ export function PopTheAnswer({ profileId, trackId, onDone, onExit }: Props) {
       </div>
 
       <button className={`pop-question ${item.visual ? '' : 'listen'}`} onClick={() => tapSay(item.say)} aria-label={`Hear the question: ${item.say}`}>
-        <Emoji text={item.visual || '👂'} />
+        {item.icon ? <Icon name={item.icon} /> : <Emoji text={item.visual || '👂'} />}
       </button>
 
       <div className="pop-sky">

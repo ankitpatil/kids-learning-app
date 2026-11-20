@@ -82,7 +82,8 @@ export const EMOJI_ICON: Record<string, string> = {
 // Emoji used in the app with no Fluent icon: they render as system emoji.
 export const NO_ICON: string[] = [];
 
-// Every bundled icon name -> its emoji (fallback text). Includes names content refers to directly.
+// Every bundled icon name -> its emoji (fallback text; the nearest emoji for OpenMoji extras). Includes names content refers to directly.
+// `om-` names are OpenMoji (CC BY-SA 4.0), the rest Fluent Emoji Flat (MIT).
 export const ICON_EMOJI: Record<string, string> = {
   "airplane": "✈️",
   "alien-monster": "👾",
@@ -185,7 +186,6 @@ export const ICON_EMOJI: Record<string, string> = {
   "hatching-chick": "🐣",
   "helicopter": "🚁",
   "honeybee": "🐝",
-  "hot-beverage": "☕️",
   "house": "🏠",
   "ice": "🧊",
   "input-latin-letters": "🔤",
@@ -221,6 +221,10 @@ export const ICON_EMOJI: Record<string, string> = {
   "nest-with-eggs": "🪺",
   "nose": "👃",
   "octopus": "🐙",
+  "om-desk-lamp": "💡",
+  "om-hot-beverage": "☕️",
+  "om-milk-jug": "🥛",
+  "om-trash-bin": "🗑️",
   "one-oclock": "🕐",
   "open-book": "📖",
   "owl": "🦉",

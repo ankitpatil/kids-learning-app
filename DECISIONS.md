@@ -2,6 +2,16 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-19 — OpenMoji extras + credits (I2a)
+- **Split I2**: I2a = OpenMoji as a second icon source, credits, filling gaps; I2b = 2–3 picture variants per word (random, stable within an item). Variants touch five games, too much to do well in the same run.
+- **Naming**: OpenMoji icons are `om-<OpenMoji name>` in content and on disk (`public/icons/om-milk-jug.svg`), so one flat namespace and the existing `<Icon name>` keep working; unprefixed = Fluent. Artwork is unchanged (only the `<svg>` wrapper, viewBox 72×72, is added).
+- **Fallback emoji**: OpenMoji extras live in the Unicode Private Use Area, so they have no system emoji. `OM_FALLBACK` in `scripts/build-icons.mjs` gives the nearest emoji (jug → 🥛, bin → 🗑️, lamp → 💡), shown only if the SVG fails; the build fails if one is missing, so no picture can render blank.
+- **Quick items carry the icon name**: Placement and Pop the Answer showed word pictures as emoji text (re-mapped to Fluent), which would turn an OpenMoji picture into the wrong Fluent one (cup → top view of coffee, jug → glass of milk). They now render `<Icon name>`; `visual` keeps the emoji as fallback text.
+- **Content changes kept small**: cup → OpenMoji's side-view cup with handle (Fluent's ☕ is seen from above and reads as "coffee"); new words jug, bin (CVC) and lamp (blends) with look-alikes (jog/mug/bug, pin/bun/ban, lump/limp/camp). No other picture swaps — the rest of the Fluent pictures read fine.
+- **Nothing to restore**: git history shows no word ever removed from `words.ts`, endings, letters or word problems (I1b converted every emoji to a name), so "restore dropped words" had nothing to do.
+- **Credits**: `CREDITS.md` (new; S1's sound credits can go there too), README Credits, and a small "About & credits" card in Grown-ups (behind the parent gate, so the outbound links aren't in front of kids). CC BY-SA is satisfied by attribution + licence link; we don't modify the artwork.
+- Not checked in a browser this run (build and tests only); the four OpenMoji SVGs were rendered and look right.
+
 ## 2026-11-19 — No narration on read-it-yourself levels (Ankit)
 - Ankit: switch narration off on advanced levels where kids should be able to read. With "talking" on, the app was still reading out what the child was meant to read (Story Sums read the whole story problem; stories said the title and read the answer line back; sentences were read back after a miss).
 - Which levels: those where the child reads a sentence or story on their own — `READS_ALONE_FROM`: Sentences (both levels), -s -ed -ing level 3 ("read it yourself"), Stories levels 2–3, Story Sums levels 2–3. Levels labelled "read to you" are never silenced (tested).

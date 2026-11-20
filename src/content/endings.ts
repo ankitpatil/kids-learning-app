@@ -30,7 +30,7 @@ export const ENDING_NOUNS: EndingNoun[] = [
   { base: 'hat', icon: 'top-hat' },
   { base: 'ship', icon: 'ship' },
   { base: 'kite', icon: 'kite' },
-  { base: 'cup', icon: 'hot-beverage' },
+  { base: 'cup', icon: 'om-hot-beverage' },
 ];
 
 export type Ending = 's' | 'ed' | 'ing';

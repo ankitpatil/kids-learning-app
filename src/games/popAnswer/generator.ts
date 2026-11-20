@@ -25,6 +25,8 @@ export interface PopItem {
   say: string;
   /** Big picture / equation above the balloons. Empty for listen-only items (sight words). */
   visual: string;
+  /** Bundled icon name shown instead of `visual` for picture items (see QuickItem.icon). */
+  icon?: string;
   answer: string;
   /** Balloon labels, answer included exactly once. */
   choices: string[];
@@ -63,11 +65,11 @@ export function makePopItem(trackId: string, level: number, rng: Rng = Math.rand
     // Keep the look-alike partner (b/d) when it's there: it's the point of the top level.
     const partner = CONFUSABLES[it.target];
     const ordered = [...it.choices].sort((a, b) => Number(b === partner) - Number(a === partner));
-    return { id: `pop-${it.id}`, trackId, level, say: `Which letter does ${it.word} start with?`, visual: iconEmoji(it.icon), answer: it.target, choices: trimChoices(ordered, it.target, ease ? 2 : MAX_BALLOONS, rng) };
+    return { id: `pop-${it.id}`, trackId, level, say: `Which letter does ${it.word} start with?`, visual: iconEmoji(it.icon), icon: it.icon, answer: it.target, choices: trimChoices(ordered, it.target, ease ? 2 : MAX_BALLOONS, rng) };
   }
   const q = makeQuickItem(trackId, level, rng);
-  const id = `pop-${trackId}-${q.visual}-${q.answer}`;
-  return { id, trackId, level, say: q.say, visual: q.visual, answer: q.answer, choices: trimChoices(q.choices, q.answer, ease ? 2 : MAX_BALLOONS, rng) };
+  const id = `pop-${trackId}-${q.icon ?? q.visual}-${q.answer}`;
+  return { id, trackId, level, say: q.say, visual: q.visual, icon: q.icon, answer: q.answer, choices: trimChoices(q.choices, q.answer, ease ? 2 : MAX_BALLOONS, rng) };
 }
 
 /** Which track a subject's Pop round plays: the child's next unmastered skill that Pop can play. */

@@ -106,5 +106,9 @@ The app keeps everything on the device in IndexedDB and asks the browser for per
 
 ## Credits
 
+Full list with licences: [CREDITS.md](CREDITS.md). Also shown in the app under Grown-ups → About & credits.
+
+
 - Pictures: [Fluent Emoji](https://github.com/microsoft/fluentui-emoji) (flat style) by Microsoft, MIT licence, via `@iconify-json/fluent-emoji-flat`. Only the icons the app uses are copied to `public/icons/` by `npm run icons`.
+- Extra pictures (`public/icons/om-*.svg`): [OpenMoji](https://openmoji.org) – the open-source emoji and icon project, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), via `@iconify-json/openmoji`. Content names them `om-<name>`.
 - Fonts: [Nunito](https://fonts.google.com/specimen/Nunito) and [Andika](https://software.sil.org/andika/) (SIL Open Font License), self-hosted via Fontsource.

@@ -4,7 +4,7 @@ import { makeQuickItem, type QuickItem } from '../engine/quickItems';
 import type { Subject } from '../engine/tracks';
 import { say, stopSpeech, tapSay } from '../audio/speech';
 import { fresh } from '../engine/recent';
-import { Emoji } from '../components/Icon';
+import { Emoji, Icon } from '../components/Icon';
 
 interface Props {
   subject: Subject;
@@ -56,7 +56,7 @@ export function Placement({ subject, onDone, onExit }: Props) {
       return () => clearTimeout(t);
     }
     const cp = currentCheckpoint(state);
-    const it = fresh(`placement-${cp.trackId}`, () => makeQuickItem(cp.trackId, cp.level), (x) => `${x.visual}|${x.answer}`);
+    const it = fresh(`placement-${cp.trackId}`, () => makeQuickItem(cp.trackId, cp.level), (x) => `${x.icon ?? x.visual}|${x.answer}`);
     setItem(it);
     setPicked(null);
     busy.current = false;
@@ -104,7 +104,7 @@ export function Placement({ subject, onDone, onExit }: Props) {
         </div>
         <button className="icon-btn" onClick={() => tapSay(item.say)} aria-label="Say again"><Emoji text="🔊" /></button>
       </div>
-      <div className={`quick-visual ${item.visual.length > 24 ? 'small' : ''}`}><Emoji text={item.visual} /></div>
+      <div className={`quick-visual ${!item.icon && item.visual.length > 24 ? 'small' : ''}`}>{item.icon ? <Icon name={item.icon} /> : <Emoji text={item.visual} />}</div>
       <div className={`quick-choices ${wordChoices ? 'words' : ''}`}>
         {item.choices.map((c) => (
           <button key={c} className={`quick-choice ${picked === c ? 'picked' : ''}`} onClick={() => choose(c)} aria-label={c}>

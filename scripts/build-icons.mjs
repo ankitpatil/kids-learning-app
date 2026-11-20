@@ -1,4 +1,6 @@
 // Bundles Fluent Emoji (flat, MIT, Microsoft) SVGs for every emoji the app's source uses (I1).
+// Content may also name OpenMoji icons (CC BY-SA 4.0) as `om-<openmoji name>` (I2): extras Fluent lacks
+// and clearer pictures for some words. Credits: CREDITS.md, README and the Grown-ups screen.
 // Scans src/ (not tests) for emoji, maps each to its Fluent icon name, adds the icon *names* content
 // refers to (src/icons/contentIcons.ts, loaded through Vite — I1b), writes public/icons/<name>.svg and
 // src/icons/iconMap.gen.ts. Run `npm run icons` after adding emoji or icon names; a test fails if stale.
@@ -11,11 +13,32 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const pkg = path.join(root, 'node_modules/@iconify-json/fluent-emoji-flat');
 const icons = JSON.parse(fs.readFileSync(path.join(pkg, 'icons.json'), 'utf8'));
 const chars = JSON.parse(fs.readFileSync(path.join(pkg, 'chars.json'), 'utf8'));
+const omPkg = path.join(root, 'node_modules/@iconify-json/openmoji');
+const omIcons = JSON.parse(fs.readFileSync(path.join(omPkg, 'icons.json'), 'utf8'));
+const omChars = JSON.parse(fs.readFileSync(path.join(omPkg, 'chars.json'), 'utf8'));
+
+/** Prefix for OpenMoji icon names in content (`om-milk-jug`); unprefixed names are Fluent. */
+export const OPENMOJI_PREFIX = 'om-';
+const isOm = (name) => name.startsWith(OPENMOJI_PREFIX);
+
+/**
+ * Fallback emoji for OpenMoji extras (Private Use Area, no system emoji): the nearest real emoji, shown only
+ * if the SVG fails to load. Add one here when content names a new OpenMoji extra (the build fails without it).
+ */
+export const OM_FALLBACK = {
+  'milk-jug': '🥛',
+  'trash-bin': '🗑️',
+  'desk-lamp': '💡',
+};
+
+function bodyIn(set, name) {
+  if (set.icons[name]) return { ...set.icons[name], width: set.icons[name].width ?? set.width, height: set.icons[name].height ?? set.height };
+  const alias = set.aliases?.[name];
+  return alias ? bodyIn(set, alias.parent) : undefined;
+}
 
 function resolveBody(name) {
-  if (icons.icons[name]) return icons.icons[name];
-  const alias = icons.aliases?.[name];
-  return alias ? resolveBody(alias.parent) : undefined;
+  return isOm(name) ? bodyIn(omIcons, name.slice(OPENMOJI_PREFIX.length)) : bodyIn(icons, name);
 }
 
 export function buildIconMap(emojiList) {
@@ -33,9 +56,13 @@ export function buildIconMap(emojiList) {
 
 /** Icon name -> emoji text (system-emoji fallback). Single BMP symbols get U+FE0F so they draw as emoji. */
 export function emojiForName(name) {
-  const hex = Object.keys(chars).find((h) => chars[h] === name);
+  const table = isOm(name) ? omChars : chars;
+  const bare = isOm(name) ? name.slice(OPENMOJI_PREFIX.length) : name;
+  const hex = Object.keys(table).find((h) => table[h] === bare);
   if (!hex) return '';
   const cps = hex.split('-').map((h) => parseInt(h, 16));
+  // OpenMoji extras live in the Private Use Area: no system emoji to fall back to.
+  if (cps.some((c) => c >= 0xe000 && c <= 0xf8ff)) return OM_FALLBACK[bare] ?? '';
   const s = String.fromCodePoint(...cps);
   return cps.length === 1 && cps[0] < 0x1f000 ? s + '\uFE0F' : s;
 }
@@ -61,7 +88,8 @@ ${lines.join('\n')}
 // Emoji used in the app with no Fluent icon: they render as system emoji.
 export const NO_ICON: string[] = ${JSON.stringify(missing.sort())};
 
-// Every bundled icon name -> its emoji (fallback text). Includes names content refers to directly.
+// Every bundled icon name -> its emoji (fallback text; the nearest emoji for OpenMoji extras). Includes names content refers to directly.
+// \`om-\` names are OpenMoji (CC BY-SA 4.0), the rest Fluent Emoji Flat (MIT).
 export const ICON_EMOJI: Record<string, string> = {
 ${rev.join('\n')}
 };
@@ -84,7 +112,12 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.a
   const { map, missing } = buildIconMap([...used.keys()]);
   const { ok: names, bad } = resolveNames(await loadContentNames());
   if (bad.length) {
-    console.error(`icons: unknown Fluent icon names in content: ${bad.join(' ')}`);
+    console.error(`icons: unknown icon names in content (Fluent, or om-<OpenMoji name>): ${bad.join(' ')}`);
+    process.exit(1);
+  }
+  const noFallback = names.filter((n) => !emojiForName(n));
+  if (noFallback.length) {
+    console.error(`icons: add a fallback emoji to OM_FALLBACK in scripts/build-icons.mjs for: ${noFallback.join(' ')}`);
     process.exit(1);
   }
   const outDir = path.join(root, 'public/icons');
@@ -93,8 +126,8 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.a
   let bytes = 0;
   for (const name of new Set([...Object.values(map), ...names])) {
     const ic = resolveBody(name);
-    const w = ic.width ?? icons.width ?? 32;
-    const h = ic.height ?? icons.height ?? 32;
+    const w = ic.width ?? 32;
+    const h = ic.height ?? 32;
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}">${ic.body}</svg>\n`;
     fs.writeFileSync(path.join(outDir, `${name}.svg`), svg);
     bytes += svg.length;

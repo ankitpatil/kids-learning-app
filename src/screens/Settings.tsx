@@ -166,6 +166,15 @@ export function Settings({ onBack, onVoice }: { onBack: () => void; onVoice: () 
           Only learning details are sent (level, phonics patterns, topic, the current question) — never a name, profile or voice recording. No API key is stored here; it lives in your proxy. See <code>proxy/README.md</code> to set one up.
         </p>
       </section>
+
+      <section className="settings-card about-credits">
+        <span className="voice-name">About &amp; credits</span>
+        <p className="voice-sub">
+          Pictures: Fluent Emoji by Microsoft (MIT licence) and{' '}
+          <a href="https://openmoji.org" target="_blank" rel="noreferrer">OpenMoji</a> – the open-source emoji and icon project, licence{' '}
+          <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noreferrer">CC BY-SA 4.0</a>. Fonts: Nunito and Andika (SIL Open Font License).
+        </p>
+      </section>
     </div>
   );
 }

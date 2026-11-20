@@ -1,5 +1,5 @@
 import type { Pattern } from './stories';
-// Picture words per reading pattern. `near` = minimal-pair / look-alike distractors (all real, kid-safe words).
+// Picture words per reading pattern. Icons are Fluent Emoji names, or `om-…` for OpenMoji (I2). `near` = minimal-pair / look-alike distractors (all real, kid-safe words).
 export interface PictureWord {
   word: string;
   icon: string;
@@ -15,11 +15,13 @@ export const WORDS: Record<string, PictureWord[]> = {
     { word: 'bus', icon: 'bus', near: ['bud', 'but', 'bun'] },
     { word: 'hat', icon: 'top-hat', near: ['hot', 'ham', 'bat'] },
     { word: 'bed', icon: 'bed', near: ['bad', 'red', 'beg'] },
-    { word: 'cup', icon: 'hot-beverage', near: ['cap', 'pup', 'cut'] },
+    { word: 'cup', icon: 'om-hot-beverage', near: ['cap', 'pup', 'cut'] },
     { word: 'fox', icon: 'fox', near: ['box', 'fix', 'fog'] },
     { word: 'map', icon: 'world-map', near: ['mop', 'cap', 'mat'] },
     { word: 'net', icon: 'goal-net', near: ['nut', 'pet', 'nap'] },
     { word: 'ten', icon: 'keycap-10', near: ['tin', 'tan', 'hen'] },
+    { word: 'jug', icon: 'om-milk-jug', near: ['jog', 'mug', 'bug'] },
+    { word: 'bin', icon: 'om-trash-bin', near: ['pin', 'bun', 'ban'] },
   ],
   digraphs: [
     { word: 'ship', icon: 'ship', near: ['chip', 'shop', 'sip'] },
@@ -40,6 +42,7 @@ export const WORDS: Record<string, PictureWord[]> = {
     { word: 'clock', icon: 'one-oclock', near: ['lock', 'click', 'block'] },
     { word: 'crab', icon: 'crab', near: ['cab', 'grab', 'crib'] },
     { word: 'truck', icon: 'delivery-truck', near: ['tuck', 'track', 'trick'] },
+    { word: 'lamp', icon: 'om-desk-lamp', near: ['lump', 'limp', 'camp'] },
   ],
   silentE: [
     { word: 'kite', icon: 'kite', near: ['kit', 'bite', 'kits'] },
