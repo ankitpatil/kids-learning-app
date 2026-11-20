@@ -3,11 +3,11 @@ import { makeWordProblem, eqText, eqSpoken, hintFor, signHint, spokenStory, solv
 import { ai } from '../../ai/app';
 import { createWhyHinter } from '../../ai/whyHint';
 import { updateSkill, type SkillState } from '../../engine/adaptive';
-import { maxLevel } from '../../engine/tracks';
+import { maxLevel, readsAlone } from '../../engine/tracks';
 import { numberWord } from '../../engine/numberWords';
 import { getSkillState, getSkillStates, saveSkillState, logAttempt } from '../../store/db';
 import { planRound, resolveSlot, type Slot } from '../../engine/roundMix';
-import { say, tapSay } from '../../audio/speech';
+import { say, tapSay, setReadingAlone } from '../../audio/speech';
 import { fresh } from '../../engine/recent';
 import { feedback } from '../../components/Feedback';
 import { Emoji, Icon } from '../../components/Icon';
@@ -54,6 +54,7 @@ function Pictures({ it }: { it: WordProblem }) {
 }
 
 export function StorySums({ profileId, onDone, onExit }: Props) {
+  useEffect(() => () => setReadingAlone(false), []); // leaving the game: narration back to normal
   const [state, setState] = useState<SkillState | null>(null);
   const [item, setItem] = useState<WordProblem | null>(null);
   const [index, setIndex] = useState(0);
@@ -97,6 +98,7 @@ export function StorySums({ profileId, onDone, onExit }: Props) {
     misses.current = 0;
     started.current = Date.now();
     busy.current = false;
+    setReadingAlone(readsAlone(sl.trackId, sl.level)); // reading levels: no narration, the child reads it
     setTimeout(() => say((sl.kind === 'stretch' ? 'Bonus challenge! || ' : '') + ask(it)), 250);
   }
 

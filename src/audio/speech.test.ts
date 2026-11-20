@@ -128,6 +128,19 @@ describe('narration (off by default)', () => {
     expect(spoken.map((u) => u.text)).toEqual(['cat']);
   });
 
+  it('reading levels: no narration even with talking on, but taps still read aloud', async () => {
+    const { say, tapSay, setNarration, setReadingAlone } = await import('./speech');
+    setNarration(true);
+    setReadingAlone(true);
+    say('The cat sat on the mat.');
+    expect(spoken).toHaveLength(0);
+    tapSay('mat');
+    expect(spoken.map((u) => u.text)).toEqual(['mat']);
+    setReadingAlone(false);
+    say('Yes!');
+    expect(spoken.map((u) => u.text)).toEqual(['mat', 'Yes!']);
+  });
+
   it('silent mode silences taps too', async () => {
     const { tapSay, setMuted } = await import('./speech');
     setMuted(true);

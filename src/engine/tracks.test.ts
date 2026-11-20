@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { TRACKS, getTrack, getLevel, maxLevel, tracksFor, AGE_BANDS, LEVEL_AGES, levelAge, levelsInBand } from './tracks';
+import { TRACKS, getTrack, getLevel, maxLevel, tracksFor, AGE_BANDS, LEVEL_AGES, levelAge, levelsInBand, READS_ALONE_FROM, readsAlone } from './tracks';
 import { PHONICS_LEVEL_NEW } from '../games/phonicsPop/letters';
 import { COUNT_MAX_BY_LEVEL } from './skills';
 
@@ -100,6 +100,31 @@ describe('suggested age per level', () => {
     for (const t of TRACKS) {
       const all = AGE_BANDS.flatMap((b) => levelsInBand(t, b.id)).sort((a, b) => a - b);
       expect(all).toEqual(t.levels.map((_, i) => i));
+    }
+  });
+});
+
+describe('reading levels without narration', () => {
+  it('only levels where the child reads the text themselves', () => {
+    expect(readsAlone('stories', 0)).toBe(false); // read to you
+    expect(readsAlone('stories', 1)).toBe(true);
+    expect(readsAlone('stories', 2)).toBe(true);
+    expect(readsAlone('endings', 1)).toBe(false); // read to you
+    expect(readsAlone('endings', 2)).toBe(true); // read it yourself
+    expect(readsAlone('sentences', 0)).toBe(true);
+    expect(readsAlone('wordProblems', 0)).toBe(false); // pictures
+    expect(readsAlone('wordProblems', 1)).toBe(true);
+    // the spoken word / sound is the question here: never quiet
+    for (const id of ['phonics', 'sightWords', 'cvc', 'silentE', 'count']) expect(readsAlone(id, maxLevel(id))).toBe(false);
+  });
+
+  it('never silences a level whose label says it is read to you, and every listed track exists', () => {
+    for (const [id, from] of Object.entries(READS_ALONE_FROM)) {
+      const t = getTrack(id);
+      expect(from).toBeLessThanOrEqual(maxLevel(id));
+      t.levels.forEach((l, i) => {
+        if (/read to you/.test(l.label)) expect(readsAlone(id, i)).toBe(false);
+      });
     }
   });
 });

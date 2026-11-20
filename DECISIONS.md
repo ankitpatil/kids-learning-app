@@ -2,6 +2,12 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-19 — No narration on read-it-yourself levels (Ankit)
+- Ankit: switch narration off on advanced levels where kids should be able to read. With "talking" on, the app was still reading out what the child was meant to read (Story Sums read the whole story problem; stories said the title and read the answer line back; sentences were read back after a miss).
+- Which levels: those where the child reads a sentence or story on their own — `READS_ALONE_FROM`: Sentences (both levels), -s -ed -ing level 3 ("read it yourself"), Stories levels 2–3, Story Sums levels 2–3. Levels labelled "read to you" are never silenced (tested).
+- Not included: letter sounds, short words / sh ch th / blends / magic e / vowel teams, tricky words, Pop the Answer — the spoken sound or word is the question there ("Pop the word *was*", "Build the word ship"), so silencing would break the game.
+- On those levels *all* automatic speech is off for that item (prompt, praise, read-backs, spoken hints), not only the text. Tap-to-hear (🔊, a word, the story card) still works and is how a child gets help. Set per item, so a review/stretch item from a read-to-you level still talks; an "easy" story after misses (read to you) talks too.
+
 ## 2026-11-19 — Icons everywhere in the UI (I1c)
 - **Wrap, don't rename**: UI strings keep their emoji and render through `<Emoji text>` (it splits text into bundled pictures + plain text). Fewer moving parts than switching every button to icon names, and the emoji stays the readable fallback.
 - **Load-failure fallback**: `<Icon>` swaps to its emoji (`fallback`, else `ICON_EMOJI[name]`) when the SVG fails to load (`onError`). Checked in a browser with `/icons/*.svg` blocked: every picture shows as system emoji, nothing goes blank.

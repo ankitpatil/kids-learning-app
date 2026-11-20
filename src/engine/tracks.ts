@@ -144,6 +144,25 @@ export const LEVEL_AGES: Record<string, AgeBand[]> = {
 };
 
 /** Suggested age band for a level (falls back to the last known band, then the youngest). */
+/**
+ * Levels where the child reads the sentence or story on their own (Ankit, 2026-11-19). On these the app
+ * doesn't narrate by itself (prompts, praise, reading the text back), even with talking switched on:
+ * reading it is the point. Tapping 🔊, a word or the story card still reads it aloud, as help.
+ * Value = the first such level of the track; tracks not listed never go quiet (letter sounds, single
+ * words and tricky words are asked out loud: the spoken word is the question).
+ */
+export const READS_ALONE_FROM: Record<string, number> = {
+  sentences: 0, // "Read the sentence. Which word fits?"
+  endings: 2, // "-s -ed -ing, read it yourself" (levels 0–1 are read to you)
+  stories: 1, // "you read, help on tap" and "read it yourself" (level 0 is read to you)
+  wordProblems: 1, // number-sentence levels: the story is shown as text (level 0 is pictures)
+};
+
+export function readsAlone(trackId: string, level: number): boolean {
+  const from = READS_ALONE_FROM[trackId];
+  return from !== undefined && level >= from;
+}
+
 export function levelAge(trackId: string, level: number): AgeBand {
   const bands = LEVEL_AGES[trackId] ?? [];
   return bands[Math.min(level, bands.length - 1)] ?? 'a34';

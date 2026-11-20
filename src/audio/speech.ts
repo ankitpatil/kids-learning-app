@@ -36,6 +36,19 @@ export function setNarration(on: boolean) {
   if (!on) stopSpeech();
 }
 
+// Reading levels (see `readsAlone` in engine/tracks): the child reads by themselves, so no narration
+// there, whatever the talking setting. Games set this per item and clear it when they close.
+let readingAlone = false;
+
+export function setReadingAlone(on: boolean) {
+  if (on && !readingAlone) stopSpeech(); // don't finish reading out the last item's text
+  readingAlone = on;
+}
+
+export function isReadingAlone() {
+  return readingAlone;
+}
+
 export function setMuted(m: boolean) {
   muted = m;
   try {
@@ -126,7 +139,7 @@ function utter(text: string, rate: number): SpeechSynthesisUtterance {
  * utterance runs everything together. A new call (or `stopSpeech`) cancels what is left.
  */
 export function say(text: string, opts: { rate?: number; tapped?: boolean } = {}) {
-  if (muted || (!narration && !opts.tapped) || typeof window === 'undefined' || !window.speechSynthesis) return;
+  if (muted || ((!narration || readingAlone) && !opts.tapped) || typeof window === 'undefined' || !window.speechSynthesis) return;
   stopSpeech();
   const mine = generation;
   const rate = opts.rate ?? 0.9;

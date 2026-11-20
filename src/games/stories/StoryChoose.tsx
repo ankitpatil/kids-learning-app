@@ -3,9 +3,9 @@ import { pickStory, unlockedPattern, readMode, makeQuestion, questionSpeech, sto
 import type { Story, StoryChoice } from '../../content/stories';
 import { tokenize } from '../../audio/readAlong';
 import { updateSkill, type SkillState } from '../../engine/adaptive';
-import { maxLevel } from '../../engine/tracks';
+import { maxLevel, readsAlone } from '../../engine/tracks';
 import { getSkillState, getSkillStates, saveSkillState, logAttempt } from '../../store/db';
-import { say, sayAlong, tapSay, isNarrationOn } from '../../audio/speech';
+import { say, sayAlong, tapSay, isNarrationOn, setReadingAlone } from '../../audio/speech';
 import { fresh, remember } from '../../engine/recent';
 import { ai } from '../../ai/app';
 import { createWhyHinter } from '../../ai/whyHint';
@@ -30,6 +30,7 @@ interface Props {
 type Hi = { line: number; word: number | null } | null;
 
 export function StoryChoose({ profileId, onDone, onExit }: Props) {
+  useEffect(() => () => setReadingAlone(false), []); // leaving the game: narration back to normal
   const [state, setState] = useState<SkillState | null>(null);
   const [story, setStory] = useState<Story | null>(null);
   const [mode, setMode] = useState<ReadMode>('auto');
@@ -122,6 +123,7 @@ export function StoryChoose({ profileId, onDone, onExit }: Props) {
     const s = given ?? fresh(TRACK, () => pickStory(lv, unlocked.current, Math.random, easy, [], cached.current), (x) => x.id);
     if (given) remember(TRACK, given.id);
     const m = readMode(lv, easy);
+    setReadingAlone(m !== 'auto' && readsAlone(TRACK, lv)); // the child reads it: no narration (🔊 / tapping still helps)
     qi.current = 0;
     readHelp.current = false;
     setStory(s);
