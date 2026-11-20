@@ -9,6 +9,7 @@ import { STORIES } from '../content/stories';
 import { TRACKS } from '../engine/tracks';
 import { LETTERS } from '../games/phonicsPop/letters';
 import { TOPIC_ICONS } from '../games/stories/aiStory';
+import { variantIconNames } from '../content/pictureVariants';
 
 /** Icon names used by each content source (for clear test failures). */
 export function contentIconSources(): Record<string, string[]> {
@@ -23,6 +24,7 @@ export function contentIconSources(): Record<string, string[]> {
     tracks: TRACKS.map((t) => t.icon),
     letters: Object.values(LETTERS).map((l) => l.icon),
     storyTopics: Object.values(TOPIC_ICONS),
+    pictureVariants: variantIconNames(),
   };
 }
 

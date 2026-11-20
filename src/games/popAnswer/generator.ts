@@ -68,7 +68,8 @@ export function makePopItem(trackId: string, level: number, rng: Rng = Math.rand
     return { id: `pop-${it.id}`, trackId, level, say: `Which letter does ${it.word} start with?`, visual: iconEmoji(it.icon), icon: it.icon, answer: it.target, choices: trimChoices(ordered, it.target, ease ? 2 : MAX_BALLOONS, rng) };
   }
   const q = makeQuickItem(trackId, level, rng);
-  const id = `pop-${trackId}-${q.icon ?? q.visual}-${q.answer}`;
+  // Picture items are identified by question + answer, not the picture, so a new variant isn't a new item (I2b).
+  const id = `pop-${trackId}-${q.icon ? q.say : q.visual}-${q.answer}`;
   return { id, trackId, level, say: q.say, visual: q.visual, icon: q.icon, answer: q.answer, choices: trimChoices(q.choices, q.answer, ease ? 2 : MAX_BALLOONS, rng) };
 }
 

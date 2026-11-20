@@ -1,5 +1,6 @@
 import { ENDING_VERBS, ENDING_NOUNS, ENDING_FRAMES, type Ending } from '../../content/endings';
 import { getLevel } from '../../engine/tracks';
+import { pickIcon } from '../../content/pictureVariants';
 import type { Rng } from '../feedMonster/generator';
 import type { WhyContext } from '../../ai/whyHint';
 
@@ -58,7 +59,7 @@ export function makeEndingItem(level: number, rng: Rng = Math.random, ease = fal
       word,
       before: before.trimEnd(),
       after: after.trimStart(),
-      icon: src.icon,
+      icon: pickIcon(src.icon, rng),
       iconCount: plural ? 2 : 1,
       choices,
       readAloud: cfg.scaffold || ease,

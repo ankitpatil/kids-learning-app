@@ -2,6 +2,14 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-20 — Picture variety (I2b)
+- **One variant table keyed by the main icon** (`src/content/pictureVariants.ts`, `ICON_VARIANTS`) instead of an `alt` field on `PictureWord`, letters and endings: the same picture (cat-face, sun, soccer-ball…) appears in several content sets, and one table makes it vary the same way everywhere with no copies to keep in sync. Content files are unchanged.
+- **What counts as a variant**: the OpenMoji drawing of the same thing, and/or a related Fluent icon (cat-face → cat, sun → sun-with-face, clock → alarm-clock, boat → canoe, apple → green apple). 1–2 per picture, so 2–3 pictures in all; 68 word/letter/ending pictures vary. Never a picture of a `near` look-alike (hat has no cap variant, boat no boot). Rendered a contact sheet of all of them and dropped three that didn't read at a glance (OpenMoji shell, soap, delivery truck). No variants for cup (Fluent's ☕ reads as coffee), jug or lamp (only OpenMoji draws them). Sentence clues, stories, stickers and Magic-e pairs keep one picture (not in the item).
+- **Picked once, when the item is made** (`pickIcon(icon, rng)`), stored in the item's `icon` / `pictures` / `answer`, so retries, hints and the answer check all see the same picture. `pickIcon` doesn't touch the rng for pictures with no variants.
+- **Read it**: distractor pictures are now de-duplicated by word as well as picture, then each gets its own variant, so one item never shows two pictures of the same word; the answer is the target's chosen picture.
+- **No-repeat keys ignore the picture**: Placement and Pop the Answer used the picture in their "don't repeat the last item" key; for picture items they now use the question + answer, so cat → (different) cat doesn't count as a new item.
+- +82 SVGs (≈ 470 KB for all icons, precache ≈ 1.26 MB). Not checked in the running app this run (tests, build and the contact sheet only).
+
 ## 2026-11-19 — OpenMoji extras + credits (I2a)
 - **Split I2**: I2a = OpenMoji as a second icon source, credits, filling gaps; I2b = 2–3 picture variants per word (random, stable within an item). Variants touch five games, too much to do well in the same run.
 - **Naming**: OpenMoji icons are `om-<OpenMoji name>` in content and on disk (`public/icons/om-milk-jug.svg`), so one flat namespace and the existing `<Icon name>` keep working; unprefixed = Fluent. Artwork is unchanged (only the `<svg>` wrapper, viewBox 72×72, is added).

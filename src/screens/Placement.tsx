@@ -56,7 +56,7 @@ export function Placement({ subject, onDone, onExit }: Props) {
       return () => clearTimeout(t);
     }
     const cp = currentCheckpoint(state);
-    const it = fresh(`placement-${cp.trackId}`, () => makeQuickItem(cp.trackId, cp.level), (x) => `${x.icon ?? x.visual}|${x.answer}`);
+    const it = fresh(`placement-${cp.trackId}`, () => makeQuickItem(cp.trackId, cp.level), (x) => `${x.icon ? x.say : x.visual}|${x.answer}`);
     setItem(it);
     setPicked(null);
     busy.current = false;

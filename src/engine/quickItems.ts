@@ -3,6 +3,7 @@
 import { getLevel } from './tracks';
 import { WORDS } from '../content/words';
 import { iconEmoji } from '../icons/icons';
+import { pickIcon } from '../content/pictureVariants';
 import { makePhonicsItem } from '../games/phonicsPop/generator';
 
 export type Rng = () => number;
@@ -148,11 +149,12 @@ function wordItem(trackId: string, level: number, rng: Rng): QuickItem {
     const others = Object.entries(WORDS).filter(([k]) => k !== trackId).flatMap(([, v]) => v.map((x) => x.word));
     distractors = shuffle(others, rng).filter((x) => x !== w.word).slice(0, 3);
   }
+  const icon = pickIcon(w.icon, rng);
   return {
     trackId, level,
     say: `Tap the word ${w.word}`,
-    visual: iconEmoji(w.icon),
-    icon: w.icon,
+    visual: iconEmoji(icon),
+    icon,
     choices: shuffle([w.word, ...distractors], rng),
     answer: w.word,
   };

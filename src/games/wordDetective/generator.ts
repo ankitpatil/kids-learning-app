@@ -1,6 +1,7 @@
 import type { WhyContext } from '../../ai/whyHint';
 import { WORDS, MAGIC_E, SENTENCES, type PictureWord } from '../../content/words';
 import { PATTERNS } from '../../content/stories';
+import { pickIcon } from '../../content/pictureVariants';
 import { getLevel } from '../../engine/tracks';
 import type { Rng } from '../feedMonster/generator';
 
@@ -105,16 +106,19 @@ export function makeReadItem(track: PictureTrack, level: number, rng: Rng = Math
   const otherTracks = Object.entries(WORDS).filter(([k]) => k !== track).flatMap(([, v]) => v);
   const pool = shuffle(near ? sameTrack : otherTracks, rng);
   const pics: PictureWord[] = [target];
+  // One picture per word: never two words with the same main picture, never two variants of one word.
   for (const w of pool) {
     if (pics.length >= n) break;
-    if (!pics.some((p) => p.icon === w.icon)) pics.push(w);
+    if (!pics.some((p) => p.icon === w.icon || p.word === w.word)) pics.push(w);
   }
+  // I2b: each picture is drawn from its variants once, here; the item keeps it.
+  const shown = pics.map((p) => ({ icon: pickIcon(p.icon, rng), word: p.word }));
   return {
     kind: 'read',
     id: `read-${target.word}`,
     word: target.word,
-    pictures: shuffle(pics, rng).map((p) => ({ icon: p.icon, word: p.word })),
-    answer: target.icon,
+    pictures: shuffle(shown, rng),
+    answer: shown[0].icon,
   };
 }
 
@@ -139,7 +143,7 @@ export function makeBuildItem(track: PictureTrack, level: number, rng: Rng = Mat
     kind: 'build',
     id: `build-${target.word}`,
     word: target.word,
-    icon: target.icon,
+    icon: pickIcon(target.icon, rng),
     slots,
     tiles: shuffle([...slots, ...decoys], rng),
     prefilled: ease ? 1 : 0,

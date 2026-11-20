@@ -1,6 +1,7 @@
 import { CONFUSABLES, LETTERS, PHONICS_LEVEL_NEW, lettersUpTo } from './letters';
 import type { Rng } from '../feedMonster/generator';
 import { getLevel } from '../../engine/tracks';
+import { pickIcon } from '../../content/pictureVariants';
 import type { WhyContext } from '../../ai/whyHint';
 
 export interface PhonicsItem {
@@ -66,7 +67,7 @@ export function makePhonicsItem(level: number, rng: Rng = Math.random, ease = fa
   }
 
   const info = LETTERS[target];
-  return { id: `phonics-${target}`, target, word: info.word, icon: info.icon, choices: shuffle([...choices], rng) };
+  return { id: `phonics-${target}`, target, word: info.word, icon: pickIcon(info.icon, rng), choices: shuffle([...choices], rng) };
 }
 
 /**
