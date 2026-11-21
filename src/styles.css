@@ -653,8 +653,13 @@ body.move-mode .clock-face.small { width: min(12rem, 28vw, 28vh); }
 .dino-nest.party .baby { animation: dino-jump .45s ease-in-out infinite; }
 .dino-nest.party .b2 { animation-delay: .22s; }
 .dino-nest.party .babies { font-size: .85em; }
-.nest-yay { position: absolute; bottom: 100%; margin-bottom: .2em; font-size: .55em; font-weight: 900; white-space: nowrap; background: #fff; color: #e84393; padding: 0.1em 0.5em; border-radius: 1em; border: 0.15em solid #e84393; animation: dino-pop-in .3s, dino-bob .6s ease-in-out infinite; }
-.maze-banner { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 4; padding: 1.5vh 3.5vh; border-radius: 3vh; background: #2d1b4ee8; border: 0.5vh solid #fdcb6e; font-size: clamp(1.5rem, 5.5vh, 3.25rem); font-weight: 900; text-align: center; max-width: 80%; animation: dino-pop-in .35s; }
+.nest-yay { position: absolute; bottom: 110%; right: -0.5rem; font-size: clamp(1.25rem, 4.6vh, 2.75rem); font-weight: 900; white-space: nowrap; background: #fff; color: #e84393; padding: 0.15em 0.6em; border-radius: 1em; border: 0.15em solid #e84393; box-shadow: 0 0.5vh 0 #0003; animation: dino-pop-in .3s, dino-bob .8s ease-in-out .3s infinite; }
+.nest-yay::after { content: ''; position: absolute; right: 1.2em; top: 100%; border: 0.45em solid transparent; border-top-color: #e84393; }
+.maze-banner small { display: block; font-size: .62em; color: #ffeaa7; margin-top: .3em; }
+.maze-banner-icon { font-size: 1.8em; line-height: 1; animation: dino-bob 1s ease-in-out infinite; }
+.dino-obstacle.ahead { animation: dino-alert .7s ease-in-out infinite; z-index: 4; }
+@keyframes dino-alert { 0%, 100% { scale: 1; } 50% { scale: 1.45; } }
+.maze-banner { display: flex; align-items: center; gap: 2.5vh; text-align: left !important; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 4; padding: 1.5vh 3.5vh; border-radius: 3vh; background: #2d1b4ee8; border: 0.5vh solid #fdcb6e; font-size: clamp(1.5rem, 5.5vh, 3.25rem); font-weight: 900; text-align: center; max-width: 80%; animation: dino-pop-in .35s; }
 .dino-mom { z-index: 3; font-size: clamp(2.25rem, 8.5vh, 6rem); transition-property: left, top; transition-timing-function: linear; filter: drop-shadow(0 0.4rem 0.3rem #0005); }
 .dino-mom .mom-flip { display: inline-block; }
 .dino-mom.walking .mom-flip > * { display: inline-block; animation: dino-stride .75s ease-in-out infinite; transform-origin: 50% 100%; }

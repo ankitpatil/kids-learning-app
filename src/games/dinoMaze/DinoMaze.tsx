@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { E, OBSTACLES, S, makeDinoLevel, nextStop, type DinoLevel, type ObstacleDef } from './maze';
+import { BABY_FINALE, E, OBSTACLES, S, babyCheers, makeDinoLevel, nextStop, type DinoLevel, type ObstacleDef } from './maze';
 import { addHit, hitsNeeded, layoutTargets, makeDinoPuzzle, pickDinoSlot, type DinoSlot, type HitCounts, type TargetSpot } from './puzzles';
 import { createGestureDetector, createHover, inside, type Target } from './gestures';
 import { useBodyCamera, type CameraFrame } from './useBodyCamera';
@@ -8,7 +8,7 @@ import { updateSkill, type SkillState } from '../../engine/adaptive';
 import { maxLevel, type Subject } from '../../engine/tracks';
 import { fresh } from '../../engine/recent';
 import { getSkillStates, logAttempt, saveSkillState } from '../../store/db';
-import { isNarrationOn, say, stopSpeech, tapSay } from '../../audio/speech';
+import { isMuted, stopSpeech, tapSay, type SayOptions } from '../../audio/speech';
 import { playCorrect, playHit, playKidsCheer, playWrong } from '../../audio/sfx';
 import { startChiptune, stopChiptune } from '../../audio/chiptune';
 import { setMotionSuspended } from '../../motion/settings';
@@ -20,15 +20,16 @@ interface Props {
   onExit: () => void;
 }
 
-type Phase = 'intro' | 'walk' | 'puzzle' | 'celebrate' | 'finale';
+type Phase = 'intro' | 'walk' | 'arrive' | 'puzzle' | 'celebrate' | 'finale';
 
 /** Ms per maze cell: a slow, steady walk (the music plays meanwhile). */
 const STEP_MS = 750;
 const INSTRUCTION_MS = 2600;
 const HEAR_HOLD_MS = 1200;
-/** Right answer → back to the maze after this long; then the babies cheer this long before Mom walks on. */
+/** Right answer → back to the maze after this long. */
 const BACK_TO_MAZE_MS = 1300;
-const CELEBRATE_MS = 2600;
+/** The babies' voice: high and quick. */
+const BABY_VOICE: SayOptions = { pitch: 1.9, rate: 1.1 };
 
 /** Hedge segments for the maze walls: one per closed side between two cells (the outside is the frame). */
 function hedges(level: DinoLevel) {
@@ -42,7 +43,7 @@ function hedges(level: DinoLevel) {
   return out;
 }
 
-function MazeBoard({ level, pos, cleared, facing, phase, cheer }: { level: DinoLevel; pos: number; cleared: number; facing: 1 | -1; phase: Phase; cheer: string }) {
+function MazeBoard({ level, pos, cleared, facing, phase, banner, babyLine }: { level: DinoLevel; pos: number; cleared: number; facing: 1 | -1; phase: Phase; banner: { icon: string; text: string; sub?: string } | null; babyLine: string }) {
   const { maze, path, obstacles } = level;
   const mom = path[pos];
   const walls = useMemo(() => hedges(level), [level]);
@@ -69,14 +70,15 @@ function MazeBoard({ level, pos, cleared, facing, phase, cheer }: { level: DinoL
         const c = path[ob.at];
         const done = k < cleared;
         const justDone = done && k === cleared - 1 && phase === 'celebrate';
+        const ahead = k === cleared && phase === 'arrive';
         return (
-          <span key={k} className={`dino-obstacle ${done ? 'done' : ''} ${justDone ? 'poof' : ''}`} style={at(c.x, c.y)}>
+          <span key={k} className={`dino-obstacle ${done ? 'done' : ''} ${justDone ? 'poof' : ''} ${ahead ? 'ahead' : ''}`} style={at(c.x, c.y)}>
             <Emoji text={done ? '✨' : OBSTACLES[ob.kind].icon} />
           </span>
         );
       })}
       <span className={`dino-nest ${party ? 'party' : ''}`} style={at(goal.x, goal.y)}>
-        {phase === 'celebrate' && <span className="nest-yay">Yay!</span>}
+        {party && babyLine && <span key={babyLine} className="nest-yay">{babyLine}</span>}
         <span className="babies">
           <span className="baby b1"><Emoji text="🦖" /></span>
           <span className="baby b2"><Emoji text="🦖" /></span>
@@ -88,7 +90,15 @@ function MazeBoard({ level, pos, cleared, facing, phase, cheer }: { level: DinoL
           <Emoji text="🦕" />
         </span>
       </span>
-      {phase === 'celebrate' && cheer && <div className="maze-banner">{cheer}</div>}
+      {banner && (
+        <div key={banner.text} className="maze-banner" aria-live="polite">
+          <span className="maze-banner-icon"><Emoji text={banner.icon} /></span>
+          <span>
+            {banner.text}
+            {banner.sub && <small>{banner.sub}</small>}
+          </span>
+        </div>
+      )}
     </div>
   );
 }
@@ -140,7 +150,10 @@ export function DinoMaze({ profileId, onDone, onExit }: Props) {
   const [instruction, setInstruction] = useState(false);
   const [hits, setHits] = useState<HitCounts>({});
   const [need, setNeed] = useState(3);
-  const [cheer, setCheer] = useState('');
+  const [banner, setBanner] = useState<{ icon: string; text: string; sub?: string } | null>(null);
+  const [babyLine, setBabyLine] = useState('');
+  const cheers = useMemo(() => babyCheers(level.obstacles.length), [level]);
+  const alive = useRef(true);
 
   const states = useRef<Record<string, SkillState>>({});
   const asked = useRef(0);
@@ -162,9 +175,11 @@ export function DinoMaze({ profileId, onDone, onExit }: Props) {
 
   // The app-wide Move-mode camera pauses while this game has its own.
   useEffect(() => {
+    alive.current = true;
     setMotionSuspended(true);
     getSkillStates(profileId).then((s) => (states.current = s));
     return () => {
+      alive.current = false;
       setMotionSuspended(false);
       stopChiptune();
       stopSpeech();
@@ -183,11 +198,28 @@ export function DinoMaze({ profileId, onDone, onExit }: Props) {
     else stopChiptune();
   }, [phase]);
 
+  /**
+   * Speak (always — the child is standing back from the TV), then go on once the words are done, but
+   * not before `minMs` (so the banner can be read when speech is off) nor later than `maxMs`.
+   */
+  const speakThen = useCallback((text: string, opts: SayOptions, minMs: number, maxMs: number, then: () => void) => {
+    const t0 = Date.now();
+    let done = false;
+    const go = () => {
+      if (done || !alive.current) return;
+      done = true;
+      window.clearTimeout(cap);
+      then();
+    };
+    const cap = window.setTimeout(go, maxMs);
+    tapSay(text, { ...opts, onEnd: () => window.setTimeout(go, Math.max(0, minMs - (Date.now() - t0))) });
+  }, []);
+
   const openPuzzle = useCallback(
     (k: number) => {
       const d = OBSTACLES[level.obstacles[k].kind];
       detector.current = createGestureDetector(d.gesture);
-      const sl = pickDinoSlot(asked.current, first, states.current, isNarrationOn());
+      const sl = pickDinoSlot(asked.current, first, states.current, !isMuted()) // questions are always spoken here, so sight words work unless muted;
       slot.current = sl;
       const easy = ease.current;
       ease.current = false;
@@ -209,7 +241,8 @@ export function DinoMaze({ profileId, onDone, onExit }: Props) {
       setPhase('puzzle');
       setInstruction(true);
       window.setTimeout(() => setInstruction(false), INSTRUCTION_MS);
-      say(`Oh no, a ${d.name.toLowerCase()}! | ${d.instruction} Hit it ${n} times! || ${it.say}`);
+      setBanner(null);
+      tapSay(`Hit it ${n} times! || ${it.say}`);
     },
     [level, first],
   );
@@ -219,12 +252,20 @@ export function DinoMaze({ profileId, onDone, onExit }: Props) {
     if (phase !== 'walk') return;
     const stop = nextStop(level, pos, cleared);
     if (pos >= stop.to) {
-      if (stop.obstacle >= 0) openPuzzle(stop.obstacle);
-      else {
+      if (stop.obstacle >= 0) {
+        // Stop on the maze first: show and say what's in the way, then open the puzzle.
+        const k = stop.obstacle;
+        const d = OBSTACLES[level.obstacles[k].kind];
+        setPhase('arrive');
+        setBanner({ icon: d.icon, text: d.arrive, sub: d.instruction });
+        speakThen(`${d.arrive} || ${d.instruction}`, {}, 3000, 10000, () => openPuzzle(k));
+      } else {
         setPhase('finale');
+        setBanner(null);
         playKidsCheer();
-        say('You found the babies! | Hooray for Dino Mom!');
-        window.setTimeout(() => onDone({ correct: correct.current, total, leveledUp: leveledUp.current }), 3400);
+        setBabyLine(BABY_FINALE);
+        const finish = () => onDone({ correct: correct.current, total, leveledUp: leveledUp.current });
+        speakThen('You found the babies! Hooray for Dino Mom!', {}, 1500, 6000, () => speakThen(BABY_FINALE, BABY_VOICE, 1500, 5000, finish));
       }
       return;
     }
@@ -235,11 +276,11 @@ export function DinoMaze({ profileId, onDone, onExit }: Props) {
       setPos(pos + 1);
     }, STEP_MS);
     return () => window.clearTimeout(t);
-  }, [phase, pos, cleared, level, openPuzzle, onDone, total]);
+  }, [phase, pos, cleared, level, openPuzzle, onDone, total, speakThen]);
 
   function start() {
     if (live.current.phase !== 'intro') return;
-    say('Help Dino Mom find her babies!');
+    tapSay('Help Dino Mom find her babies!');
     setPhase('walk');
   }
 
@@ -270,17 +311,24 @@ export function DinoMaze({ profileId, onDone, onExit }: Props) {
       if (!hintUsed) correct.current += 1;
       asked.current += 1;
       playCorrect();
-      say(`Yes! | ${label}!`);
-      // Back to the maze: the obstacle goes poof, the babies jump and cheer, then Mom walks on.
+      tapSay(`Yes! ${label}!`);
+      // Back to the maze: the obstacle goes poof and we say what happened; then the babies jump and
+      // shout ("Yay! Come on, Mommy!") and Mom walks on.
       window.setTimeout(() => {
+        if (!alive.current) return;
         setCleared(k + 1);
         setObstacle(-1);
         setItem(null);
-        setCheer(d.cleared);
+        setBabyLine('');
+        setBanner({ icon: d.burst, text: d.cleared });
         setPhase('celebrate');
-        playKidsCheer();
-        say(d.cleared);
-        window.setTimeout(() => setPhase('walk'), CELEBRATE_MS);
+        speakThen(d.cleared, {}, 1400, 5000, () => {
+          const line = cheers[k] ?? 'Yay!';
+          setBanner(null);
+          setBabyLine(line);
+          playKidsCheer();
+          window.setTimeout(() => speakThen(line, BABY_VOICE, 1800, 6000, () => setPhase('walk')), 500);
+        });
       }, BACK_TO_MAZE_MS);
       await record(true, hintUsed);
       return;
@@ -292,7 +340,7 @@ export function DinoMaze({ profileId, onDone, onExit }: Props) {
     if (r.hint) setHint(true);
     if (r.outcome === 'wrong') {
       playWrong();
-      say(`That one is ${label}. || ${it.say}`);
+      tapSay(`That one is ${label}. || ${it.say}`);
       await record(false, false);
     }
   }
@@ -371,7 +419,7 @@ export function DinoMaze({ profileId, onDone, onExit }: Props) {
   const camOk = cam.status !== 'blocked' && cam.status !== 'error';
   const mirror = camOk && (phase === 'puzzle' || phase === 'intro');
   const aimedSet = new Set(aimed ? aimed.split('|') : []);
-  const onMaze = phase === 'walk' || phase === 'celebrate' || phase === 'finale' || (phase === 'intro' && !camOk);
+  const onMaze = phase === 'walk' || phase === 'arrive' || phase === 'celebrate' || phase === 'finale' || (phase === 'intro' && !camOk);
 
   return (
     <div className={`screen dino-game phase-${phase} ${def ? `${def.kind} lay-${def.layout}` : ''} ${mirror ? 'mirror' : ''}`}>
@@ -391,7 +439,7 @@ export function DinoMaze({ profileId, onDone, onExit }: Props) {
 
       {onMaze && (
         <div className="dino-board">
-          <MazeBoard level={level} pos={pos} cleared={cleared} facing={facing} phase={phase} cheer={cheer} />
+          <MazeBoard level={level} pos={pos} cleared={cleared} facing={facing} phase={phase} banner={banner} babyLine={babyLine} />
         </div>
       )}
 

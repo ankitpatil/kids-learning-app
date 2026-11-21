@@ -110,21 +110,23 @@ export interface ObstacleDef {
   target: string;
   /** Shown on the target once it's the right one. */
   burst: string;
+  /** Said (and shown) on the maze when Mom reaches the obstacle, before the puzzle opens. */
+  arrive: string;
   /** Said when the obstacle is cleared. */
   cleared: string;
 }
 
 export const OBSTACLES: Record<ObstacleKind, ObstacleDef> = {
-  rocks: { kind: 'rocks', name: 'Rocky hill', icon: '⛰️', gesture: 'bash', layout: 'mid', instruction: 'Smash the right rock!', move: '👊', target: '🪨', burst: '💥', cleared: 'Smash! The rocks are gone!' },
-  ice: { kind: 'ice', name: 'Ice wall', icon: '🧊', gesture: 'bash', layout: 'mid', instruction: 'Smash the right ice block!', move: '👊', target: '🧊', burst: '💦', cleared: 'Crash! The ice wall broke!' },
-  vines: { kind: 'vines', name: 'Jungle vines', icon: '🌿', gesture: 'chop', layout: 'hang', instruction: 'Karate chop the right vine — swing down!', move: '🤚', target: '🌿', burst: '✂️', cleared: 'Chop chop! The jungle is open!' },
-  web: { kind: 'web', name: 'Spider webs', icon: '🕸️', gesture: 'chop', layout: 'hang', instruction: 'Chop through the right web — swing down!', move: '🤚', target: '🕸️', burst: '✂️', cleared: 'Swish! The webs are cut!' },
-  door: { kind: 'door', name: 'Locked door', icon: '🚪', gesture: 'grab', layout: 'mid', instruction: 'Grab the right key with both hands!', move: '🙌', target: '🔑', burst: '🔓', cleared: 'Click! The door is open!' },
-  log: { kind: 'log', name: 'Fallen tree', icon: '🪵', gesture: 'grab', layout: 'mid', instruction: 'Lift the right log with both hands!', move: '🙌', target: '🪵', burst: '💪', cleared: 'Heave-ho! The tree is out of the way!' },
-  river: { kind: 'river', name: 'Wide river', icon: '🌊', gesture: 'jump', layout: 'floor', instruction: 'Stand by the right stone and jump!', move: '🦘', target: '🪨', burst: '🦕', cleared: 'Splash! Across the river!' },
-  lava: { kind: 'lava', name: 'Lava stream', icon: '🌋', gesture: 'jump', layout: 'floor', instruction: 'Stand by the right stone and jump — hot hot!', move: '🦘', target: '🪨', burst: '🦕', cleared: 'Hop hop! Over the hot lava!' },
-  bats: { kind: 'bats', name: 'Bat cave', icon: '🦇', gesture: 'bash', layout: 'high', instruction: 'Reach up and bonk the right bat!', move: '🙋', target: '🦇', burst: '💨', cleared: 'Whoosh! The bats flew away!' },
-  coconut: { kind: 'coconut', name: 'Coconut tree', icon: '🌴', gesture: 'bash', layout: 'high', instruction: 'Reach up and knock down the right coconut!', move: '🙋', target: '🥥', burst: '💥', cleared: 'Bonk! The coconuts fell down!' },
+  rocks: { kind: 'rocks', name: 'Rocky hill', icon: '⛰️', gesture: 'bash', layout: 'mid', instruction: 'Smash the right rock!', move: '👊', target: '🪨', burst: '💥', arrive: 'Oh no! A rocky hill is in the way!', cleared: 'Smash! The rocks are gone!' },
+  ice: { kind: 'ice', name: 'Ice wall', icon: '🧊', gesture: 'bash', layout: 'mid', instruction: 'Smash the right ice block!', move: '👊', target: '🧊', burst: '💦', arrive: 'Oh no! A cold ice wall!', cleared: 'Crash! The ice wall broke!' },
+  vines: { kind: 'vines', name: 'Jungle vines', icon: '🌿', gesture: 'chop', layout: 'hang', instruction: 'Karate chop the right vine — swing down!', move: '🤚', target: '🌿', burst: '✂️', arrive: 'Oh no! Jungle vines block the path!', cleared: 'Chop chop! The jungle is open!' },
+  web: { kind: 'web', name: 'Spider webs', icon: '🕸️', gesture: 'chop', layout: 'hang', instruction: 'Chop through the right web — swing down!', move: '🤚', target: '🕸️', burst: '✂️', arrive: 'Oh no! Sticky spider webs!', cleared: 'Swish! The webs are cut!' },
+  door: { kind: 'door', name: 'Locked door', icon: '🚪', gesture: 'grab', layout: 'mid', instruction: 'Grab the right key with both hands!', move: '🙌', target: '🔑', burst: '🔓', arrive: 'Oh no! A locked door!', cleared: 'Click! The door is open!' },
+  log: { kind: 'log', name: 'Fallen tree', icon: '🪵', gesture: 'grab', layout: 'mid', instruction: 'Lift the right log with both hands!', move: '🙌', target: '🪵', burst: '💪', arrive: 'Oh no! A big tree fell on the path!', cleared: 'Heave-ho! The tree is out of the way!' },
+  river: { kind: 'river', name: 'Wide river', icon: '🌊', gesture: 'jump', layout: 'floor', instruction: 'Stand by the right stone and jump!', move: '🦘', target: '🪨', burst: '🦕', arrive: 'Oh no! A wide river!', cleared: 'Splash! Across the river!' },
+  lava: { kind: 'lava', name: 'Lava stream', icon: '🌋', gesture: 'jump', layout: 'floor', instruction: 'Stand by the right stone and jump — hot hot!', move: '🦘', target: '🪨', burst: '🦕', arrive: 'Oh no! A hot lava stream!', cleared: 'Hop hop! Over the hot lava!' },
+  bats: { kind: 'bats', name: 'Bat cave', icon: '🦇', gesture: 'bash', layout: 'high', instruction: 'Reach up and bonk the right bat!', move: '🙋', target: '🦇', burst: '💨', arrive: 'Oh no! A dark bat cave!', cleared: 'Whoosh! The bats flew away!' },
+  coconut: { kind: 'coconut', name: 'Coconut tree', icon: '🌴', gesture: 'bash', layout: 'high', instruction: 'Reach up and knock down the right coconut!', move: '🙋', target: '🥥', burst: '💥', arrive: 'Oh no! A coconut tree blocks the way!', cleared: 'Bonk! The coconuts fell down!' },
 };
 export const OBSTACLE_KINDS = Object.keys(OBSTACLES) as ObstacleKind[];
 
@@ -173,4 +175,32 @@ export function makeDinoLevel(rng: Rng = Math.random, count = OBSTACLES_PER_GAME
 export function nextStop(level: DinoLevel, from: number, cleared: number): { to: number; obstacle: number } {
   if (cleared >= level.obstacles.length) return { to: level.path.length - 1, obstacle: -1 };
   return { to: Math.max(from, level.obstacles[cleared].at - 1), obstacle: cleared };
+}
+
+// ---------- The babies' shouts ----------
+
+/** What the babies shout from the nest after Mom clears an obstacle (the last one has its own). */
+export const BABY_CHEERS = [
+  'Yay! Come on, Mommy!',
+  'Yay! You can do it, Mommy!',
+  'Hooray! Hurry, Mommy!',
+  'Woo-hoo! Keep going, Mommy!',
+  'Yay! We are waiting, Mommy!',
+  'Go, Mommy, go!',
+  'Yippee! You are so strong, Mommy!',
+  'Yay! This way, Mommy!',
+];
+export const BABY_ALMOST = 'Yay! Almost here, Mommy!';
+export const BABY_FINALE = 'Mommy! We missed you!';
+
+/** One shout per obstacle for a game: different each time, the last one says she's almost there. */
+export function babyCheers(n: number, rng: Rng = Math.random): string[] {
+  const out: string[] = [];
+  let pool: string[] = [];
+  for (let i = 0; i < n - 1; i++) {
+    if (!pool.length) pool = shuffle(BABY_CHEERS, rng).filter((c) => c !== out[out.length - 1]);
+    out.push(pool.shift()!);
+  }
+  if (n > 0) out.push(BABY_ALMOST);
+  return out;
 }

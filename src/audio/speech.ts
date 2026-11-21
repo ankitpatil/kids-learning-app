@@ -121,10 +121,10 @@ export function stopSpeech() {
   if (typeof window !== 'undefined') window.speechSynthesis?.cancel();
 }
 
-function utter(text: string, rate: number): SpeechSynthesisUtterance {
+function utter(text: string, rate: number, pitch = 1.1): SpeechSynthesisUtterance {
   const u = new SpeechSynthesisUtterance(text);
   u.rate = rate;
-  u.pitch = 1.1;
+  u.pitch = pitch;
   const v = pickVoice();
   if (v) {
     u.voice = v;
@@ -138,8 +138,20 @@ function utter(text: string, rate: number): SpeechSynthesisUtterance {
  * `speechChunks`) and each phrase is spoken on its own with a pause after it, because one long
  * utterance runs everything together. A new call (or `stopSpeech`) cancels what is left.
  */
-export function say(text: string, opts: { rate?: number; tapped?: boolean } = {}) {
-  if (muted || ((!narration || readingAlone) && !opts.tapped) || typeof window === 'undefined' || !window.speechSynthesis) return;
+export interface SayOptions {
+  rate?: number;
+  /** Voice pitch (default 1.1; the Dino Maze babies use a high squeaky one). */
+  pitch?: number;
+  tapped?: boolean;
+  /** Called once the whole text has been spoken — not if it was cut off by newer speech. Called at once when nothing is spoken (muted, narration off, no speech engine). */
+  onEnd?: () => void;
+}
+
+export function say(text: string, opts: SayOptions = {}) {
+  if (muted || ((!narration || readingAlone) && !opts.tapped) || typeof window === 'undefined' || !window.speechSynthesis) {
+    if (opts.onEnd) setTimeout(opts.onEnd, 0);
+    return;
+  }
   stopSpeech();
   const mine = generation;
   const rate = opts.rate ?? 0.9;
@@ -155,8 +167,9 @@ export function say(text: string, opts: { rate?: number; tapped?: boolean } = {}
       clearTimeout(watchdog);
       queueTimers.delete(watchdog);
       if (i + 1 < chunks.length) later(() => speakChunk(i + 1), c.pause);
+      else opts.onEnd?.();
     };
-    const u = utter(c.text, rate);
+    const u = utter(c.text, rate, opts.pitch);
     u.onend = next;
     u.onerror = next;
     // Never get stuck if the engine drops `onend` (or never starts).
@@ -167,7 +180,7 @@ export function say(text: string, opts: { rate?: number; tapped?: boolean } = {}
 }
 
 /** Speak because the child tapped something (🔊, a picture): plays even when narration is off. */
-export function tapSay(text: string, opts: { rate?: number } = {}) {
+export function tapSay(text: string, opts: Omit<SayOptions, 'tapped'> = {}) {
   say(text, { ...opts, tapped: true });
 }
 

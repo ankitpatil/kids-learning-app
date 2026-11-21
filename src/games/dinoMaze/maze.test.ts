@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ANSWERS_PER_OBSTACLE, E, N, S, W, OBSTACLES, OBSTACLE_KINDS, OBSTACLES_PER_GAME, generateMaze, makeDinoLevel, nextStop, solve } from './maze';
+import { BABY_ALMOST, BABY_CHEERS, babyCheers, ANSWERS_PER_OBSTACLE, E, N, S, W, OBSTACLES, OBSTACLE_KINDS, OBSTACLES_PER_GAME, generateMaze, makeDinoLevel, nextStop, solve } from './maze';
 
 function seeded(seed: number) {
   let s = seed >>> 0;
@@ -85,5 +85,21 @@ describe('Dino Maze maze', () => {
 
   it('one right answer clears an obstacle', () => {
     expect(ANSWERS_PER_OBSTACLE).toBe(1);
+  });
+
+  it('every obstacle has an arrival line that is said on the maze', () => {
+    for (const k of OBSTACLE_KINDS) expect(OBSTACLES[k].arrive).toMatch(/^Oh no!/);
+  });
+
+  it('the babies shout something different after each obstacle, and "almost here" after the last', () => {
+    for (let seed = 1; seed <= 20; seed++) {
+      const lines = babyCheers(8, seeded(seed));
+      expect(lines).toHaveLength(8);
+      expect(lines[7]).toBe(BABY_ALMOST);
+      for (let i = 0; i < 7; i++) expect(BABY_CHEERS).toContain(lines[i]);
+      for (let i = 1; i < 7; i++) expect(lines[i]).not.toBe(lines[i - 1]);
+      expect(new Set(lines.slice(0, 7)).size).toBe(7); // 8 shouts to pick from: no repeats in a game
+      expect(lines.every((l) => /Mommy/.test(l))).toBe(true);
+    }
   });
 });

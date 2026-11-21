@@ -148,3 +148,37 @@ describe('narration (off by default)', () => {
     expect(spoken).toHaveLength(0);
   });
 });
+
+describe('onEnd and pitch (Dino Maze)', () => {
+  it('onEnd runs once the last phrase is done, not before', async () => {
+    const { tapSay } = await import('./speech');
+    const done = vi.fn();
+    tapSay('Oh no! A locked door!', { onEnd: done });
+    expect(spoken.map((u) => u.text)).toEqual(['Oh no!']);
+    spoken[0].onend?.();
+    vi.advanceTimersByTime(1000); // the pause, then the next phrase starts
+    expect(spoken.map((u) => u.text)).toEqual(['Oh no!', 'A locked door!']);
+    expect(done).not.toHaveBeenCalled();
+    spoken[1].onend?.();
+    expect(done).toHaveBeenCalledTimes(1);
+  });
+
+  it('onEnd still runs when nothing is spoken (narration off), and not when speech is cut off', async () => {
+    const { say, tapSay } = await import('./speech');
+    const quiet = vi.fn();
+    say('Prompt', { onEnd: quiet }); // narration is off: nothing spoken
+    vi.advanceTimersByTime(1);
+    expect(quiet).toHaveBeenCalledTimes(1);
+    const cut = vi.fn();
+    tapSay('One. Two.', { onEnd: cut });
+    tapSay('Hello!');
+    vi.advanceTimersByTime(20000);
+    expect(cut).not.toHaveBeenCalled();
+  });
+
+  it('a pitch can be set (the babies squeak)', async () => {
+    const { tapSay } = await import('./speech');
+    tapSay('Yay!', { pitch: 1.9 });
+    expect((spoken[0] as unknown as { pitch: number }).pitch).toBe(1.9);
+  });
+});

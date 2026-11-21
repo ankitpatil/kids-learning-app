@@ -2,6 +2,12 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-21 — Dino Maze: spoken obstacles + babies' shouts (TV1c, Ankit's feedback)
+- **Mom stops on the maze at each obstacle** (new "arrive" step): the obstacle pulses, a banner shows what it is and what to do, and it's said aloud ("Oh no! A locked door! … Grab the right key with both hands!"). The puzzle opens when the words are done (at least 3 s so the banner can be read; at most 10 s if speech stalls).
+- **After each success the babies shout from the nest** in a high, quick voice (pitch 1.9) with a matching speech bubble, after the cleared line is said: "Yay! Come on, Mommy!", "You can do it, Mommy!", "Hurry, Mommy!"… — 8 shouts, no repeats in a game, and "Yay! Almost here, Mommy!" after the last obstacle; at the nest: "Mommy! We missed you!". Mom walks on once they've finished.
+- **This game always speaks** (uses the tap-to-hear path, still silent when muted), even with talking off — the child stands back from the TV and can't tap 🔊; the question is spoken when the puzzle opens. Ankit's narration-off default is unchanged everywhere else. Since questions are spoken, **sight words are back in the mix** unless the app is muted.
+- `say`/`tapSay` gained `pitch` and `onEnd` (runs when the whole text is spoken, at once when nothing is spoken, never when cut off).
+
 ## 2026-11-21 — Dino Maze round 2 (TV1b, Ankit's feedback)
 - **Only the music is 8-bit**: the maze is now a garden — sandy path, rounded green hedges for walls, a leafy frame (no pixel checkerboard).
 - **10 obstacles, 8 per game, one question each**: new ones are ice wall (smash), spider webs (chop), fallen tree (lift a log with both hands), lava stream (stand by a stone and jump) and coconut tree (reach up and knock one down). A game is 8 questions instead of 12; the maze grew to 11×6 so they fit with walking in between.
