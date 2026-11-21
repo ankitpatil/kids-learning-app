@@ -72,7 +72,17 @@ export const TRACKS: TrackDef[] = [
     id: 'wordProblems', subject: 'math', name: 'Story sums', icon: 'open-book', playable: true,
     levels: [L('get more / take away to 10, pictures', 10, 'pictorial', 'far', true), L('pick the number sentence, to 20', 20, 'abstract', 'near', false), L('build the number sentence, to 20', 20, 'abstract', 'near', false)],
   },
-  { id: 'money', subject: 'math', name: 'Money', icon: 'coin', playable: false, levels: [L('pay exact', 20, 'concrete', 'far', true)] },
+  {
+    // #21 Fun at the Fair. Concrete = pay the exact price with coins/notes; pictorial/abstract = make change.
+    id: 'money', subject: 'math', name: 'Money', icon: 'coin', playable: true,
+    levels: [
+      L('pay to 10, small coins, total shown', 10, 'concrete', 'far', true),
+      L('pay to 20, coins and notes, total shown', 20, 'concrete', 'near', true),
+      L('pay to 20, count it yourself', 20, 'concrete', 'near', false),
+      L('change from 10, count up', 10, 'pictorial', 'far', true),
+      L('change within 20', 20, 'abstract', 'near', false),
+    ],
+  },
   { id: 'time', subject: 'math', name: 'Clock', icon: 'one-oclock', playable: false, levels: [L('hour and half hour', 12, 'pictorial', 'far', true)] },
   { id: 'grouping', subject: 'math', name: 'Groups', icon: 'basket', playable: false, levels: [L('equal groups', 20, 'concrete', 'far', true)] },
 
@@ -128,7 +138,7 @@ export const LEVEL_AGES: Record<string, AgeBand[]> = {
   placeValue: ['a56', 'a56', 'a56'],
   compare2d: ['a56', 'a56', 'a56'],
   wordProblems: ['a45', 'a56', 'a56'],
-  money: ['a56'],
+  money: ['a56', 'a56', 'a56', 'a56', 'a56'], // money is CBSE Class 1–2 / US Grade 1–2
   time: ['a56'],
   grouping: ['a56'],
   phonics: ['a34', 'a34', 'a45', 'a45', 'a45', 'a56', 'a56'], // s a t p, + i n | … | rare letters, look-alikes

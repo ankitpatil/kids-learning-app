@@ -30,7 +30,8 @@ describe('tracks', () => {
     for (const t of tracksFor('math')) {
       for (let i = 1; i < t.levels.length; i++) {
         const a = t.levels[i - 1], b = t.levels[i];
-        expect(b.range >= a.range).toBe(true);
+        // A step up in representation may restart at a smaller range (money: pay to 20 → change from 10).
+        expect(b.range >= a.range || rep[b.representation] > rep[a.representation]).toBe(true);
         expect(rep[b.representation] >= rep[a.representation] || b.range > a.range).toBe(true);
       }
     }
@@ -60,7 +61,7 @@ describe('pickTrack', () => {
   });
   it('falls back to the last playable track when all are mastered', () => {
     const m = { level: 9, mastery: 0.95 };
-    expect(pickTrack('math', { count: m, add10: m, sub10: m, missing: m, add20: m, sub20: m, placeValue: m, compare2d: m, wordProblems: m })).toBe('wordProblems');
+    expect(pickTrack('math', { count: m, add10: m, sub10: m, missing: m, add20: m, sub20: m, placeValue: m, compare2d: m, wordProblems: m, money: m })).toBe('money');
     expect(pickTrack('reading', { phonics: { level: 6, mastery: 0.95 } })).toBe('cvc');
     const allRead = Object.fromEntries(['phonics', 'cvc', 'digraphs', 'blends', 'silentE', 'vowelTeams', 'endings', 'sightWords', 'sentences', 'stories'].map((id) => [id, { level: 9, mastery: 0.95 }]));
     expect(pickTrack('reading', allRead)).toBe('stories');

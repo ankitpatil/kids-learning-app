@@ -6,6 +6,7 @@ import { ai } from '../ai/app';
 import { loadMotionSettings, saveMotionSettings } from '../motion/settings';
 import { isMuted, setMuted, isNarrationOn, setNarration } from '../audio/speech';
 import { Emoji } from '../components/Icon';
+import { CURRENCIES, loadCurrency, saveCurrency, type CurrencyId } from '../content/money';
 
 type Test = { state: 'idle' } | { state: 'testing' } | { state: 'ok' } | { state: 'fail'; why: string };
 
@@ -19,6 +20,7 @@ export function Settings({ onBack, onVoice }: { onBack: () => void; onVoice: () 
   const [s, setS] = useState<AiSettings>(() => loadAiSettings());
   const [move, setMove] = useState(() => loadMotionSettings());
   const [talk, setTalk] = useState(() => isNarrationOn());
+  const [money, setMoney] = useState<CurrencyId>(() => loadCurrency());
   const [silent, setSilent] = useState(() => isMuted());
   const [urlText, setUrlText] = useState(s.proxyUrl);
   const [test, setTest] = useState<Test>({ state: 'idle' });
@@ -75,6 +77,30 @@ export function Settings({ onBack, onVoice }: { onBack: () => void; onVoice: () 
           </span>
           <input type="checkbox" className="toggle" checked={silent} onChange={(e) => { setSilent(e.target.checked); setMuted(e.target.checked); }} />
         </label>
+      </section>
+
+      <section className="settings-card">
+        <span className="voice-name"><Emoji text="🪙" /> Money at the fair</span>
+        <span className="voice-sub">Which coins and notes Fun at the Fair uses. Saved for this device only.</span>
+        <div className="move-choice" role="radiogroup" aria-label="Money">
+          {(Object.keys(CURRENCIES) as CurrencyId[]).map((id) => (
+            <label key={id} className={`move-option ${money === id ? 'on' : ''}`}>
+              <input
+                type="radio"
+                name="money-currency"
+                checked={money === id}
+                onChange={() => {
+                  setMoney(id);
+                  saveCurrency(id);
+                }}
+              />
+              <span>
+                <span className="voice-name">{CURRENCIES[id].label}</span>
+                <span className="voice-sub">{id === 'inr' ? '₹1, ₹2, ₹5 coins, ₹10 and ₹20 notes' : 'Pennies, nickels and dimes (1¢, 5¢, 10¢); change from a quarter'}</span>
+              </span>
+            </label>
+          ))}
+        </div>
       </section>
 
       <section className="settings-card">

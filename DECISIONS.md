@@ -2,6 +2,16 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-20 — Fun at the Fair, money (#21)
+- **S1 skipped again**: `public/sounds/raw/` doesn't exist (Needs Ankit), so this run took #21.
+- **Five levels on the existing `money` track** (all Ages 5–6): pay to 10 with ₹1/₹2/₹5 coins (total shown) → pay to 20 with coins and ₹10/₹20 notes (total shown) → pay to 20, count it yourself → change from ₹10 (count-up strip shown) → change within 20 (paid with ₹20, near choices, strip only after a miss). Paying (concrete) before change (pictorial/abstract) is CPA; change-from-10 restarts at a smaller range, so the tracks test now allows a smaller range when the representation steps up.
+- **"$" setting = US cents**, not dollars: pennies, nickels and dimes are the US Grade 1–2 coins and keep the numbers within 20. Change is from a dime (within 10) and from a quarter (25¢ − 5..24¢, so change stays 1–20). Grown-ups → "Money at the fair", per device, rupees by default.
+- **Coins and notes drawn in CSS** (₹ steel coins, brassy ₹5, brown ₹10 and green-yellow ₹20 notes; copper penny, big nickel, small dime), with the value printed on them, instead of pictures of real currency.
+- Overpaying is allowed (it's a gentle miss with a "tap a coin to take it back" hint); the tray holds at most 12 coins. Tapping a coin says its value (tap-to-hear, so it plays even with narration off). Easing → a tiny price with ₹1/₹2 (pennies) and the total shown.
+- **"Why?" helper only on change questions** (one number to find, like the other math games); pay questions keep the canned "add N more / take one back" hints, because the answer is a set of coins.
+- Not in placement (money starts at level 1); no Pop the Answer items for money.
+- Checked in vite preview (pay with ₹, change in US cents with a miss); no console errors.
+
 ## 2026-11-20 — Picture variety (I2b)
 - **One variant table keyed by the main icon** (`src/content/pictureVariants.ts`, `ICON_VARIANTS`) instead of an `alt` field on `PictureWord`, letters and endings: the same picture (cat-face, sun, soccer-ball…) appears in several content sets, and one table makes it vary the same way everywhere with no copies to keep in sync. Content files are unchanged.
 - **What counts as a variant**: the OpenMoji drawing of the same thing, and/or a related Fluent icon (cat-face → cat, sun → sun-with-face, clock → alarm-clock, boat → canoe, apple → green apple). 1–2 per picture, so 2–3 pictures in all; 68 word/letter/ending pictures vary. Never a picture of a `near` look-alike (hat has no cap variant, boat no boot). Rendered a contact sheet of all of them and dropped three that didn't read at a glance (OpenMoji shell, soap, delivery truck). No variants for cup (Fluent's ☕ reads as coffee), jug or lamp (only OpenMoji draws them). Sentence clues, stories, stickers and Magic-e pairs keep one picture (not in the item).

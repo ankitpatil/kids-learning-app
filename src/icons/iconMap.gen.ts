@@ -76,6 +76,7 @@ export const EMOJI_ICON: Record<string, string> = {
   "🦋": "butterfly",
   "🦖": "t-rex",
   "🧩": "puzzle-piece",
+  "🪙": "coin",
   "🫙": "jar",
 };
 

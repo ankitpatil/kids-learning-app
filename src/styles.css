@@ -535,3 +535,44 @@ body.move-tv .story-choice { min-height: 6.5rem; }
 
 /* Bundled Fluent Emoji pictures (I1): same size as the emoji they replace; clicks go to the parent. */
 img.icon { display: inline-block; width: 1em; height: 1em; vertical-align: -0.125em; pointer-events: none; user-select: none; -webkit-user-drag: none; }
+
+/* #21 Fun at the Fair: coins and notes drawn in CSS */
+.fair-game { gap: 0.875rem; }
+.fair-stall { border: none; background: #fff6e0; border-radius: 1.5rem; padding: 0.75rem 1.5rem; display: flex; align-items: center; gap: 1rem; box-shadow: 0 0.375rem 0 #0002; cursor: pointer; }
+.fair-stall.oops { animation: wobble .4s; }
+.fair-stall.yay .fair-thing { transform: scale(1.15); }
+.fair-thing { font-size: 5rem; line-height: 1; transition: transform .3s; }
+.price-tag { font-size: 2.75rem; font-weight: 900; color: var(--ink); background: #fff; border: 0.25rem dashed var(--math); border-radius: 0.875rem; padding: 0.125rem 0.875rem; }
+.fair-tray { min-height: 5.5rem; width: min(40rem, 94vw); background: #e8f4ff; border-radius: 1.25rem; padding: 0.5rem; display: flex; flex-wrap: wrap; gap: 0.375rem; align-items: center; justify-content: center; }
+.fair-tray.oops { animation: wobble .4s; }
+.tray-empty { font-size: 2.5rem; font-weight: 900; opacity: .35; }
+.tray-total { font-size: 2.5rem; font-weight: 900; color: var(--primary); }
+.fair-wallet { display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; }
+.money-btn { border: none; background: none; padding: 0.25rem; min-width: 4.5rem; min-height: 4.5rem; display: grid; place-items: center; cursor: pointer; }
+.money-btn:active .money { transform: translateY(0.1875rem); }
+.money-btn:disabled { opacity: .4; }
+.money { display: grid; place-items: center; font-weight: 900; color: #3b2a10; box-shadow: 0 0.25rem 0 #0003; user-select: none; }
+.money.coin { width: 4.5rem; height: 4.5rem; border-radius: 50%; font-size: 1.375rem; background: radial-gradient(circle at 35% 30%, #f4f4f4, #b8bcc2); border: 0.25rem solid #9aa0a8; }
+.money.note { width: 7.5rem; height: 4.25rem; border-radius: 0.5rem; font-size: 1.625rem; border: 0.25rem solid #0002; }
+.money.small.coin { width: 3.5rem; height: 3.5rem; font-size: 1.05rem; }
+.money.small.note { width: 5.5rem; height: 3.25rem; font-size: 1.25rem; }
+/* ₹: steel coins (₹5 brassy), ₹10 chocolate brown note, ₹20 green-yellow note */
+.money.inr-5 { background: radial-gradient(circle at 35% 30%, #fff3c4, #d8b45a); border-color: #b8913a; }
+.money.inr-10 { background: linear-gradient(135deg, #d9a77a, #a8714a); color: #fff; }
+.money.inr-20 { background: linear-gradient(135deg, #e6ef9a, #b9c95a); }
+/* US: copper penny, big nickel, small dime, quarter */
+.money.usd-1 { background: radial-gradient(circle at 35% 30%, #f3c19a, #b8693a); border-color: #9a5530; }
+.money.usd-5 { width: 5rem; height: 5rem; }
+.money.usd-10 { width: 3.875rem; height: 3.875rem; font-size: 1.125rem; }
+.money.usd-25 { width: 5.5rem; height: 5.5rem; }
+.money.small.usd-5 { width: 3.875rem; height: 3.875rem; }
+.money.small.usd-10 { width: 3rem; height: 3rem; font-size: 0.95rem; }
+.fair-paid { display: flex; align-items: center; gap: 1rem; font-size: 3rem; font-weight: 900; color: var(--primary); }
+.fair-paid .blank { min-width: 5rem; display: inline-block; text-align: center; border-bottom: 0.375rem dashed var(--primary); color: var(--ink); }
+.fair-paid .blank.filled { border-bottom-style: solid; color: var(--math); }
+.count-up { display: flex; gap: 0.375rem; align-items: center; flex-wrap: wrap; justify-content: center; }
+.count-up span { min-width: 2.75rem; height: 2.75rem; border-radius: 0.75rem; display: grid; place-items: center; font-weight: 900; font-size: 1.375rem; }
+.cu-start { background: #eee; color: var(--ink); }
+.cu-step { background: #fff6e0; color: var(--math); border: 0.1875rem solid var(--math); }
+body.move-mode .fair-wallet { gap: 1.5rem; }
+body.move-mode .money-btn { min-width: 6rem; min-height: 6rem; }
