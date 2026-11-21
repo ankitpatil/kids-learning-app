@@ -1,4 +1,4 @@
-// Puzzles for the Dino Maze obstacles: mixed math and reading questions at the child's own levels,
+// Puzzles for the Dinosaur Maze obstacles: mixed math and reading questions at the child's own levels,
 // taken from the Pop the Answer item makers (so content and difficulty stay in one place), and laid out
 // as big targets for a child standing back from the TV.
 import { isPopTrack, makePopItem, pickPopTrack, trimChoices, type PopItem, type PopTrack } from '../popAnswer/generator';

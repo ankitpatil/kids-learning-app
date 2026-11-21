@@ -1,6 +1,6 @@
-// 8-bit retro walking music for the Dino Maze (an original loop, synthesized: no audio files, works
+// 8-bit retro walking music for the Dinosaur Maze (an original loop, synthesized: no audio files, works
 // offline). Square-wave tune, triangle bass, noise hi-hat — the classic three-channel console sound.
-// Plays only while Dino Mom is walking; respects mute.
+// Plays only while Dinosaur Mom is walking; respects mute.
 import { isMuted } from './speech';
 
 /** Beats per minute; the song is written in eighth notes. */

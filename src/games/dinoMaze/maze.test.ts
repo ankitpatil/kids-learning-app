@@ -9,7 +9,7 @@ function seeded(seed: number) {
   };
 }
 
-describe('Dino Maze maze', () => {
+describe('Dinosaur Maze maze', () => {
   it('carves a perfect maze: every cell reachable, walls match on both sides, cells-1 passages', () => {
     for (let seed = 1; seed <= 20; seed++) {
       const m = generateMaze(11, 6, seeded(seed));

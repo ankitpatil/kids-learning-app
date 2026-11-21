@@ -149,7 +149,7 @@ describe('narration (off by default)', () => {
   });
 });
 
-describe('onEnd and pitch (Dino Maze)', () => {
+describe('onEnd and pitch (Dinosaur Maze)', () => {
   it('onEnd runs once the last phrase is done, not before', async () => {
     const { tapSay } = await import('./speech');
     const done = vi.fn();

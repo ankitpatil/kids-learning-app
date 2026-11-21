@@ -24,7 +24,7 @@ const upTo = (subject: 'math' | 'reading', id: string) => {
   return out;
 };
 
-describe('Dino Maze puzzles', () => {
+describe('Dinosaur Maze puzzles', () => {
   it('alternates math and reading', () => {
     const rng = seeded(1);
     for (let i = 0; i < 12; i++) {

@@ -246,7 +246,7 @@ export function playCelebration(): number {
   return 2300;
 }
 
-/** A few children's "yay!" voices only (higher, quicker than the crowd), for the Dino Maze babies. */
+/** A few children's "yay!" voices only (higher, quicker than the crowd), for the Dinosaur Maze babies. */
 export function kidCheerVoices(count = 7, seconds = 0.7, rand: () => number = Math.random): CheerVoice[] {
   return cheerVoices(count, seconds, rand).map((v) => ({ ...v, pitch: 400 + rand() * 180, dur: 0.3 + rand() * 0.25, vowel: rand() < 0.7 ? 1 : 0 }));
 }
@@ -266,7 +266,7 @@ export function hitPitch(n: number, need: number): number {
   return 330 * Math.pow(2, steps[i] / 12);
 }
 
-/** One hit on a Dino Maze option: a thump plus a rising blip, so each hit sounds closer to "done". */
+/** One hit on a Dinosaur Maze option: a thump plus a rising blip, so each hit sounds closer to "done". */
 export function playHit(n: number, need: number) {
   const ac = audio();
   if (!ac) return;

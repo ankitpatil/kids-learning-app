@@ -610,7 +610,7 @@ body.move-mode .clock-face.small { width: min(12rem, 28vw, 28vh); }
 .tv-card-sub { font-size: 1.25rem; opacity: .9; }
 .tv-note { text-align: center; color: #636e72; font-size: 1.125rem; max-width: 40rem; margin: 0 auto; }
 
-/* ---------- 🦕 Dino Maze ---------- */
+/* ---------- 🦕 Dinosaur Maze ---------- */
 .dino-game { position: fixed; inset: 0; padding: 0; overflow: hidden; background: #2d1b4e; color: #fff; z-index: 5; }
 .dino-video, .dino-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; }
 .dino-video { object-fit: cover; transform: scaleX(-1); transition: opacity .4s; }
@@ -759,7 +759,7 @@ body.move-mode .clock-face.small { width: min(12rem, 28vw, 28vh); }
   .dino-game *, .dino-game *::before { animation-duration: 0s !important; animation-iteration-count: 1 !important; }
 }
 
-/* Dino Maze: more obstacles */
+/* Dinosaur Maze: more obstacles */
 .dino-target.ice { border-radius: 1.5vh; background: linear-gradient(135deg, #ffffffee, #c7ecee 45%, #7ed6df); border: 0.6vh solid #22a6b3; box-shadow: inset 1vh 1vh 0 #fff8, 0 1vh 0 #0004; }
 .dino-target.ice.aim { box-shadow: inset 1vh 1vh 0 #fff8, 0 0 0 1vh #fdcb6e; }
 .dino-target.log { border-radius: 8vh / 50%; background: linear-gradient(to bottom, #a0522d, #8b4513 45%, #6b3410); border: 0.6vh solid #4a2508; box-shadow: inset -2vh 0 0 #0002, 0 1vh 0 #0004; height: auto !important; aspect-ratio: 2 / 1; }

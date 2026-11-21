@@ -20,7 +20,7 @@ interface Props {
   onExit: () => void;
 }
 
-type Phase = 'intro' | 'walk' | 'arrive' | 'puzzle' | 'celebrate' | 'finale';
+type Phase = 'intro' | 'ready' | 'walk' | 'arrive' | 'puzzle' | 'celebrate' | 'finale';
 
 /** Ms per maze cell: a slow, steady walk (the music plays meanwhile). */
 const STEP_MS = 750;
@@ -125,7 +125,7 @@ function TargetBody({ def, label, chosen }: { def: ObstacleDef; label: string; c
 }
 
 /**
- * 🦕 Dino Maze — a TV game. Dino Mom walks slowly through the maze (8-bit music) to her babies. Each
+ * 🦕 Dinosaur Maze — a TV game. Dinosaur Mom walks slowly through the maze (8-bit music) to her babies. Each
  * obstacle on the way opens a full-screen mirror puzzle — one question, answered with a body move
  * (smash, karate chop, two-hand grab/lift, jump, reach up and bonk). An option takes 3–4 hits to
  * choose; each hit changes its colour and plays a rising note. A right answer clears the obstacle:
@@ -152,6 +152,9 @@ export function DinoMaze({ profileId, onDone, onExit }: Props) {
   const [need, setNeed] = useState(3);
   const [banner, setBanner] = useState<{ icon: string; text: string; sub?: string } | null>(null);
   const [babyLine, setBabyLine] = useState('');
+  const [task, setTask] = useState('');
+  const taskRef = useRef('');
+  taskRef.current = task;
   const cheers = useMemo(() => babyCheers(level.obstacles.length), [level]);
   const alive = useRef(true);
 
@@ -242,7 +245,10 @@ export function DinoMaze({ profileId, onDone, onExit }: Props) {
       setInstruction(true);
       window.setTimeout(() => setInstruction(false), INSTRUCTION_MS);
       setBanner(null);
-      tapSay(`Hit it ${n} times! || ${it.say}`);
+      // Read the whole task aloud: what to do, how many hits, and the question.
+      const task = `${d.instruction} Hit it ${n} times! || ${it.say}`;
+      setTask(task);
+      tapSay(task);
     },
     [level, first],
   );
@@ -265,7 +271,7 @@ export function DinoMaze({ profileId, onDone, onExit }: Props) {
         playKidsCheer();
         setBabyLine(BABY_FINALE);
         const finish = () => onDone({ correct: correct.current, total, leveledUp: leveledUp.current });
-        speakThen('You found the babies! Hooray for Dino Mom!', {}, 1500, 6000, () => speakThen(BABY_FINALE, BABY_VOICE, 1500, 5000, finish));
+        speakThen('You found the babies! Hooray for Dinosaur Mom!', {}, 1500, 6000, () => speakThen(BABY_FINALE, BABY_VOICE, 1500, 5000, finish));
       }
       return;
     }
@@ -280,8 +286,14 @@ export function DinoMaze({ profileId, onDone, onExit }: Props) {
 
   function start() {
     if (live.current.phase !== 'intro') return;
-    tapSay('Help Dino Mom find her babies!');
-    setPhase('walk');
+    // Show the maze and say the first sentence; Mom starts walking once it's been said.
+    live.current.phase = 'ready';
+    setPhase('ready');
+    setBanner({ icon: '🦕', text: 'Help Dinosaur Mom find her babies!' });
+    speakThen('Help Dinosaur Mom find her babies!', {}, 1500, 6000, () => {
+      setBanner(null);
+      setPhase('walk');
+    });
   }
 
   async function record(ok: boolean, hintUsed: boolean) {
@@ -400,7 +412,7 @@ export function DinoMaze({ profileId, onDone, onExit }: Props) {
       const onCard = !!card && [f.body.hands.left, f.body.hands.right].some((p) => p && inside(card, p));
       const hv = hover.current.update(onCard ? 'card' : null, f.body.t);
       setHearIf(hv.progress);
-      if (hv.fire) tapSay(cur.item.say);
+      if (hv.fire) tapSay(taskRef.current || cur.item.say);
       // Stepping stones: a marker under the player shows which stone they're standing by.
       if (cur.obstacle >= 0 && OBSTACLES[level.obstacles[cur.obstacle].kind].layout === 'floor' && f.body.torso) {
         const { ctx, height } = f;
@@ -419,7 +431,7 @@ export function DinoMaze({ profileId, onDone, onExit }: Props) {
   const camOk = cam.status !== 'blocked' && cam.status !== 'error';
   const mirror = camOk && (phase === 'puzzle' || phase === 'intro');
   const aimedSet = new Set(aimed ? aimed.split('|') : []);
-  const onMaze = phase === 'walk' || phase === 'arrive' || phase === 'celebrate' || phase === 'finale' || (phase === 'intro' && !camOk);
+  const onMaze = phase === 'ready' || phase === 'walk' || phase === 'arrive' || phase === 'celebrate' || phase === 'finale' || (phase === 'intro' && !camOk);
 
   return (
     <div className={`screen dino-game phase-${phase} ${def ? `${def.kind} lay-${def.layout}` : ''} ${mirror ? 'mirror' : ''}`}>
@@ -428,7 +440,7 @@ export function DinoMaze({ profileId, onDone, onExit }: Props) {
 
       <div className="dino-top">
         <button className="back-btn" onClick={onExit} aria-label="Back to TV games"><Emoji text="⬅️" /></button>
-        <div className="dino-title"><Emoji text="🦕" /> Dino Maze</div>
+        <div className="dino-title"><Emoji text="🦕" /> Dinosaur Maze</div>
         <div className="dino-hearts" aria-label={`${cleared} of ${level.obstacles.length} obstacles cleared`}>
           {level.obstacles.map((o, k) => (
             <span key={k} className={k < cleared ? 'done' : k === obstacle ? 'now' : ''}><Emoji text={k < cleared ? '✨' : OBSTACLES[o.kind].icon} /></span>
@@ -447,7 +459,7 @@ export function DinoMaze({ profileId, onDone, onExit }: Props) {
         <div className="dino-intro">
           <div className="dino-intro-card">
             <div className="dino-intro-pic"><Emoji text="🦕 ➡️ 🦖🦖" /></div>
-            <h2>Help Dino Mom find her babies!</h2>
+            <h2>Help Dinosaur Mom find her babies!</h2>
             {camOk ? (
               <p className="dino-raise">
                 <Emoji text="🙋" /> {cam.status === 'starting' ? 'Starting the camera…' : cam.status === 'claiming' ? 'Keep your hand up…' : 'Raise your hand to start!'}
@@ -462,7 +474,7 @@ export function DinoMaze({ profileId, onDone, onExit }: Props) {
 
       {phase === 'puzzle' && def && item && (
         <div className="dino-puzzle">
-          <button ref={hearEl} className="dino-question" onClick={() => tapSay(item.say)} aria-label={`Hear the question: ${item.say}`} style={{ ['--hear' as string]: hear }}>
+          <button ref={hearEl} className="dino-question" onClick={() => tapSay(task || item.say)} aria-label={`Hear the task: ${(task || item.say).replace(/\s*\|+/g, "")}`} style={{ ['--hear' as string]: hear }}>
             {item.icon ? <span className="dino-q-pic"><Icon name={item.icon} /></span> : item.visual ? <span className="dino-q-pic">{item.visual}</span> : null}
             <span className="dino-q-text">{item.say}</span>
             <span className="dino-q-hear"><Emoji text="🔊" /></span>

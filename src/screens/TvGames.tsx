@@ -17,9 +17,9 @@ export function TvGames({ onPlay, onBack }: Props) {
         <Emoji text="📺" /> TV Games
       </h1>
       <div className="tv-list">
-        <button className="tv-card" onClick={onPlay} aria-label="Dino Maze: help Dino Mom find her babies">
+        <button className="tv-card" onClick={onPlay} aria-label="Dinosaur Maze: help Dinosaur Mom find her babies">
           <span className="big-emoji"><Emoji text="🦕🌿🦖" /></span>
-          <span className="tv-card-name">Dino Maze</span>
+          <span className="tv-card-name">Dinosaur Maze</span>
           <span className="tv-card-sub">Smash, chop, grab &amp; jump to the babies!</span>
         </button>
       </div>

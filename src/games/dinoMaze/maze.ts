@@ -1,4 +1,4 @@
-// 🦕 Dino Maze (TV games): Dino Mom walks a maze to her babies. A new maze every game, with obstacles
+// 🦕 Dinosaur Maze (TV games): Dinosaur Mom walks a maze to her babies. A new maze every game, with obstacles
 // on the way that are each locked by a puzzle. Pure logic here (maze, path, obstacles); UI in DinoMaze.tsx.
 
 export type Rng = () => number;

@@ -1,4 +1,4 @@
-// Body moves for the Dino Maze puzzles, from the player's tracked hands and shoulders (MediaPipe Pose),
+// Body moves for the Dinosaur Maze puzzles, from the player's tracked hands and shoulders (MediaPipe Pose),
 // in screen pixels of the full-screen mirror view. Pure and frame-driven, so it can be tested with
 // made-up frames. Speeds are measured in the player's own shoulder widths per second, so a small child
 // near the camera and a tall one further back need the same effort.

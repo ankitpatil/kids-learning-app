@@ -140,7 +140,7 @@ function utter(text: string, rate: number, pitch = 1.1): SpeechSynthesisUtteranc
  */
 export interface SayOptions {
   rate?: number;
-  /** Voice pitch (default 1.1; the Dino Maze babies use a high squeaky one). */
+  /** Voice pitch (default 1.1; the Dinosaur Maze babies use a high squeaky one). */
   pitch?: number;
   tapped?: boolean;
   /** Called once the whole text has been spoken — not if it was cut off by newer speech. Called at once when nothing is spoken (muted, narration off, no speech engine). */

@@ -2,6 +2,11 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-21 — Dinosaur Maze: wording + start + task read aloud (TV1d, Ankit's feedback)
+- **"Dinosaur", not "Dino"** in everything said and shown: the game is now "Dinosaur Maze" and she's "Dinosaur Mom" (code names like `DinoMaze` unchanged; older log entries keep the old name).
+- **Mom waits for the first sentence**: after ▶️ / raising a hand, the maze shows with "Help Dinosaur Mom find her babies!" said and on a banner; she starts walking when it's been said (at least 1.5 s, at most 6 s).
+- **The whole task is read aloud** when a puzzle opens: what to do, how many hits, then the question ("Grab the right key with both hands! Hit it 3 times! … Which letter does sun start with?"). Tapping the question card or holding a hand on it reads the whole task again.
+
 ## 2026-11-21 — Dino Maze: spoken obstacles + babies' shouts (TV1c, Ankit's feedback)
 - **Mom stops on the maze at each obstacle** (new "arrive" step): the obstacle pulses, a banner shows what it is and what to do, and it's said aloud ("Oh no! A locked door! … Grab the right key with both hands!"). The puzzle opens when the words are done (at least 3 s so the banner can be read; at most 10 s if speech stalls).
 - **After each success the babies shout from the nest** in a high, quick voice (pitch 1.9) with a matching speech bubble, after the cleared line is said: "Yay! Come on, Mommy!", "You can do it, Mommy!", "Hurry, Mommy!"… — 8 shouts, no repeats in a game, and "Yay! Almost here, Mommy!" after the last obstacle; at the nest: "Mommy! We missed you!". Mom walks on once they've finished.
