@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ANSWERS_PER_OBSTACLE, E, N, OBSTACLES, S, W, makeDinoLevel, nextStop, type DinoLevel, type ObstacleDef } from './maze';
-import { layoutTargets, makeDinoPuzzle, pickDinoSlot, type DinoSlot, type TargetSpot } from './puzzles';
+import { E, OBSTACLES, S, makeDinoLevel, nextStop, type DinoLevel, type ObstacleDef } from './maze';
+import { addHit, hitsNeeded, layoutTargets, makeDinoPuzzle, pickDinoSlot, type DinoSlot, type HitCounts, type TargetSpot } from './puzzles';
 import { createGestureDetector, createHover, inside, type Target } from './gestures';
 import { useBodyCamera, type CameraFrame } from './useBodyCamera';
 import { scorePop, type PopItem, type PopState } from '../popAnswer/generator';
@@ -9,7 +9,7 @@ import { maxLevel, type Subject } from '../../engine/tracks';
 import { fresh } from '../../engine/recent';
 import { getSkillStates, logAttempt, saveSkillState } from '../../store/db';
 import { isNarrationOn, say, stopSpeech, tapSay } from '../../audio/speech';
-import { playKidsCheer, playWrong, playCorrect } from '../../audio/sfx';
+import { playCorrect, playHit, playKidsCheer, playWrong } from '../../audio/sfx';
 import { startChiptune, stopChiptune } from '../../audio/chiptune';
 import { setMotionSuspended } from '../../motion/settings';
 import { Emoji, Icon } from '../../components/Icon';
@@ -20,106 +20,106 @@ interface Props {
   onExit: () => void;
 }
 
-type Phase = 'intro' | 'walk' | 'puzzle' | 'cleared' | 'finale';
+type Phase = 'intro' | 'walk' | 'puzzle' | 'celebrate' | 'finale';
 
-/** Ms per maze cell while walking (the music plays meanwhile). */
-const STEP_MS = 320;
+/** Ms per maze cell: a slow, steady walk (the music plays meanwhile). */
+const STEP_MS = 750;
 const INSTRUCTION_MS = 2600;
 const HEAR_HOLD_MS = 1200;
+/** Right answer → back to the maze after this long; then the babies cheer this long before Mom walks on. */
+const BACK_TO_MAZE_MS = 1300;
+const CELEBRATE_MS = 2600;
 
-function MazeBoard({ level, pos, cleared, facing, phase }: { level: DinoLevel; pos: number; cleared: number; facing: 1 | -1; phase: Phase }) {
+/** Hedge segments for the maze walls: one per closed side between two cells (the outside is the frame). */
+function hedges(level: DinoLevel) {
+  const { cols, rows, open } = level.maze;
+  const out: { x: number; y: number; vertical: boolean }[] = [];
+  for (let y = 0; y < rows; y++)
+    for (let x = 0; x < cols; x++) {
+      if (x < cols - 1 && !(open[y][x] & E)) out.push({ x: x + 1, y, vertical: true });
+      if (y < rows - 1 && !(open[y][x] & S)) out.push({ x, y: y + 1, vertical: false });
+    }
+  return out;
+}
+
+function MazeBoard({ level, pos, cleared, facing, phase, cheer }: { level: DinoLevel; pos: number; cleared: number; facing: 1 | -1; phase: Phase; cheer: string }) {
   const { maze, path, obstacles } = level;
   const mom = path[pos];
-  const walked = useMemo(() => new Set(path.slice(0, pos).map((c) => `${c.x},${c.y}`)), [path, pos]);
+  const walls = useMemo(() => hedges(level), [level]);
   const goal = path[path.length - 1];
+  const at = (x: number, y: number) => ({ left: `${((x + 0.5) / maze.cols) * 100}%`, top: `${((y + 0.5) / maze.rows) * 100}%` });
+  const party = phase === 'celebrate' || phase === 'finale';
   return (
     <div className="dino-maze" style={{ ['--cols' as string]: maze.cols, ['--rows' as string]: maze.rows }}>
-      {maze.open.flatMap((row, y) =>
-        row.map((o, x) => {
-          const walls = [o & N ? '' : 'wn', o & E ? '' : 'we', o & S ? '' : 'ws', o & W ? '' : 'ww'].filter(Boolean).join(' ');
-          return (
-            <div key={`${x},${y}`} className={`dino-cell ${walls}`}>
-              {walked.has(`${x},${y}`) && <span className="paw"><Emoji text="🐾" /></span>}
-            </div>
-          );
-        }),
-      )}
+      {path.slice(1, pos).map((c, i) => (
+        <span key={i} className="paw" style={at(c.x, c.y)}><Emoji text="🐾" /></span>
+      ))}
+      {walls.map((w, i) => (
+        <span
+          key={i}
+          className={`hedge ${w.vertical ? 'v' : 'h'}`}
+          style={
+            w.vertical
+              ? { left: `${(w.x / maze.cols) * 100}%`, top: `${(w.y / maze.rows) * 100}%`, height: `calc(${100 / maze.rows}% + var(--hedge))` }
+              : { left: `${(w.x / maze.cols) * 100}%`, top: `${(w.y / maze.rows) * 100}%`, width: `calc(${100 / maze.cols}% + var(--hedge))` }
+          }
+        />
+      ))}
       {obstacles.map((ob, k) => {
         const c = path[ob.at];
         const done = k < cleared;
+        const justDone = done && k === cleared - 1 && phase === 'celebrate';
         return (
-          <span key={k} className={`dino-obstacle ${done ? 'done' : ''}`} style={{ left: `${((c.x + 0.5) / maze.cols) * 100}%`, top: `${((c.y + 0.5) / maze.rows) * 100}%` }}>
+          <span key={k} className={`dino-obstacle ${done ? 'done' : ''} ${justDone ? 'poof' : ''}`} style={at(c.x, c.y)}>
             <Emoji text={done ? '✨' : OBSTACLES[ob.kind].icon} />
           </span>
         );
       })}
-      <span className={`dino-nest ${phase === 'finale' ? 'party' : ''}`} style={{ left: `${((goal.x + 0.5) / maze.cols) * 100}%`, top: `${((goal.y + 0.5) / maze.rows) * 100}%` }}>
-        <span className="babies"><Emoji text="🦖🦖" /></span>
+      <span className={`dino-nest ${party ? 'party' : ''}`} style={at(goal.x, goal.y)}>
+        {phase === 'celebrate' && <span className="nest-yay">Yay!</span>}
+        <span className="babies">
+          <span className="baby b1"><Emoji text="🦖" /></span>
+          <span className="baby b2"><Emoji text="🦖" /></span>
+        </span>
         <Emoji text="🪺" />
       </span>
-      <span
-        className={`dino-mom ${phase === 'walk' ? 'walking' : ''}`}
-        style={{ left: `${((mom.x + 0.5) / maze.cols) * 100}%`, top: `${((mom.y + 0.5) / maze.rows) * 100}%`, transitionDuration: `${STEP_MS}ms` }}
-      >
-        <span style={{ display: 'inline-block', transform: `scaleX(${-facing})` }}>
+      <span className={`dino-mom ${phase === 'walk' ? 'walking' : ''}`} style={{ ...at(mom.x, mom.y), transitionDuration: `${STEP_MS}ms` }}>
+        <span className="mom-flip" style={{ transform: `scaleX(${-facing})` }}>
           <Emoji text="🦕" />
         </span>
       </span>
+      {phase === 'celebrate' && cheer && <div className="maze-banner">{cheer}</div>}
     </div>
   );
 }
 
-/** Dino Mom's progress through one obstacle: she moves one step on with each right answer. */
-function ObstacleProgress({ def, answers }: { def: ObstacleDef; answers: number }) {
-  const cells = [];
-  for (let i = 0; i <= ANSWERS_PER_OBSTACLE; i++) {
-    if (i === answers) cells.push(<span key="mom" className="dino-step here"><Emoji text="🦕" /></span>);
-    if (i < ANSWERS_PER_OBSTACLE) cells.push(<span key={i} className={`dino-step ${i < answers ? 'done' : ''}`}><Emoji text={i < answers ? def.done : def.todo} /></span>);
-  }
-  return (
-    <div className="dino-progress" aria-label={`${answers} of ${ANSWERS_PER_OBSTACLE} done`}>
-      {cells}
-      <span className="dino-step goal"><Emoji text={def.icon} /></span>
-    </div>
-  );
-}
-
-/** The answer target: a rock, a vine, a key, a stepping stone or a bat, with the choice on it. */
-function TargetBody({ def, label, smashed }: { def: ObstacleDef; label: string; smashed: boolean }) {
+/** The answer target (rock, ice block, vine, web, key, log, stepping stone, bat, coconut) with the choice on it. */
+function TargetBody({ def, label, chosen }: { def: ObstacleDef; label: string; chosen: boolean }) {
   const text = <span className="dino-label">{label}</span>;
-  if (smashed) return <span className="dino-boom"><Emoji text={def.kind === 'door' ? '🔓' : def.kind === 'river' ? '🦕' : '💥'} /></span>;
-  switch (def.kind) {
-    case 'vines':
-      return (
-        <>
-          <span className="vine-rope" />
-          <span className="vine-sign">{text}</span>
-        </>
-      );
-    case 'door':
-      return (
-        <>
-          <span className="key-pic"><Emoji text="🔑" /></span>
-          {text}
-        </>
-      );
-    case 'bats':
-      return (
-        <>
-          <span className="bat-pic"><Emoji text="🦇" /></span>
-          {text}
-        </>
-      );
-    default:
-      return text;
-  }
+  if (chosen) return <span className="dino-boom"><Emoji text={def.burst} /></span>;
+  if (def.layout === 'hang')
+    return (
+      <>
+        <span className="vine-rope" />
+        <span className="vine-sign">{text}</span>
+      </>
+    );
+  if (def.layout === 'high' || def.kind === 'door')
+    return (
+      <>
+        <span className="target-pic"><Emoji text={def.kind === 'door' ? '🔑' : def.target} /></span>
+        {text}
+      </>
+    );
+  return text;
 }
 
 /**
- * 🦕 Dino Maze — a TV game. Dino Mom walks the maze (8-bit music) to her babies; each obstacle on the
- * way opens a full-screen mirror puzzle answered with a body move (smash, chop, two-hand grab, jump).
- * Three right answers clear an obstacle; Mom moves on a step with each one and the babies cheer.
- * Works with touch too (tap the targets) when there's no camera.
+ * 🦕 Dino Maze — a TV game. Dino Mom walks slowly through the maze (8-bit music) to her babies. Each
+ * obstacle on the way opens a full-screen mirror puzzle — one question, answered with a body move
+ * (smash, karate chop, two-hand grab/lift, jump, reach up and bonk). An option takes 3–4 hits to
+ * choose; each hit changes its colour and plays a rising note. A right answer clears the obstacle:
+ * back on the maze the babies jump and cheer, then Mom walks on. Without a camera, tap the targets.
  */
 export function DinoMaze({ profileId, onDone, onExit }: Props) {
   const level = useMemo(() => makeDinoLevel(), []);
@@ -129,17 +129,18 @@ export function DinoMaze({ profileId, onDone, onExit }: Props) {
   const [facing, setFacing] = useState<1 | -1>(1);
   const [cleared, setCleared] = useState(0);
   const [obstacle, setObstacle] = useState(-1);
-  const [answers, setAnswers] = useState(0);
   const [item, setItem] = useState<PopItem | null>(null);
   const [spots, setSpots] = useState<TargetSpot[]>([]);
   const [pop, setPop] = useState<PopState>({ tried: [], misses: 0 });
   const [hint, setHint] = useState(false);
   const [wobble, setWobble] = useState<string | null>(null);
-  const [smashed, setSmashed] = useState<string | null>(null);
+  const [chosen, setChosen] = useState<string | null>(null);
   const [aimed, setAimed] = useState<string>('');
   const [hear, setHear] = useState(0);
   const [instruction, setInstruction] = useState(false);
-  const [yay, setYay] = useState(0);
+  const [hits, setHits] = useState<HitCounts>({});
+  const [need, setNeed] = useState(3);
+  const [cheer, setCheer] = useState('');
 
   const states = useRef<Record<string, SkillState>>({});
   const asked = useRef(0);
@@ -149,14 +150,15 @@ export function DinoMaze({ profileId, onDone, onExit }: Props) {
   const slot = useRef<DinoSlot | null>(null);
   const started = useRef(Date.now());
   const busy = useRef(false);
+  const hitsRef = useRef<HitCounts>({});
   const targetEls = useRef<Record<string, HTMLElement | null>>({});
   const hearEl = useRef<HTMLButtonElement>(null);
   const detector = useRef(createGestureDetector('bash'));
   const hover = useRef(createHover(HEAR_HOLD_MS));
-  const live = useRef({ phase, item, obstacle, pop });
-  live.current = { phase, item, obstacle, pop };
+  const live = useRef({ phase, item, obstacle, pop, need });
+  live.current = { phase, item, obstacle, pop, need };
   const def = obstacle >= 0 ? OBSTACLES[level.obstacles[obstacle].kind] : null;
-  const total = level.obstacles.length * ANSWERS_PER_OBSTACLE;
+  const total = level.obstacles.length;
 
   // The app-wide Move-mode camera pauses while this game has its own.
   useEffect(() => {
@@ -181,54 +183,48 @@ export function DinoMaze({ profileId, onDone, onExit }: Props) {
     else stopChiptune();
   }, [phase]);
 
-  const newQuestion = useCallback(
+  const openPuzzle = useCallback(
     (k: number) => {
-      const kind = level.obstacles[k].kind;
+      const d = OBSTACLES[level.obstacles[k].kind];
+      detector.current = createGestureDetector(d.gesture);
       const sl = pickDinoSlot(asked.current, first, states.current, isNarrationOn());
       slot.current = sl;
       const easy = ease.current;
       ease.current = false;
       const it = fresh(`dino-${sl.trackId}`, () => makeDinoPuzzle(sl, Math.random, easy), (x) => x.id);
+      const n = hitsNeeded();
+      setObstacle(k);
       setItem(it);
-      setSpots(layoutTargets(kind, it.choices.length));
+      setSpots(layoutTargets(d.kind, it.choices.length));
       setPop({ tried: [], misses: 0 });
       setHint(false);
       setWobble(null);
-      setSmashed(null);
+      setChosen(null);
+      hitsRef.current = {};
+      setHits({});
+      setNeed(n);
       started.current = Date.now();
       busy.current = false;
       detector.current.reset(performance.now());
-      return it;
+      setPhase('puzzle');
+      setInstruction(true);
+      window.setTimeout(() => setInstruction(false), INSTRUCTION_MS);
+      say(`Oh no, a ${d.name.toLowerCase()}! | ${d.instruction} Hit it ${n} times! || ${it.say}`);
     },
     [level, first],
   );
 
-  const openPuzzle = useCallback(
-    (k: number) => {
-      const d = OBSTACLES[level.obstacles[k].kind];
-      detector.current = createGestureDetector(d.gesture);
-      setObstacle(k);
-      setAnswers(0);
-      const it = newQuestion(k);
-      setPhase('puzzle');
-      setInstruction(true);
-      window.setTimeout(() => setInstruction(false), INSTRUCTION_MS);
-      say(`Oh no, a ${d.name.toLowerCase()}! | ${d.instruction} || ${it.say}`);
-    },
-    [level, newQuestion],
-  );
-
-  // Walking: one cell per step up to the next obstacle (or the nest).
+  // Walking: one slow step per cell up to the next obstacle (or the nest).
   useEffect(() => {
     if (phase !== 'walk') return;
-    const stop = nextStop(level, pos);
+    const stop = nextStop(level, pos, cleared);
     if (pos >= stop.to) {
       if (stop.obstacle >= 0) openPuzzle(stop.obstacle);
       else {
         setPhase('finale');
         playKidsCheer();
         say('You found the babies! | Hooray for Dino Mom!');
-        window.setTimeout(() => onDone({ correct: correct.current, total, leveledUp: leveledUp.current }), 3200);
+        window.setTimeout(() => onDone({ correct: correct.current, total, leveledUp: leveledUp.current }), 3400);
       }
       return;
     }
@@ -239,17 +235,18 @@ export function DinoMaze({ profileId, onDone, onExit }: Props) {
       setPos(pos + 1);
     }, STEP_MS);
     return () => window.clearTimeout(t);
-  }, [phase, pos, level, openPuzzle, onDone, total]);
+  }, [phase, pos, cleared, level, openPuzzle, onDone, total]);
 
   function start() {
-    if (phase !== 'intro') return;
+    if (live.current.phase !== 'intro') return;
     say('Help Dino Mom find her babies!');
     setPhase('walk');
   }
 
   async function record(ok: boolean, hintUsed: boolean) {
     const sl = slot.current!;
-    await logAttempt({ profileId, skillId: sl.trackId, itemId: item!.id, level: sl.level, correct: ok, hintUsed, timeMs: Date.now() - started.current, at: Date.now(), mix: sl.kind });
+    const it = live.current.item!;
+    await logAttempt({ profileId, skillId: sl.trackId, itemId: it.id, level: sl.level, correct: ok, hintUsed, timeMs: Date.now() - started.current, at: Date.now(), mix: sl.kind });
     if (sl.kind !== 'current') return;
     const cur = states.current[sl.trackId];
     if (!cur) return; // first time on this skill: logged; its level starts when the child plays it
@@ -260,40 +257,32 @@ export function DinoMaze({ profileId, onDone, onExit }: Props) {
     if (out.ease) ease.current = true;
   }
 
-  async function hit(label: string) {
-    const { phase: ph, item: it, obstacle: k, pop: prev } = live.current;
-    if (ph !== 'puzzle' || !it || busy.current || k < 0) return;
+  /** An option has been hit enough times: it's chosen. */
+  async function choose(label: string) {
+    const { item: it, obstacle: k, pop: prev } = live.current;
+    if (!it || k < 0) return;
     const r = scorePop(prev, label, it.answer);
     const d = OBSTACLES[level.obstacles[k].kind];
     if (r.outcome === 'right') {
       busy.current = true;
-      setSmashed(label);
+      setChosen(label);
       const hintUsed = prev.tried.length > 0;
       if (!hintUsed) correct.current += 1;
       asked.current += 1;
       playCorrect();
-      playKidsCheer();
-      setYay((y) => y + 1);
-      const done = answers + 1;
-      setAnswers(done);
-      say(`Yay! | ${label}!`);
-      await record(true, hintUsed);
+      say(`Yes! | ${label}!`);
+      // Back to the maze: the obstacle goes poof, the babies jump and cheer, then Mom walks on.
       window.setTimeout(() => {
-        if (done >= ANSWERS_PER_OBSTACLE) {
-          setPhase('cleared');
-          say(d.cleared);
-          window.setTimeout(() => {
-            setCleared(k + 1);
-            setPos(level.obstacles[k].at);
-            setObstacle(-1);
-            setItem(null);
-            setPhase('walk');
-          }, 1900);
-        } else {
-          const next = newQuestion(k);
-          say(next.say);
-        }
-      }, 1300);
+        setCleared(k + 1);
+        setObstacle(-1);
+        setItem(null);
+        setCheer(d.cleared);
+        setPhase('celebrate');
+        playKidsCheer();
+        say(d.cleared);
+        window.setTimeout(() => setPhase('walk'), CELEBRATE_MS);
+      }, BACK_TO_MAZE_MS);
+      await record(true, hintUsed);
       return;
     }
     setPop(r.state);
@@ -307,47 +296,23 @@ export function DinoMaze({ profileId, onDone, onExit }: Props) {
       await record(false, false);
     }
   }
-  const hitRef = useRef(hit);
-  hitRef.current = hit;
 
-  // Camera frames → body moves on the targets.
-  const onFrame = useCallback(
-    (f: CameraFrame) => {
-      const cur = live.current;
-      if (cur.phase === 'intro' && f.step.justLocked) {
-        start();
-        return;
-      }
-      if (cur.phase !== 'puzzle' || !cur.item || busy.current) {
-        if (aimedRef.current) setAimedIf('');
-        return;
-      }
-      const targets: Target[] = [];
-      for (const label of cur.item.choices) {
-        const el = targetEls.current[label];
-        if (el) targets.push({ id: label, rect: el.getBoundingClientRect() });
-      }
-      const step = detector.current.update(f.body, targets);
-      setAimedIf(step.aimed.join('|'));
-      // Hand on the question card for a moment: hear it again.
-      const card = hearEl.current?.getBoundingClientRect();
-      const onCard = !!card && [f.body.hands.left, f.body.hands.right].some((p) => p && inside(card, p));
-      const hv = hover.current.update(onCard ? 'card' : null, f.body.t);
-      setHearIf(hv.progress);
-      if (hv.fire) tapSay(cur.item.say);
-      // River: a marker under the player's feet shows which stone they're standing by.
-      if (cur.obstacle >= 0 && level.obstacles[cur.obstacle].kind === 'river' && f.body.torso) {
-        const { ctx, height } = f;
-        ctx.font = `${Math.round(height * 0.07)}px system-ui, sans-serif`;
-        ctx.textAlign = 'center';
-        ctx.fillText(step.airborne ? '🦘' : '⬇️', f.body.torso.x, height * 0.66);
-        ctx.textAlign = 'start';
-      }
-      if (step.fired) void hitRef.current(step.fired);
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [level],
-  );
+  /** One hit (a swing, chop, grab, jump or tap) on an option. */
+  function hitOption(label: string) {
+    const { phase: ph, item: it, need: n } = live.current;
+    if (ph !== 'puzzle' || !it || busy.current) return;
+    const r = addHit(hitsRef.current, label, n);
+    hitsRef.current = r.counts;
+    setHits({ ...r.counts, [label]: r.hits });
+    playHit(r.hits, n);
+    if (r.chosen) {
+      if (label !== it.answer) window.setTimeout(() => setHits((h) => ({ ...h, [label]: 0 })), 500);
+      void choose(label);
+    }
+  }
+  const hitRef = useRef(hitOption);
+  hitRef.current = hitOption;
+
   const aimedRef = useRef('');
   const setAimedIf = (s: string) => {
     if (s !== aimedRef.current) {
@@ -363,13 +328,53 @@ export function DinoMaze({ profileId, onDone, onExit }: Props) {
     }
   };
 
+  // Camera frames → body moves on the targets.
+  const onFrame = useCallback(
+    (f: CameraFrame) => {
+      const cur = live.current;
+      if (cur.phase === 'intro' && f.step.justLocked) {
+        start();
+        return;
+      }
+      if (cur.phase !== 'puzzle' || !cur.item || busy.current) {
+        setAimedIf('');
+        return;
+      }
+      const targets: Target[] = [];
+      for (const label of cur.item.choices) {
+        const el = targetEls.current[label];
+        if (el) targets.push({ id: label, rect: el.getBoundingClientRect() });
+      }
+      const step = detector.current.update(f.body, targets);
+      setAimedIf(step.aimed.join('|'));
+      // Hand on the question card for a moment: hear it again.
+      const card = hearEl.current?.getBoundingClientRect();
+      const onCard = !!card && [f.body.hands.left, f.body.hands.right].some((p) => p && inside(card, p));
+      const hv = hover.current.update(onCard ? 'card' : null, f.body.t);
+      setHearIf(hv.progress);
+      if (hv.fire) tapSay(cur.item.say);
+      // Stepping stones: a marker under the player shows which stone they're standing by.
+      if (cur.obstacle >= 0 && OBSTACLES[level.obstacles[cur.obstacle].kind].layout === 'floor' && f.body.torso) {
+        const { ctx, height } = f;
+        ctx.font = `${Math.round(height * 0.07)}px system-ui, sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.fillText(step.airborne ? '🦘' : '⬇️', f.body.torso.x, height * 0.66);
+        ctx.textAlign = 'start';
+      }
+      if (step.fired) hitRef.current(step.fired);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [level],
+  );
+
   const cam = useBodyCamera(true, onFrame);
   const camOk = cam.status !== 'blocked' && cam.status !== 'error';
-  const mirror = camOk && (phase === 'puzzle' || phase === 'cleared' || phase === 'intro');
+  const mirror = camOk && (phase === 'puzzle' || phase === 'intro');
   const aimedSet = new Set(aimed ? aimed.split('|') : []);
+  const onMaze = phase === 'walk' || phase === 'celebrate' || phase === 'finale' || (phase === 'intro' && !camOk);
 
   return (
-    <div className={`screen dino-game phase-${phase} ${def ? def.kind : ''} ${mirror ? 'mirror' : ''}`}>
+    <div className={`screen dino-game phase-${phase} ${def ? `${def.kind} lay-${def.layout}` : ''} ${mirror ? 'mirror' : ''}`}>
       <video ref={cam.videoRef} className="dino-video" playsInline muted aria-hidden />
       <canvas ref={cam.canvasRef} className="dino-canvas" aria-hidden />
 
@@ -384,9 +389,9 @@ export function DinoMaze({ profileId, onDone, onExit }: Props) {
         </div>
       </div>
 
-      {(phase === 'walk' || phase === 'finale' || (phase === 'intro' && !camOk)) && (
+      {onMaze && (
         <div className="dino-board">
-          <MazeBoard level={level} pos={pos} cleared={cleared} facing={facing} phase={phase} />
+          <MazeBoard level={level} pos={pos} cleared={cleared} facing={facing} phase={phase} cheer={cheer} />
         </div>
       )}
 
@@ -407,59 +412,60 @@ export function DinoMaze({ profileId, onDone, onExit }: Props) {
         </div>
       )}
 
-      {(phase === 'puzzle' || phase === 'cleared') && def && item && (
+      {phase === 'puzzle' && def && item && (
         <div className="dino-puzzle">
           <button ref={hearEl} className="dino-question" onClick={() => tapSay(item.say)} aria-label={`Hear the question: ${item.say}`} style={{ ['--hear' as string]: hear }}>
             {item.icon ? <span className="dino-q-pic"><Icon name={item.icon} /></span> : item.visual ? <span className="dino-q-pic">{item.visual}</span> : null}
             <span className="dino-q-text">{item.say}</span>
             <span className="dino-q-hear"><Emoji text="🔊" /></span>
           </button>
-          <ObstacleProgress def={def} answers={answers} />
 
-          {def.kind === 'river' && <div className="dino-water" />}
+          {def.layout === 'floor' && <div className={`dino-water ${def.kind}`} />}
           {item.choices.map((label, i) => {
             const s = spots[i];
             if (!s) return null;
-            const cls = ['dino-target', def.kind, aimedSet.has(label) ? 'aim' : '', wobble === label ? 'wobble' : '', pop.tried.includes(label) ? 'tried' : '', smashed === label ? 'smashed' : '', hint && label === item.answer ? 'glow' : '']
+            const h = hits[label] ?? 0;
+            const cls = ['dino-target', def.kind, `lay-${def.layout}`, aimedSet.has(label) ? 'aim' : '', h > 0 ? 'hit' : '', wobble === label ? 'wobble' : '', pop.tried.includes(label) ? 'tried' : '', chosen === label ? 'smashed' : '', hint && label === item.answer ? 'glow' : '']
               .filter(Boolean)
               .join(' ');
             return (
               <button
-                key={`${item.id}-${label}`}
+                // a new key on every hit restarts the "bump" animation
+                key={`${item.id}-${label}-${h}`}
                 ref={(el) => (targetEls.current[label] = el)}
                 className={cls}
-                style={{ left: `${s.x * 100}%`, top: `${s.y * 100}%`, width: `${s.w * 100}vh`, height: `${s.h * 100}vh`, animationDelay: `${-i * 0.7}s` }}
-                onPointerDown={() => hit(label)}
-                aria-label={label}
+                data-hits={Math.min(h, 4)}
+                style={{ left: `${s.x * 100}%`, top: `${s.y * 100}%`, width: `${s.w * 100}vh`, height: `${s.h * 100}vh`, animationDelay: h > 0 ? undefined : `${-i * 0.7}s` }}
+                onPointerDown={() => hitOption(label)}
+                aria-label={`${label}: ${h} of ${need} hits`}
               >
-                <TargetBody def={def} label={label} smashed={smashed === label} />
+                <TargetBody def={def} label={label} chosen={chosen === label} />
+                {chosen !== label && (
+                  <span className="dino-pips" aria-hidden>
+                    {Array.from({ length: need }, (_, j) => (
+                      <i key={j} className={j < h ? 'on' : ''} />
+                    ))}
+                  </span>
+                )}
               </button>
             );
           })}
 
-          {instruction && phase === 'puzzle' && (
+          {instruction && (
             <div className="dino-instruction" aria-live="polite">
               <span className="dino-move"><Emoji text={def.move} /></span>
-              <span>{def.instruction}</span>
+              <span>
+                {def.instruction}
+                <small>Hit it {need} times!</small>
+              </span>
             </div>
           )}
           {!instruction && camOk && cam.status !== 'ready' && (
             <div className="dino-chip"><Emoji text="🙋" /> {cam.status === 'claiming' ? 'Keep it up…' : 'Raise your hand to play!'}</div>
           )}
-          {!instruction && camOk && cam.status === 'ready' && phase === 'puzzle' && (
-            <div className="dino-chip small"><Emoji text={def.move} /> {def.instruction}</div>
+          {!instruction && camOk && cam.status === 'ready' && (
+            <div className="dino-chip small"><Emoji text={def.move} /> {def.instruction} ×{need}</div>
           )}
-          {phase === 'cleared' && (
-            <div className="dino-cleared"><span className="dino-cleared-pic"><Emoji text={`${def.done} 🦕 ${def.done}`} /></span><span>{def.cleared}</span></div>
-          )}
-        </div>
-      )}
-
-      {yay > 0 && (phase === 'puzzle' || phase === 'cleared') && (
-        <div key={yay} className="dino-yay" aria-hidden>
-          <span className="baby b1"><Emoji text="🦖" /></span>
-          <span className="yay-bubble">Yay!</span>
-          <span className="baby b2"><Emoji text="🦖" /></span>
         </div>
       )}
 

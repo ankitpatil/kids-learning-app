@@ -625,30 +625,43 @@ body.move-mode .clock-face.small { width: min(12rem, 28vw, 28vh); }
 .dino-hearts span { opacity: .55; }
 .dino-hearts .done, .dino-hearts .now { opacity: 1; }
 .dino-hearts .now { animation: dino-bob .8s ease-in-out infinite; }
-.dino-game.phase-puzzle .dino-top, .dino-game.phase-cleared .dino-top { right: auto; }
-.dino-game.phase-puzzle .dino-hearts, .dino-game.phase-puzzle .dino-title, .dino-game.phase-cleared .dino-hearts, .dino-game.phase-cleared .dino-title { display: none; }
+.dino-game.phase-puzzle .dino-hearts, .dino-game.phase-puzzle .dino-title { display: none; }
 
-/* the maze: chunky 8-bit look */
+/* the maze: a garden — sandy path, grass, rounded hedges (only the music is 8-bit) */
 .dino-board { position: absolute; inset: 4.5rem 2vw 2vw; display: flex; align-items: center; justify-content: center; }
-.dino-maze { position: relative; display: grid; grid-template-columns: repeat(var(--cols), 1fr); grid-template-rows: repeat(var(--rows), 1fr); width: min(96vw, calc((100vh - 7rem) * var(--cols) / var(--rows))); aspect-ratio: var(--cols) / var(--rows); background: #f6d68b; border: 0.5rem solid #2d6a1f; box-shadow: 0 0 0 0.375rem #1b3d12, 0 1rem 0 #0005; image-rendering: pixelated;
-  background-image: linear-gradient(45deg, #edc56f 25%, transparent 25%, transparent 75%, #edc56f 75%), linear-gradient(45deg, #edc56f 25%, transparent 25%, transparent 75%, #edc56f 75%); background-size: 1.5rem 1.5rem; background-position: 0 0, 0.75rem 0.75rem; }
-.dino-cell { position: relative; box-sizing: border-box; display: flex; align-items: center; justify-content: center; --wall: 0.5rem solid #3c8d2f; }
-.dino-cell.wn { border-top: var(--wall); }
-.dino-cell.we { border-right: var(--wall); }
-.dino-cell.ws { border-bottom: var(--wall); }
-.dino-cell.ww { border-left: var(--wall); }
-.dino-cell .paw { font-size: clamp(0.75rem, 2vw, 1.5rem); opacity: .35; }
-.dino-obstacle, .dino-nest, .dino-mom { position: absolute; transform: translate(-50%, -50%); font-size: clamp(1.75rem, 6vh, 4.5rem); line-height: 1; }
-.dino-obstacle { filter: drop-shadow(0 0.25rem 0 #0004); animation: dino-bob 1.4s ease-in-out infinite; }
-.dino-obstacle.done { animation: none; opacity: .7; font-size: clamp(1rem, 3vh, 2rem); }
-.dino-nest { display: flex; flex-direction: column; align-items: center; }
-.dino-nest .babies { font-size: .6em; animation: dino-hop .9s ease-in-out infinite; }
-.dino-nest.party .babies { animation-duration: .35s; }
-.dino-mom { z-index: 2; font-size: clamp(2.25rem, 8vh, 6rem); transition-property: left, top; transition-timing-function: linear; filter: drop-shadow(0 0.375rem 0 #0005); }
-.dino-mom.walking > span { animation: dino-waddle .32s steps(2) infinite; }
-@keyframes dino-waddle { 0% { translate: 0 0; } 50% { translate: 0 -12%; } }
+.dino-maze { --hedge: clamp(0.6rem, 1.6vh, 1.1rem); position: relative; width: min(96vw, calc((100vh - 7rem) * var(--cols) / var(--rows))); aspect-ratio: var(--cols) / var(--rows); border-radius: 1.75rem; border: var(--hedge) solid #2b9348;
+  background:
+    radial-gradient(circle at 12% 18%, #fff6 0 0.25rem, transparent 0.3rem),
+    radial-gradient(circle at 68% 72%, #fff5 0 0.2rem, transparent 0.25rem),
+    radial-gradient(ellipse at 30% 40%, #f3dfae, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, #f0d9a0, transparent 55%),
+    #ead39a;
+  box-shadow: 0 0 0 0.4rem #55a630, 0 0 0 0.9rem #80b918, 0 1.25rem 2rem #0006, inset 0 0 2.5rem #c9a86455; }
+.hedge { position: absolute; border-radius: 999px; background: radial-gradient(circle at 30% 30%, #80b918, #2b9348 60%, #1e6f3a); box-shadow: 0 0.3rem 0 #1b4d2c66, inset 0 -0.2rem 0 #0002; z-index: 1; }
+.hedge.v { width: var(--hedge); transform: translateX(-50%); margin-top: calc(var(--hedge) / -2); }
+.hedge.h { height: var(--hedge); transform: translateY(-50%); margin-left: calc(var(--hedge) / -2); }
+.dino-maze .paw { position: absolute; transform: translate(-50%, -50%); font-size: clamp(0.75rem, 2.2vh, 1.4rem); opacity: .3; }
+.dino-obstacle, .dino-nest, .dino-mom { position: absolute; transform: translate(-50%, -50%); font-size: clamp(1.6rem, 6vh, 4.25rem); line-height: 1; z-index: 2; }
+.dino-obstacle { filter: drop-shadow(0 0.3rem 0.2rem #0004); animation: dino-bob 2s ease-in-out infinite; }
+.dino-obstacle.done { animation: none; opacity: .6; font-size: clamp(1rem, 3vh, 2rem); }
+.dino-obstacle.poof { animation: dino-poof 1.2s ease-out; opacity: 1; }
+@keyframes dino-poof { 0% { scale: 2.4; opacity: 0; } 30% { scale: 1.6; opacity: 1; } 100% { scale: 1; } }
+.dino-nest { display: flex; flex-direction: column; align-items: center; z-index: 3; }
+.dino-nest .babies { display: flex; font-size: .55em; }
+.dino-nest .baby { display: inline-block; animation: dino-hop 1.4s ease-in-out infinite; }
+.dino-nest .b2 { animation-delay: .7s; }
+.dino-nest.party .baby { animation: dino-jump .45s ease-in-out infinite; }
+.dino-nest.party .b2 { animation-delay: .22s; }
+.dino-nest.party .babies { font-size: .85em; }
+.nest-yay { position: absolute; bottom: 100%; margin-bottom: .2em; font-size: .55em; font-weight: 900; white-space: nowrap; background: #fff; color: #e84393; padding: 0.1em 0.5em; border-radius: 1em; border: 0.15em solid #e84393; animation: dino-pop-in .3s, dino-bob .6s ease-in-out infinite; }
+.maze-banner { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 4; padding: 1.5vh 3.5vh; border-radius: 3vh; background: #2d1b4ee8; border: 0.5vh solid #fdcb6e; font-size: clamp(1.5rem, 5.5vh, 3.25rem); font-weight: 900; text-align: center; max-width: 80%; animation: dino-pop-in .35s; }
+.dino-mom { z-index: 3; font-size: clamp(2.25rem, 8.5vh, 6rem); transition-property: left, top; transition-timing-function: linear; filter: drop-shadow(0 0.4rem 0.3rem #0005); }
+.dino-mom .mom-flip { display: inline-block; }
+.dino-mom.walking .mom-flip > * { display: inline-block; animation: dino-stride .75s ease-in-out infinite; transform-origin: 50% 100%; }
+@keyframes dino-stride { 0%, 100% { translate: 0 0; rotate: -3deg; } 50% { translate: 0 -6%; rotate: 3deg; } }
 @keyframes dino-bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -10%; } }
 @keyframes dino-hop { 0%, 100% { translate: 0 0; } 40% { translate: 0 -30%; } }
+@keyframes dino-jump { 0%, 100% { translate: 0 0; scale: 1 1; } 15% { scale: 1.1 .9; } 50% { translate: 0 -70%; scale: .95 1.05; } }
 
 /* intro */
 .dino-intro { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 5; pointer-events: none; }
@@ -665,22 +678,27 @@ body.move-mode .clock-face.small { width: min(12rem, 28vw, 28vh); }
 .dino-game.vines .dino-puzzle::before { background: linear-gradient(to bottom, #00b89466, transparent 35%), linear-gradient(to top, #1b5e2055, transparent 30%); }
 .dino-game.door .dino-puzzle::before { box-shadow: inset 0 0 0 2.5vh #8d5524cc, inset 0 0 0 3.25vh #5d3a1acc; }
 .dino-game.bats .dino-puzzle::before { background: radial-gradient(ellipse at 50% 120%, transparent 55%, #1e1233dd 100%); }
+.dino-game.ice .dino-puzzle::before { background: linear-gradient(to bottom, #dff9fb88, transparent 30%), linear-gradient(to top, #c7ecee88, transparent 30%); }
+.dino-game.web .dino-puzzle::before { background: radial-gradient(ellipse at 50% 50%, transparent 50%, #2d343699 100%); }
+.dino-game.log .dino-puzzle::before { background: linear-gradient(to top, #6ab04c66, transparent 35%); }
+.dino-game.lava .dino-puzzle::before { background: linear-gradient(to top, #e1705555, transparent 60%); }
+.dino-game.coconut .dino-puzzle::before { background: linear-gradient(to bottom, #55efc455, transparent 35%); }
 .dino-game:not(.mirror) .dino-puzzle { background: #74b9ff; }
 .dino-game:not(.mirror).vines .dino-puzzle { background: #55efc4; }
 .dino-game:not(.mirror).bats .dino-puzzle { background: #4b3a6b; }
 .dino-game:not(.mirror).door .dino-puzzle { background: #d6a26a; }
 .dino-game:not(.mirror).rocks .dino-puzzle { background: #b2bec3; }
+.dino-game:not(.mirror).ice .dino-puzzle { background: #c7ecee; }
+.dino-game:not(.mirror).web .dino-puzzle { background: #636e72; }
+.dino-game:not(.mirror).log .dino-puzzle { background: #badc58; }
+.dino-game:not(.mirror).lava .dino-puzzle { background: #4a2c2a; }
+.dino-game:not(.mirror).coconut .dino-puzzle { background: #81ecec; }
 
 .dino-question { position: absolute; top: 1.5vh; left: 50%; transform: translateX(-50%); z-index: 6; display: flex; align-items: center; gap: 1rem; max-width: 62vw; min-height: 12vh; padding: 0.5rem 1.25rem; border: 0.25rem solid #fff; border-radius: 1.5rem; background: #fffffff0; color: #2d3436; box-shadow: 0 0.5rem 0 #0004; font: inherit;
   background-image: linear-gradient(90deg, #ffeaa7 calc(var(--hear, 0) * 100%), transparent 0); }
 .dino-q-pic { font-size: clamp(2.5rem, 9vh, 5rem); font-weight: 900; line-height: 1; white-space: nowrap; }
 .dino-q-text { font-size: clamp(1.125rem, 3.4vh, 2rem); font-weight: 800; text-align: left; }
 .dino-q-hear { font-size: clamp(1.5rem, 4vh, 2.5rem); }
-.dino-progress { position: absolute; top: 1.5vh; right: 1.5vw; z-index: 6; display: flex; gap: 0.25rem; align-items: center; padding: 0.5rem 0.75rem; border-radius: 1.25rem; background: #000a; font-size: clamp(1.5rem, 5vh, 3rem); }
-.dino-step { width: 1.3em; height: 1.3em; display: flex; align-items: center; justify-content: center; border-radius: 0.3em; background: #fff2; }
-.dino-step.done { background: #00b89488; }
-.dino-step.here { background: #fdcb6e88; animation: dino-hop .7s ease-in-out infinite; }
-.dino-step.goal { background: none; opacity: .8; }
 
 .dino-target { position: absolute; z-index: 5; transform: translate(-50%, -50%); border: none; padding: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; font: inherit; color: #2d3436; background: none; touch-action: none; transition: scale .15s, opacity .3s; }
 .dino-label { font-size: clamp(2rem, 9vh, 5.5rem); font-weight: 900; line-height: 1; overflow-wrap: anywhere; }
@@ -695,44 +713,37 @@ body.move-mode .clock-face.small { width: min(12rem, 28vw, 28vh); }
 
 .dino-target.rocks { border-radius: 46% 54% 42% 58% / 55% 45% 55% 45%; background: radial-gradient(circle at 35% 30%, #dfe6e9, #95a5a6 55%, #636e72); box-shadow: inset -1vh -1.5vh 0 #0003, 0 1vh 0 #0004; border: 0.6vh solid #2d3436; }
 .dino-target.rocks.aim { box-shadow: inset -1vh -1.5vh 0 #0003, 0 0 0 1vh #fdcb6e; }
-.dino-target.vines { justify-content: flex-end; transform: translate(-50%, -50%); }
+.dino-target.lay-hang { justify-content: flex-end; }
 .vine-rope { position: absolute; top: -40vh; bottom: 30%; width: 3.5vh; left: calc(50% - 1.75vh); background: repeating-linear-gradient(170deg, #2e7d32 0 2vh, #43a047 2vh 4vh); border-radius: 2vh; box-shadow: 0 0 0 0.5vh #1b5e20; }
 .vine-sign { position: relative; min-width: 80%; padding: 1vh 1.5vh; border-radius: 2vh; background: #a5d6a7; border: 0.6vh solid #1b5e20; box-shadow: 0 1vh 0 #0004; margin-bottom: 6%; }
-.dino-target.vines.aim .vine-sign { background: #ffeaa7; }
-.dino-target.vines.smashed .vine-rope { display: none; }
+.dino-target.lay-hang.aim .vine-sign { background: #ffeaa7; }
+.dino-target.lay-hang.smashed .vine-rope { display: none; }
 .dino-target.door { border-radius: 2.5vh; background: #ffeaa7; border: 0.7vh solid #b7791f; box-shadow: 0 1vh 0 #0004; gap: 0.5vh; }
-.dino-target.door .key-pic { font-size: clamp(2rem, 8vh, 5rem); line-height: 1; }
+.dino-target.door .target-pic { font-size: clamp(2rem, 8vh, 5rem); line-height: 1; }
 .dino-target.door .dino-label { font-size: clamp(1.75rem, 7vh, 4.5rem); }
 .dino-target.door.aim { background: #fff; box-shadow: 0 0 0 1vh #fdcb6e; }
 .dino-water { position: absolute; left: 0; right: 0; bottom: 0; height: 30vh; z-index: 4; background: repeating-linear-gradient(-8deg, #0984e3aa 0 3vh, #74b9ffaa 3vh 6vh); animation: dino-flow 2s linear infinite; background-size: 200% 100%; }
 @keyframes dino-flow { from { background-position: 0 0; } to { background-position: 12vh 0; } }
-.dino-target.river { border-radius: 50%; background: radial-gradient(ellipse at 40% 35%, #b2bec3, #636e72); border: 0.6vh solid #2d3436; box-shadow: 0 1.2vh 0 #0005; }
-.dino-target.river.aim { box-shadow: 0 0 0 1.2vh #fdcb6e; }
-.dino-target.river .dino-label { color: #fff; text-shadow: 0 0.4vh 0 #0007; }
+.dino-target.lay-floor { border-radius: 50%; background: radial-gradient(ellipse at 40% 35%, #b2bec3, #636e72); border: 0.6vh solid #2d3436; box-shadow: 0 1.2vh 0 #0005; }
+.dino-target.lay-floor.aim { box-shadow: 0 0 0 1.2vh #fdcb6e; }
+.dino-target.lay-floor .dino-label { color: #fff; text-shadow: 0 0.4vh 0 #0007; }
 .dino-target.bats { animation: dino-flutter 2.4s ease-in-out infinite; }
-.dino-target.bats .bat-pic { font-size: clamp(3rem, 12vh, 7rem); line-height: 1; }
-.dino-target.bats .dino-label { background: #fff; border-radius: 1.5vh; padding: 0.3vh 1.5vh; border: 0.5vh solid #2d1b4e; font-size: clamp(1.75rem, 6vh, 4rem); }
-.dino-target.bats.aim .dino-label { background: #ffeaa7; }
+.dino-target.coconut { animation: dino-sway 3s ease-in-out infinite; }
+.dino-target.lay-high .target-pic { font-size: clamp(3rem, 12vh, 7rem); line-height: 1; }
+.dino-target.lay-high .dino-label { background: #fff; border-radius: 1.5vh; padding: 0.3vh 1.5vh; border: 0.5vh solid #2d1b4e; font-size: clamp(1.75rem, 6vh, 4rem); }
+.dino-target.lay-high.aim .dino-label { background: #ffeaa7; }
 @keyframes dino-flutter { 0%, 100% { translate: 0 0; } 25% { translate: -3vh -2vh; } 50% { translate: 0 -4vh; } 75% { translate: 3vh -2vh; } }
 
+.dino-instruction small { display: block; font-size: .6em; color: #ffeaa7; }
 .dino-instruction { position: absolute; left: 50%; bottom: 4vh; transform: translateX(-50%); z-index: 7; display: flex; align-items: center; gap: 2vh; padding: 2.5vh 4vh; border-radius: 3vh; background: #2d1b4ef0; border: 0.6vh solid #fdcb6e; font-size: clamp(1.75rem, 6vh, 3.75rem); font-weight: 900; text-align: center; max-width: 85vw; animation: dino-pop-in .35s; pointer-events: none; }
 .dino-move { font-size: 1.8em; animation: dino-punch .6s ease-in-out infinite alternate; }
 @keyframes dino-punch { from { rotate: -15deg; } to { rotate: 15deg; scale: 1.15; } }
 @keyframes dino-pop-in { from { scale: .6; opacity: 0; } }
 .dino-chip { position: absolute; left: 50%; bottom: 2vh; transform: translateX(-50%); z-index: 7; padding: 1vh 2.5vh; border-radius: 2vh; background: #000b; font-size: clamp(1.25rem, 4vh, 2.25rem); font-weight: 800; white-space: nowrap; pointer-events: none; }
 .dino-chip.small { font-size: clamp(1rem, 3vh, 1.5rem); opacity: .9; }
-.dino-game.river .dino-chip, .dino-game.river .dino-instruction { bottom: auto; top: 16vh; }
-.dino-cleared { position: absolute; inset: 0; z-index: 8; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2vh; background: #2d1b4ef2; font-size: clamp(2rem, 7vh, 4rem); font-weight: 900; text-align: center; padding: 0 5vw; animation: dino-fade-in .3s; }
-@keyframes dino-fade-in { from { opacity: 0; } }
-.dino-cleared-pic { font-size: 2em; animation: dino-hop .6s ease-in-out infinite; }
+.dino-game.lay-floor .dino-chip, .dino-game.lay-floor .dino-instruction { bottom: auto; top: 16vh; }
 
-.dino-yay { position: absolute; left: 2vw; bottom: 2vh; z-index: 7; display: flex; align-items: flex-end; gap: 1vh; font-size: clamp(2.5rem, 10vh, 6rem); pointer-events: none; animation: dino-yay 1.6s forwards; }
-.dino-game.river .dino-yay { bottom: 32vh; }
-.dino-yay .baby { animation: dino-hop .4s ease-in-out infinite; }
-.dino-yay .b2 { animation-delay: .2s; }
-.yay-bubble { align-self: flex-start; font-size: .55em; font-weight: 900; background: #fff; color: #e84393; padding: 0.5vh 2vh; border-radius: 3vh; border: 0.5vh solid #e84393; }
-@keyframes dino-yay { 0% { translate: 0 120%; } 15%, 80% { translate: 0 0; opacity: 1; } 100% { translate: 0 0; opacity: 0; } }
-
+.dino-game.river 
 .dino-finale { position: absolute; inset: 0; z-index: 8; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #2d1b4ebb; text-align: center; animation: dino-pop-in .4s; }
 .dino-hug { display: flex; align-items: flex-end; font-size: clamp(5rem, 24vh, 15rem); line-height: 1; }
 .dino-hug .baby { font-size: .5em; animation: dino-hop .5s ease-in-out infinite; }
@@ -740,5 +751,39 @@ body.move-mode .clock-face.small { width: min(12rem, 28vw, 28vh); }
 .dino-finale h2 { font-size: clamp(2rem, 7vh, 4.5rem); margin: 0; }
 
 @media (prefers-reduced-motion: reduce) {
-  .dino-game *:not(.dino-yay), .dino-game *::before { animation-duration: 0s !important; animation-iteration-count: 1 !important; }
+  .dino-game *, .dino-game *::before { animation-duration: 0s !important; animation-iteration-count: 1 !important; }
 }
+
+/* Dino Maze: more obstacles */
+.dino-target.ice { border-radius: 1.5vh; background: linear-gradient(135deg, #ffffffee, #c7ecee 45%, #7ed6df); border: 0.6vh solid #22a6b3; box-shadow: inset 1vh 1vh 0 #fff8, 0 1vh 0 #0004; }
+.dino-target.ice.aim { box-shadow: inset 1vh 1vh 0 #fff8, 0 0 0 1vh #fdcb6e; }
+.dino-target.log { border-radius: 8vh / 50%; background: linear-gradient(to bottom, #a0522d, #8b4513 45%, #6b3410); border: 0.6vh solid #4a2508; box-shadow: inset -2vh 0 0 #0002, 0 1vh 0 #0004; height: auto !important; aspect-ratio: 2 / 1; }
+.dino-target.log .dino-label { color: #fff; text-shadow: 0 0.4vh 0 #0008; }
+.dino-target.log.aim { box-shadow: 0 0 0 1vh #fdcb6e; }
+.dino-target.web .vine-rope { background: repeating-linear-gradient(0deg, #ffffffdd 0 0.6vh, transparent 0.6vh 3vh), linear-gradient(90deg, transparent 45%, #ffffffcc 45% 55%, transparent 55%); box-shadow: none; width: 6vh; left: calc(50% - 3vh); }
+.dino-target.web .vine-sign { background: #dfe6e9; border-color: #636e72; }
+.dino-water.lava { background: repeating-linear-gradient(-8deg, #e17055dd 0 3vh, #fdcb6edd 3vh 6vh); }
+.dino-water.lava + .dino-target, .dino-target.lava { background: radial-gradient(ellipse at 40% 35%, #636e72, #2d3436); }
+.dino-target.coconut .dino-label { border-color: #6d4c41; }
+@keyframes dino-sway { 0%, 100% { rotate: -6deg; } 50% { rotate: 6deg; } }
+
+/* Hits: 3–4 per option — pips fill and the target changes colour with each hit */
+.dino-pips { position: absolute; left: 50%; bottom: -3.2vh; transform: translateX(-50%); display: flex; gap: 0.8vh; padding: 0.6vh 1vh; border-radius: 2vh; background: #000a; }
+.lay-hang .dino-pips { bottom: 0; }
+.lay-floor .dino-pips { bottom: auto; top: -3.2vh; }
+.dino-pips i { width: 2.2vh; height: 2.2vh; border-radius: 50%; background: #fff4; border: 0.3vh solid #fff; }
+.dino-pips i.on { background: #fdcb6e; }
+.dino-target[data-hits="2"] .dino-pips i.on { background: #fd9644; }
+.dino-target[data-hits="3"] .dino-pips i.on, .dino-target[data-hits="4"] .dino-pips i.on { background: #ff4d4d; }
+.dino-target.hit { animation: dino-bump .3s ease-out; }
+.dino-target.bats.hit { animation: dino-bump .3s ease-out, dino-flutter 2.4s ease-in-out .3s infinite; }
+.dino-target.coconut.hit { animation: dino-bump .3s ease-out, dino-sway 3s ease-in-out .3s infinite; }
+@keyframes dino-bump { 0% { scale: 1; } 35% { scale: 1.18; rotate: -4deg; } 100% { scale: 1; rotate: 0deg; } }
+.dino-target .dino-label { transition: color .2s, background-color .2s; }
+.dino-target[data-hits="1"] { --tint: #ffeaa7; }
+.dino-target[data-hits="2"] { --tint: #fdcb6e; }
+.dino-target[data-hits="3"] { --tint: #fd9644; }
+.dino-target[data-hits="4"] { --tint: #ff6b6b; }
+.dino-target.hit:is(.rocks, .ice, .door, .log, .lay-floor) { box-shadow: 0 0 0 1.2vh var(--tint), 0 0 4vh 1vh var(--tint); }
+.dino-target.hit:is(.lay-hang) .vine-sign, .dino-target.hit:is(.lay-high) .dino-label { background: var(--tint); box-shadow: 0 0 3vh 1vh var(--tint); }
+.dino-target.hit:is(.rocks, .ice, .door) .dino-label { color: #c0392b; }

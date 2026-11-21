@@ -258,3 +258,32 @@ export function playKidsCheer() {
   for (const v of kidCheerVoices()) cheerVoice(ac, v, 0.045);
   playApplause(1.1);
 }
+
+/** Pitch (Hz) of the blip for hit `n` of `need`: climbs a major arpeggio towards the last hit. */
+export function hitPitch(n: number, need: number): number {
+  const steps = [0, 4, 7, 12, 16];
+  const i = Math.max(0, Math.min(steps.length - 1, n - 1, need - 1));
+  return 330 * Math.pow(2, steps[i] / 12);
+}
+
+/** One hit on a Dino Maze option: a thump plus a rising blip, so each hit sounds closer to "done". */
+export function playHit(n: number, need: number) {
+  const ac = audio();
+  if (!ac) return;
+  const t0 = ac.currentTime;
+  if (!noise || noise.sampleRate !== ac.sampleRate) {
+    noise = ac.createBuffer(1, Math.floor(ac.sampleRate * 0.05), ac.sampleRate);
+    const d = noise.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.exp(-i / (d.length / 6));
+  }
+  const src = ac.createBufferSource();
+  src.buffer = noise;
+  const lp = ac.createBiquadFilter();
+  lp.type = 'lowpass';
+  lp.frequency.value = 700 + n * 250;
+  const g = ac.createGain();
+  g.gain.value = 0.35;
+  src.connect(lp).connect(g).connect(ac.destination);
+  src.start(t0);
+  tone(ac, hitPitch(n, need), 0.02, n >= need ? 0.3 : 0.14, 'square', n >= need ? 0.08 : 0.06);
+}

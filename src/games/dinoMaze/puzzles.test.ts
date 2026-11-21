@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DINO_CHOICES, LISTEN_ONLY, layoutTargets, makeDinoPuzzle, pickDinoSlot } from './puzzles';
+import { DINO_CHOICES, LISTEN_ONLY, MAX_HITS, MIN_HITS, addHit, hitsNeeded, layoutTargets, makeDinoPuzzle, pickDinoSlot } from './puzzles';
 import { OBSTACLE_KINDS } from './maze';
 import { getTrack, maxLevel, tracksFor } from '../../engine/tracks';
 import { isPopTrack } from '../popAnswer/generator';
@@ -84,5 +84,29 @@ describe('Dino Maze puzzles', () => {
           expect(gap).toBeGreaterThan(0.1); // a hand's width or more between targets
         }
       }
+  });
+
+  it('an option needs 3 or 4 hits, both happen', () => {
+    const seen = new Set<number>();
+    const rng = seeded(9);
+    for (let i = 0; i < 50; i++) seen.add(hitsNeeded(rng));
+    expect([...seen].sort()).toEqual([MIN_HITS, MAX_HITS]);
+    expect([MIN_HITS, MAX_HITS]).toEqual([3, 4]);
+  });
+
+  it('hits count up per option; the last one chooses it and resets its count', () => {
+    let c = {};
+    let r = addHit(c, '5', 3);
+    expect(r).toEqual({ counts: { '5': 1 }, hits: 1, chosen: false });
+    r = addHit(r.counts, '7', 3); // a hit on another option doesn't touch the first
+    expect(r.counts).toEqual({ '5': 1, '7': 1 });
+    r = addHit(r.counts, '5', 3);
+    expect(r.hits).toBe(2);
+    r = addHit(r.counts, '5', 3);
+    expect(r.chosen).toBe(true);
+    expect(r.hits).toBe(3);
+    expect(r.counts['5']).toBe(0); // a wrong option can be tried again from zero
+    c = r.counts;
+    expect(addHit(c, '7', 3).hits).toBe(2);
   });
 });

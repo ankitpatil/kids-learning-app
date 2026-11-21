@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { hitPitch } from './sfx';
 import { CHIP_BASS, CHIP_DRUMS, CHIP_LEAD, LOOP_STEPS, noteHz, parseDrums, parseTrack } from './chiptune';
 
 describe('8-bit walking music', () => {
@@ -27,6 +28,15 @@ describe('8-bit walking music', () => {
     for (const n of [...parseTrack(CHIP_LEAD).notes, ...parseTrack(CHIP_BASS).notes]) {
       expect(n.hz).toBeGreaterThan(80);
       expect(n.hz).toBeLessThan(1400);
+    }
+  });
+});
+
+describe('hit sounds', () => {
+  it('each hit on an option sounds a little higher', () => {
+    for (const need of [3, 4]) {
+      const ps = Array.from({ length: need }, (_, i) => hitPitch(i + 1, need));
+      for (let i = 1; i < ps.length; i++) expect(ps[i]).toBeGreaterThan(ps[i - 1]);
     }
   });
 });

@@ -60,8 +60,10 @@ export interface GestureOptions {
   landWithin: number;
   /** Resting height follows the shoulders this slowly (ms) while standing. */
   restTauMs: number;
-  /** After any choice, ignore everything for this long (a sweep can't hit two targets). */
+  /** After any hit, ignore everything for this long (a sweep can't hit two targets at once). */
   cooldownMs: number;
+  /** After a new question, ignore everything for this long (a swing from the last one doesn't count). */
+  resetMs: number;
   /** Velocity is measured over this window. */
   windowMs: number;
 }
@@ -74,7 +76,8 @@ export const DEFAULT_GESTURE: GestureOptions = {
   jumpRise: 0.3,
   landWithin: 0.12,
   restTauMs: 900,
-  cooldownMs: 900,
+  cooldownMs: 350,
+  resetMs: 900,
   windowMs: 120,
 };
 
@@ -165,7 +168,7 @@ export function createGestureDetector(gesture: Gesture, opts: Partial<GestureOpt
       const over = handsOver(f, targets);
       const aimed = [...new Set(over.map((x) => x.id))];
       if (f.t < blockedUntil) {
-        grabbing = null;
+        if (grabbing && grabbing.since !== Infinity) grabbing = null;
         return none(aimed);
       }
 
@@ -177,7 +180,8 @@ export function createGestureDetector(gesture: Gesture, opts: Partial<GestureOpt
         }
         if (!grabbing || grabbing.id !== both) grabbing = { id: both, since: f.t };
         if (f.t - grabbing.since >= o.grabMs) {
-          grabbing = null;
+          // One grab = one hit: let go (or move off) before the next grab counts.
+          grabbing = { id: both, since: Infinity };
           blockedUntil = f.t + o.cooldownMs;
           return { fired: both, aimed, airborne };
         }
@@ -200,7 +204,7 @@ export function createGestureDetector(gesture: Gesture, opts: Partial<GestureOpt
       fastAt.left = fastAt.right = -Infinity;
       grabbing = null;
       jumped = true; // landing first, so a jump in progress doesn't answer the new question
-      blockedUntil = now + o.cooldownMs;
+      blockedUntil = now + o.resetMs;
     },
   };
 }

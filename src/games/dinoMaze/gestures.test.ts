@@ -59,6 +59,21 @@ describe('grab', () => {
     for (let t = 0; t <= 400 && !fired; t += 33) fired = d.update(f(t, { left: { x: 150, y: 400 }, right: { x: 250, y: 400 } }), rocks).fired;
     expect(fired).toBe('a');
   });
+  it('each grab is one hit: let go and grab again for the next', () => {
+    const d = createGestureDetector('grab');
+    const both = { left: { x: 150, y: 400 }, right: { x: 250, y: 400 } };
+    const fired: string[] = [];
+    for (let t = 0; t <= 1500; t += 33) {
+      const s = d.update(f(t, both), rocks).fired; // holding on the whole time
+      if (s) fired.push(s);
+    }
+    expect(fired).toEqual(['a']);
+    d.update(f(1550, {}), rocks); // let go
+    let again: string | null = null;
+    for (let t = 1600; t <= 2100 && !again; t += 33) again = d.update(f(t, both), rocks).fired;
+    expect(again).toBe('a');
+  });
+
   it('one hand, or hands on different keys, never grabs', () => {
     const d = createGestureDetector('grab');
     for (let t = 0; t <= 1000; t += 33) {
@@ -99,6 +114,22 @@ describe('jump', () => {
     expect(fired).toBeNull();
   });
 
+  it('every jump is a hit: jump 3 times, 3 hits', () => {
+    const d = createGestureDetector('jump');
+    let t = 0;
+    stand(d, t, 800, 600);
+    let n = 0;
+    for (let j = 0; j < 3; j++) {
+      t += 633;
+      if (d.update(f(t, {}, { x: 800, y: 250 }), stones).fired) n++;
+      t += 33;
+      d.update(f(t, {}, { x: 800, y: 300 }), stones); // land
+      stand(d, t + 33, 800, 400);
+      t += 433;
+    }
+    expect(n).toBe(3);
+  });
+
   it('a jump between stones picks nothing', () => {
     const d = createGestureDetector('jump');
     stand(d, 0, 500, 600);
@@ -115,7 +146,14 @@ describe('jump', () => {
 });
 
 describe('cooldown', () => {
-  it('right after a choice, nothing fires for a moment', () => {
+  it('repeated smashes on the same rock each count (a beat apart)', () => {
+    const d = createGestureDetector('bash');
+    let n = 0;
+    for (let k = 0; k < 4; k++) n += swing(d, k * 600, { x: 200, y: 100 }, { x: 200, y: 400 }, 150).length;
+    expect(n).toBe(4);
+  });
+
+  it('right after a hit, nothing fires for a moment', () => {
     const d = createGestureDetector('bash');
     expect(swing(d, 0, { x: 200, y: 100 }, { x: 200, y: 400 }, 150)).toEqual(['a']);
     expect(swing(d, 200, { x: 600, y: 100 }, { x: 600, y: 400 }, 150)).toEqual([]);

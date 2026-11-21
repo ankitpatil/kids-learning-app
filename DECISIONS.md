@@ -2,6 +2,13 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-21 — Dino Maze round 2 (TV1b, Ankit's feedback)
+- **Only the music is 8-bit**: the maze is now a garden — sandy path, rounded green hedges for walls, a leafy frame (no pixel checkerboard).
+- **10 obstacles, 8 per game, one question each**: new ones are ice wall (smash), spider webs (chop), fallen tree (lift a log with both hands), lava stream (stand by a stone and jump) and coconut tree (reach up and knock one down). A game is 8 questions instead of 12; the maze grew to 11×6 so they fit with walking in between.
+- **3–4 hits to choose an option** (picked per question, same for every option, shown as pips under each target and said in the instruction "Hit it 4 times!"). Each hit: the pip fills, the target glows yellow → orange → red, bumps, and plays a thump plus a note one step higher up a major arpeggio. The last hit chooses it; a wrong one wobbles and its count goes back to zero. Hits are 0.35 s apart at least (was 0.9 s per choice), a grab counts once until the hands let go, every jump counts. Touch: each tap is a hit.
+- **Babies cheer back on the maze**: a right answer → the target bursts → back to the maze: the obstacle goes poof, the banner says what happened ("Crash! The ice wall broke!"), the babies in the nest jump with a "Yay!" bubble and the kids' cheer plays, then Mom walks on. (The full-screen "cleared" card and the in-puzzle step strip are gone.)
+- **Slower walk**: 0.75 s per cell (was 0.32 s) with a smooth stride.
+
 ## 2026-11-21 — 📺 TV Games tile + 🦕 Dino Maze (TV1, asked for by Ankit)
 - **Its own tile and screen**: a third home tile "TV Games" opens a list (one game so far) so more whole-body games can join later. Not tied to Move mode: the game opens the camera itself when it starts, and **pauses the app-wide Move-mode layer** while it's open (one camera, no hand cursor clicking things behind the game).
 - **True mirror, full screen**: in a puzzle the camera fills the screen, mirrored, and the answer targets sit on top, so a child's hand on screen *is* their hand (unlike Move mode's reach-box cursor). Targets are placed where arms reach: shoulder height (rocks, keys), high (bats), long hanging vines, and stones along the bottom (you stand by a stone, you don't touch it). Same raise-a-hand-to-claim rule as Move mode; others in view are ignored.

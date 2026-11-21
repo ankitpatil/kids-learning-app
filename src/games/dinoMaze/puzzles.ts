@@ -3,7 +3,7 @@
 // as big targets for a child standing back from the TV.
 import { isPopTrack, makePopItem, pickPopTrack, trimChoices, type PopItem, type PopTrack } from '../popAnswer/generator';
 import { tracksFor, type Subject } from '../../engine/tracks';
-import type { ObstacleKind } from './maze';
+import { OBSTACLES, type ObstacleKind } from './maze';
 
 export type Rng = () => number;
 type States = Record<string, { level: number; mastery: number } | undefined>;
@@ -84,17 +84,36 @@ function columns(n: number, lo: number, hi: number): number[] {
  */
 export function layoutTargets(kind: ObstacleKind, n: number, rng: Rng = Math.random): TargetSpot[] {
   const jitter = (a: number) => (rng() - 0.5) * a;
-  switch (kind) {
-    case 'rocks':
-      return columns(n, 0.2, 0.8).map((x) => ({ x, y: 0.5 + jitter(0.12), w: 0.3, h: 0.3 }));
-    case 'vines':
-      // Long vines hanging from the top: chop down through one, the others are far to the side.
+  switch (OBSTACLES[kind].layout) {
+    case 'mid':
+      return columns(n, 0.2, 0.8).map((x) => ({ x, y: 0.5 + jitter(0.1), w: 0.3, h: 0.3 }));
+    case 'hang':
+      // Long strands hanging from the top: chop down through one, the others are far to the side.
       return columns(n, 0.18, 0.82).map((x) => ({ x, y: 0.55, w: 0.2, h: 0.58 }));
-    case 'door':
-      return columns(n, 0.2, 0.8).map((x) => ({ x, y: 0.52 + jitter(0.06), w: 0.3, h: 0.28 }));
-    case 'river':
+    case 'floor':
       return columns(n, n === 2 ? 0.3 : 0.18, n === 2 ? 0.7 : 0.82).map((x) => ({ x, y: 0.84, w: 0.34, h: 0.2 }));
-    case 'bats':
+    case 'high':
       return columns(n, 0.2, 0.8).map((x) => ({ x, y: 0.32 + jitter(0.06), w: 0.26, h: 0.24 }));
   }
+}
+
+// ---------- Hits ----------
+
+/** Hits it takes to choose an option: 3 or 4, picked per question (the same for every option). */
+export const MIN_HITS = 3;
+export const MAX_HITS = 4;
+export function hitsNeeded(rng: Rng = Math.random): number {
+  return MIN_HITS + Math.floor(rng() * (MAX_HITS - MIN_HITS + 1));
+}
+
+export type HitCounts = Record<string, number>;
+
+/**
+ * One more hit on an option. Returns the new counts and whether this hit chose it. A chosen option's
+ * count goes back to 0 (a wrong one can be tried again; it just wobbles).
+ */
+export function addHit(counts: HitCounts, label: string, need: number): { counts: HitCounts; hits: number; chosen: boolean } {
+  const hits = Math.min(need, (counts[label] ?? 0) + 1);
+  const chosen = hits >= need;
+  return { counts: { ...counts, [label]: chosen ? 0 : hits }, hits, chosen };
 }

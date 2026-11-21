@@ -90,7 +90,10 @@ export function solve(m: Maze, from: Cell, to: Cell): Cell[] {
 /** How the child answers at an obstacle (see gestures.ts). */
 export type Gesture = 'bash' | 'chop' | 'grab' | 'jump';
 
-export type ObstacleKind = 'rocks' | 'vines' | 'door' | 'river' | 'bats';
+export type ObstacleKind = 'rocks' | 'ice' | 'vines' | 'web' | 'door' | 'log' | 'river' | 'lava' | 'bats' | 'coconut';
+
+/** How the targets are placed on screen for an obstacle (see puzzles.ts). */
+export type TargetLayout = 'mid' | 'hang' | 'floor' | 'high';
 
 export interface ObstacleDef {
   kind: ObstacleKind;
@@ -98,31 +101,36 @@ export interface ObstacleDef {
   /** Emoji on the maze. */
   icon: string;
   gesture: Gesture;
+  layout: TargetLayout;
   /** Short instruction shown big when the puzzle opens. */
   instruction: string;
   /** Picture for the instruction (what to do with your body). */
   move: string;
   /** Answer target picture (the thing you hit / grab / jump on). */
   target: string;
-  /** Progress strip: a step still to do / done. */
-  todo: string;
-  done: string;
+  /** Shown on the target once it's the right one. */
+  burst: string;
   /** Said when the obstacle is cleared. */
   cleared: string;
 }
 
 export const OBSTACLES: Record<ObstacleKind, ObstacleDef> = {
-  rocks: { kind: 'rocks', name: 'Rocky hill', icon: '⛰️', gesture: 'bash', instruction: 'Smash the right rock!', move: '👊', target: '🪨', todo: '🪨', done: '💥', cleared: 'Smash! The rocks are gone!' },
-  vines: { kind: 'vines', name: 'Jungle vines', icon: '🌿', gesture: 'chop', instruction: 'Karate chop the right vine — swing down!', move: '🤚', target: '🌿', todo: '🌿', done: '✂️', cleared: 'Chop chop! The jungle is open!' },
-  door: { kind: 'door', name: 'Locked door', icon: '🚪', gesture: 'grab', instruction: 'Grab the right key with both hands!', move: '🙌', target: '🔑', todo: '🔒', done: '🔓', cleared: 'Click! The door is open!' },
-  river: { kind: 'river', name: 'Wide river', icon: '🌊', gesture: 'jump', instruction: 'Stand by the right stone and jump!', move: '🦘', target: '🪨', todo: '🌊', done: '🪨', cleared: 'Splash! Across the river!' },
-  bats: { kind: 'bats', name: 'Bat cave', icon: '🦇', gesture: 'bash', instruction: 'Reach up and bonk the right bat!', move: '🙋', target: '🦇', todo: '🦇', done: '💨', cleared: 'Whoosh! The bats flew away!' },
+  rocks: { kind: 'rocks', name: 'Rocky hill', icon: '⛰️', gesture: 'bash', layout: 'mid', instruction: 'Smash the right rock!', move: '👊', target: '🪨', burst: '💥', cleared: 'Smash! The rocks are gone!' },
+  ice: { kind: 'ice', name: 'Ice wall', icon: '🧊', gesture: 'bash', layout: 'mid', instruction: 'Smash the right ice block!', move: '👊', target: '🧊', burst: '💦', cleared: 'Crash! The ice wall broke!' },
+  vines: { kind: 'vines', name: 'Jungle vines', icon: '🌿', gesture: 'chop', layout: 'hang', instruction: 'Karate chop the right vine — swing down!', move: '🤚', target: '🌿', burst: '✂️', cleared: 'Chop chop! The jungle is open!' },
+  web: { kind: 'web', name: 'Spider webs', icon: '🕸️', gesture: 'chop', layout: 'hang', instruction: 'Chop through the right web — swing down!', move: '🤚', target: '🕸️', burst: '✂️', cleared: 'Swish! The webs are cut!' },
+  door: { kind: 'door', name: 'Locked door', icon: '🚪', gesture: 'grab', layout: 'mid', instruction: 'Grab the right key with both hands!', move: '🙌', target: '🔑', burst: '🔓', cleared: 'Click! The door is open!' },
+  log: { kind: 'log', name: 'Fallen tree', icon: '🪵', gesture: 'grab', layout: 'mid', instruction: 'Lift the right log with both hands!', move: '🙌', target: '🪵', burst: '💪', cleared: 'Heave-ho! The tree is out of the way!' },
+  river: { kind: 'river', name: 'Wide river', icon: '🌊', gesture: 'jump', layout: 'floor', instruction: 'Stand by the right stone and jump!', move: '🦘', target: '🪨', burst: '🦕', cleared: 'Splash! Across the river!' },
+  lava: { kind: 'lava', name: 'Lava stream', icon: '🌋', gesture: 'jump', layout: 'floor', instruction: 'Stand by the right stone and jump — hot hot!', move: '🦘', target: '🪨', burst: '🦕', cleared: 'Hop hop! Over the hot lava!' },
+  bats: { kind: 'bats', name: 'Bat cave', icon: '🦇', gesture: 'bash', layout: 'high', instruction: 'Reach up and bonk the right bat!', move: '🙋', target: '🦇', burst: '💨', cleared: 'Whoosh! The bats flew away!' },
+  coconut: { kind: 'coconut', name: 'Coconut tree', icon: '🌴', gesture: 'bash', layout: 'high', instruction: 'Reach up and knock down the right coconut!', move: '🙋', target: '🥥', burst: '💥', cleared: 'Bonk! The coconuts fell down!' },
 };
 export const OBSTACLE_KINDS = Object.keys(OBSTACLES) as ObstacleKind[];
 
-/** Obstacles per game, and right answers needed to clear each one. */
-export const OBSTACLES_PER_GAME = 4;
-export const ANSWERS_PER_OBSTACLE = 3;
+/** Obstacles per game; one right answer clears each. */
+export const OBSTACLES_PER_GAME = 8;
+export const ANSWERS_PER_OBSTACLE = 1;
 
 export interface PlacedObstacle {
   kind: ObstacleKind;
@@ -137,8 +145,8 @@ export interface DinoLevel {
 }
 
 /** Maze size: wide for a TV. */
-export const MAZE_COLS = 9;
-export const MAZE_ROWS = 5;
+export const MAZE_COLS = 11;
+export const MAZE_ROWS = 6;
 
 /**
  * A new game: a maze from the top-left (Mom) to the bottom-right (the babies' nest), and `count`
@@ -158,9 +166,11 @@ export function makeDinoLevel(rng: Rng = Math.random, count = OBSTACLES_PER_GAME
   return { maze, path, obstacles };
 }
 
-/** Where Mom walks next from path index `from`: up to the cell before the next obstacle, or to the nest. */
-export function nextStop(level: DinoLevel, from: number): { to: number; obstacle: number } {
-  const k = level.obstacles.findIndex((o) => o.at > from);
-  if (k < 0) return { to: level.path.length - 1, obstacle: -1 };
-  return { to: level.obstacles[k].at - 1, obstacle: k };
+/**
+ * Where Mom walks next from path index `from`, with `cleared` obstacles behind her: up to the cell
+ * before the next obstacle, or (all cleared) to the nest.
+ */
+export function nextStop(level: DinoLevel, from: number, cleared: number): { to: number; obstacle: number } {
+  if (cleared >= level.obstacles.length) return { to: level.path.length - 1, obstacle: -1 };
+  return { to: Math.max(from, level.obstacles[cleared].at - 1), obstacle: cleared };
 }
