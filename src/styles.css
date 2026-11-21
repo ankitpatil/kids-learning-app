@@ -576,3 +576,26 @@ img.icon { display: inline-block; width: 1em; height: 1em; vertical-align: -0.12
 .cu-step { background: #fff6e0; color: var(--math); border: 0.1875rem solid var(--math); }
 body.move-mode .fair-wallet { gap: 1.5rem; }
 body.move-mode .money-btn { min-width: 6rem; min-height: 6rem; }
+
+/* #22 Tick Tock Clock */
+.clock-game { gap: 0.875rem; }
+.clock-big { border: none; background: none; padding: 0; cursor: pointer; }
+.clock-big.oops, .clock-target.oops { animation: wobble .4s; }
+.clock-face { width: min(18rem, 62vw, 40vh); height: auto; display: block; }
+.clock-face.small { width: min(10rem, 28vw, 26vh); }
+.clock-face .hand-glow line { filter: drop-shadow(0 0 0.35rem #fdcb6e) drop-shadow(0 0 0.2rem #fdcb6e); }
+.clock-times { grid-template-columns: repeat(auto-fit, minmax(7.5rem, 11rem)); justify-content: center; width: min(48rem, 94vw); }
+.clock-times .quick-choice { font-variant-numeric: tabular-nums; }
+.clock-target { border: none; background: #fff; border-radius: 1.5rem; padding: 0.5rem 1.5rem; font-size: 4rem; font-weight: 900; color: var(--ink); box-shadow: 0 0.375rem 0 #0002; cursor: pointer; font-variant-numeric: tabular-nums; }
+.clock-choices { display: flex; flex-wrap: wrap; gap: 1.25rem; justify-content: center; margin-top: auto; margin-bottom: 1.5rem; }
+.clock-choice { border: none; background: #fff; border-radius: 1.5rem; padding: 0.75rem; box-shadow: 0 0.375rem 0 #0002; cursor: pointer; }
+.clock-choice:active { transform: translateY(0.1875rem); }
+.clock-choice.tried { opacity: .35; }
+.clock-choice.picked { background: var(--soft); }
+.hand-key { border: none; background: none; display: flex; gap: 0.75rem; font-weight: 900; font-size: 1.125rem; cursor: pointer; }
+.hk { padding: 0.25rem 0.75rem; border-radius: 0.75rem; color: #fff; }
+.hk.hour { background: #e17055; }
+.hk.minute { background: #0984e3; }
+.count-up.fives .cu-step { color: #0984e3; border-color: #0984e3; }
+body.move-mode .clock-choices { gap: 2rem; }
+body.move-mode .clock-face.small { width: min(12rem, 28vw, 28vh); }

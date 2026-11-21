@@ -38,6 +38,7 @@ const GAME_OF: Record<string, string> = {
   endings: 'builder',
   wordProblems: 'storySums',
   money: 'fair',
+  time: 'clock',
 };
 
 /** Playable tracks played by the same game as `trackId`, in curriculum order. */

@@ -2,6 +2,16 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-21 — Tick Tock Clock (#22)
+- **S1 skipped again**: `public/sounds/raw/` doesn't exist (Needs Ankit), so this run took #22.
+- **Six levels on the existing `time` track** (all Ages 5–6): o'clock (far choices, coloured hands) → o'clock + half past → same with look-alike choices, plain hands → **find the clock** (see "4:30", pick one of 3 clocks; abstract) → every 5 minutes with 5, 10 … 55 round the face → every 5 minutes, no help. Hour/half hour first matches CBSE Class 1–2 and US Grade 1; 5 minutes is US Grade 2. `range` = how many minute positions a level uses (1, 2, 12).
+- **Real hour hand**: it moves on with the minutes (half past 3 sits between 3 and 4), because reading that is the skill. The near choices are the classic slips: half past 3 read as 4:30 (always offered on half-past items), 3:00 vs 3:30, ±5 minutes, the hour either side, and from 10 minutes up the minute-hand number read as minutes (3:20 → "3:04").
+- **Times are said** "three o'clock", "half past four" (the usual Indian and British phrasing; US kids hear it too), and "seven twenty five" / "eleven oh five" for 5-minute times. Digital times are written h:mm, 12-hour, no a.m./p.m.
+- **Help after a miss**: the hand the child misread glows, both hands turn colour (short orange = hour, long blue = minutes, with a tap-to-hear key), 5-minute clocks get the fives round the face plus a count-by-fives strip, and the spoken hint names the hand ("The short hand is just past the three"). Easing → an o'clock item with far choices.
+- **No "Why?" helper** for the clock: the answer is a time, not one number or word, so the existing leak checks don't fit; the canned hints already point at the hand. Can be added later with a time-aware leak check.
+- Clock drawn in SVG (no new icons). Not in placement (starts at level 1) and no Pop the Answer items, like money. Hands shortened so they never cover the numbers.
+- Checked in vite preview (levels 1, 3, 5, 6, a miss on a 5-minute clock, find-the-clock); no console errors.
+
 ## 2026-11-20 — Fun at the Fair, money (#21)
 - **S1 skipped again**: `public/sounds/raw/` doesn't exist (Needs Ankit), so this run took #21.
 - **Five levels on the existing `money` track** (all Ages 5–6): pay to 10 with ₹1/₹2/₹5 coins (total shown) → pay to 20 with coins and ₹10/₹20 notes (total shown) → pay to 20, count it yourself → change from ₹10 (count-up strip shown) → change within 20 (paid with ₹20, near choices, strip only after a miss). Paying (concrete) before change (pictorial/abstract) is CPA; change-from-10 restarts at a smaller range, so the tracks test now allows a smaller range when the representation steps up.

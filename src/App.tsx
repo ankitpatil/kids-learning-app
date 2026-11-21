@@ -8,6 +8,7 @@ import { WordBuilder } from './games/wordBuilder/WordBuilder';
 import { StoryChoose } from './games/stories/StoryChoose';
 import { StorySums } from './games/wordProblems/StorySums';
 import { FunFair } from './games/fair/FunFair';
+import { ClockGame } from './games/clock/ClockGame';
 import { PopTheAnswer } from './games/popAnswer/PopTheAnswer';
 import { pickPopTrack, type PopTrack } from './games/popAnswer/generator';
 import { isHopTrack, type HopTrack } from './games/numberLine/generator';
@@ -32,7 +33,7 @@ import { say, isNarrationOn, setNarration, stopSpeech, tapSay } from './audio/sp
 import { MoveModeToggle } from './components/MotionLayer';
 import { Emoji, Icon } from './components/Icon';
 
-type Game = 'count' | 'missing' | 'placeValue' | 'compare2d' | HopTrack | 'phonics' | WordTrack | 'sightWords' | 'endings' | 'stories' | 'wordProblems' | 'money';
+type Game = 'count' | 'missing' | 'placeValue' | 'compare2d' | HopTrack | 'phonics' | WordTrack | 'sightWords' | 'endings' | 'stories' | 'wordProblems' | 'money' | 'time';
 type Screen =
   | { name: 'home' }
   | { name: Game }
@@ -48,7 +49,7 @@ type Screen =
   | { name: 'gate' }
   | { name: 'settings' };
 
-const SUBJECT_OF = (g: Game): Subject => (g === 'count' || g === 'missing' || g === 'placeValue' || g === 'compare2d' || g === 'wordProblems' || g === 'money' || isHopTrack(g) ? 'math' : 'reading');
+const SUBJECT_OF = (g: Game): Subject => (g === 'count' || g === 'missing' || g === 'placeValue' || g === 'compare2d' || g === 'wordProblems' || g === 'money' || g === 'time' || isHopTrack(g) ? 'math' : 'reading');
 const isWordTrack = (g: string): g is WordTrack => (WORD_TRACKS as readonly string[]).includes(g);
 
 export default function App() {
@@ -124,7 +125,7 @@ export default function App() {
 
   async function launch(subject: Subject) {
     const game = pickTrack(subject, await getSkillStates(profile!.id)) as Game;
-    say(game === 'phonics' ? 'Phonics pop!' : game === 'sightWords' ? 'Sight word catch!' : game === 'endings' ? 'Word builder!' : game === 'stories' ? 'Story time!' : game === 'wordProblems' ? 'Story sums!' : game === 'money' ? 'Fun at the fair!' : isWordTrack(game) ? 'Word detective!' : isHopTrack(game) ? 'Number line hop!' : 'Feed the monster!');
+    say(game === 'phonics' ? 'Phonics pop!' : game === 'sightWords' ? 'Sight word catch!' : game === 'endings' ? 'Word builder!' : game === 'stories' ? 'Story time!' : game === 'wordProblems' ? 'Story sums!' : game === 'money' ? 'Fun at the fair!' : game === 'time' ? 'Tick tock clock!' : isWordTrack(game) ? 'Word detective!' : isHopTrack(game) ? 'Number line hop!' : 'Feed the monster!');
     setScreen({ name: game });
   }
 
@@ -238,6 +239,10 @@ export default function App() {
 
   if (screen.name === 'wordProblems') {
     return <StorySums profileId={profile.id} onDone={(r) => finishRound('wordProblems', r)} onExit={() => toLevels('math')} />;
+  }
+
+  if (screen.name === 'time') {
+    return <ClockGame profileId={profile.id} onDone={(r) => finishRound('time', r)} onExit={() => toLevels('math')} />;
   }
 
   if (screen.name === 'money') {

@@ -83,7 +83,19 @@ export const TRACKS: TrackDef[] = [
       L('change within 20', 20, 'abstract', 'near', false),
     ],
   },
-  { id: 'time', subject: 'math', name: 'Clock', icon: 'one-oclock', playable: false, levels: [L('hour and half hour', 12, 'pictorial', 'far', true)] },
+  {
+    // #22 Tick Tock Clock. range = minute positions used (1 o'clock, 2 + half past, 12 every 5 minutes).
+    // Pictorial = read the clock, pick the digital time; abstract = see the time, pick the clock.
+    id: 'time', subject: 'math', name: 'Clock', icon: 'one-oclock', playable: true,
+    levels: [
+      L("o'clock", 1, 'pictorial', 'far', true),
+      L("o'clock and half past", 2, 'pictorial', 'far', true),
+      L('o\'clock and half past, look-alikes', 2, 'pictorial', 'near', false),
+      L('find the clock for the time', 2, 'abstract', 'near', false),
+      L('5 minutes, fives shown', 12, 'pictorial', 'near', true),
+      L('5 minutes', 12, 'pictorial', 'near', false),
+    ],
+  },
   { id: 'grouping', subject: 'math', name: 'Groups', icon: 'basket', playable: false, levels: [L('equal groups', 20, 'concrete', 'far', true)] },
 
   // ---------- Reading ----------
@@ -139,7 +151,7 @@ export const LEVEL_AGES: Record<string, AgeBand[]> = {
   compare2d: ['a56', 'a56', 'a56'],
   wordProblems: ['a45', 'a56', 'a56'],
   money: ['a56', 'a56', 'a56', 'a56', 'a56'], // money is CBSE Class 1–2 / US Grade 1–2
-  time: ['a56'],
+  time: ['a56', 'a56', 'a56', 'a56', 'a56', 'a56'], // hour / half hour = CBSE Class 1–2, US Grade 1; 5 minutes = Grade 2
   grouping: ['a56'],
   phonics: ['a34', 'a34', 'a45', 'a45', 'a45', 'a56', 'a56'], // s a t p, + i n | … | rare letters, look-alikes
   cvc: ['a45', 'a56'],
