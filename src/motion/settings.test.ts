@@ -39,3 +39,14 @@ describe('motion settings', () => {
     expect(loadMotionSettings(null).enabled).toBe(false);
   });
 });
+
+describe('suspending Move mode for a game with its own camera', () => {
+  it('toggles and defaults to off', async () => {
+    const { isMotionSuspended, setMotionSuspended } = await import('./settings');
+    expect(isMotionSuspended()).toBe(false);
+    setMotionSuspended(true);
+    expect(isMotionSuspended()).toBe(true);
+    setMotionSuspended(false);
+    expect(isMotionSuspended()).toBe(false);
+  });
+});

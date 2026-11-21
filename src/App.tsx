@@ -10,6 +10,8 @@ import { StorySums } from './games/wordProblems/StorySums';
 import { FunFair } from './games/fair/FunFair';
 import { ClockGame } from './games/clock/ClockGame';
 import { PopTheAnswer } from './games/popAnswer/PopTheAnswer';
+import { DinoMaze } from './games/dinoMaze/DinoMaze';
+import { TvGames } from './screens/TvGames';
 import { pickPopTrack, type PopTrack } from './games/popAnswer/generator';
 import { isHopTrack, type HopTrack } from './games/numberLine/generator';
 import { WORD_TRACKS, type WordTrack } from './games/wordDetective/generator';
@@ -33,13 +35,14 @@ import { say, isNarrationOn, setNarration, stopSpeech, tapSay } from './audio/sp
 import { MoveModeToggle } from './components/MotionLayer';
 import { Emoji, Icon } from './components/Icon';
 
-type Game = 'count' | 'missing' | 'placeValue' | 'compare2d' | HopTrack | 'phonics' | WordTrack | 'sightWords' | 'endings' | 'stories' | 'wordProblems' | 'money' | 'time';
+type Game = 'count' | 'missing' | 'placeValue' | 'compare2d' | HopTrack | 'phonics' | WordTrack | 'sightWords' | 'endings' | 'stories' | 'wordProblems' | 'money' | 'time' | 'dino';
 type Screen =
   | { name: 'home' }
   | { name: Game }
   | { name: 'pop'; trackId: PopTrack }
   | { name: 'reward'; game: Game; stars: number; leveledUp: boolean; sticker: Sticker; isNew: boolean; pop?: boolean }
   | { name: 'levels'; subject: Subject }
+  | { name: 'tv' }
   | { name: 'vault'; from?: Screen }
   | { name: 'startpoint'; subject: Subject }
   | { name: 'placement'; subject: Subject }
@@ -233,6 +236,14 @@ export default function App() {
     return <PopTheAnswer key={track} profileId={profile.id} trackId={track} onDone={(r) => finishRound(track, r, true)} onExit={() => toLevels(SUBJECT_OF(track))} />;
   }
 
+  if (screen.name === 'tv') {
+    return <TvGames onPlay={() => setScreen({ name: 'dino' })} onBack={() => setScreen({ name: 'home' })} />;
+  }
+
+  if (screen.name === 'dino') {
+    return <DinoMaze profileId={profile.id} onDone={(r) => finishRound('dino', r)} onExit={() => setScreen({ name: 'tv' })} />;
+  }
+
   if (screen.name === 'endings') {
     return <WordBuilder profileId={profile.id} onDone={(r) => finishRound('endings', r)} onExit={() => toLevels('reading')} />;
   }
@@ -272,8 +283,8 @@ export default function App() {
           {screen.isNew && <span className="new-tag">NEW</span>}
         </button>
         <div className="reward-actions">
-          <button className="btn secondary" onClick={() => toLevels(SUBJECT_OF(screen.game))} aria-label="Pick a level"><Emoji text="⬅️" /></button>
-          <button className="btn primary huge" onClick={() => (screen.pop ? startPop(SUBJECT_OF(screen.game)) : launch(SUBJECT_OF(screen.game)))} aria-label="Play again"><Emoji text="▶️" /></button>
+          <button className="btn secondary" onClick={() => (screen.game === 'dino' ? setScreen({ name: 'tv' }) : toLevels(SUBJECT_OF(screen.game)))} aria-label={screen.game === 'dino' ? 'TV games' : 'Pick a level'}><Emoji text="⬅️" /></button>
+          <button className="btn primary huge" onClick={() => (screen.game === 'dino' ? setScreen({ name: 'dino' }) : screen.pop ? startPop(SUBJECT_OF(screen.game)) : launch(SUBJECT_OF(screen.game)))} aria-label="Play again"><Emoji text="▶️" /></button>
           <button className="btn secondary" onClick={() => setScreen({ name: 'vault', from: screen })} aria-label="Sticker book"><Emoji text="📒" /></button>
         </div>
       </div>
@@ -322,6 +333,15 @@ export default function App() {
           <span className="big-emoji"><Emoji text="🎈🔤" /></span>
           <span className="subject-name">Reading</span>
           <span className="label">a b c</span>
+        </button>
+        <button
+          className="subject tv"
+          onClick={() => setScreen({ name: 'tv' })}
+          aria-label="TV games: play with your whole body"
+        >
+          <span className="big-emoji"><Emoji text="📺🦕" /></span>
+          <span className="subject-name">TV Games</span>
+          <span className="label">jump &amp; play</span>
         </button>
       </div>
       <div className="parent-links">

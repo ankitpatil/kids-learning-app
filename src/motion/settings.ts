@@ -46,3 +46,21 @@ export function saveMotionSettings(patch: Partial<MotionSettings>, kv: KV | null
     /* no window (tests) */
   }
 }
+
+// A game with its own full-screen camera (🦕 Dino Maze) pauses the app-wide Move-mode layer while it is
+// open, so the camera isn't opened twice and the hand cursor doesn't press things behind the game.
+let suspended = false;
+
+export function isMotionSuspended(): boolean {
+  return suspended;
+}
+
+export function setMotionSuspended(on: boolean): void {
+  if (suspended === on) return;
+  suspended = on;
+  try {
+    globalThis.dispatchEvent?.(new Event(MOTION_EVENT));
+  } catch {
+    /* no window (tests) */
+  }
+}

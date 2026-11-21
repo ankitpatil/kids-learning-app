@@ -245,3 +245,16 @@ export function playCelebration(): number {
   }, 700);
   return 2300;
 }
+
+/** A few children's "yay!" voices only (higher, quicker than the crowd), for the Dino Maze babies. */
+export function kidCheerVoices(count = 7, seconds = 0.7, rand: () => number = Math.random): CheerVoice[] {
+  return cheerVoices(count, seconds, rand).map((v) => ({ ...v, pitch: 400 + rand() * 180, dur: 0.3 + rand() * 0.25, vowel: rand() < 0.7 ? 1 : 0 }));
+}
+
+/** Kids cheer for a right answer: a bright "yay!" from a handful of children and a few claps. Short, so it doesn't hold the game up. */
+export function playKidsCheer() {
+  const ac = audio();
+  if (!ac) return;
+  for (const v of kidCheerVoices()) cheerVoice(ac, v, 0.045);
+  playApplause(1.1);
+}

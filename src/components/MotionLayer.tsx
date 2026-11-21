@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { HandLandmarker, PoseLandmarker } from '@mediapipe/tasks-vision';
-import { MOTION_EVENT, loadMotionSettings, saveMotionSettings, type MotionSettings, type TrackingMode } from '../motion/settings';
+import { MOTION_EVENT, isMotionSuspended, loadMotionSettings, saveMotionSettings, type MotionSettings, type TrackingMode } from '../motion/settings';
 import { EURO_BODY, EURO_HAND, LOST_GRACE_MS, createDeadband, createDwell, createOneEuro, holdFor, glide, nearBox, padsVisible, scrollSpeed, steadiness, toScreen, type Pt } from '../motion/pointer';
 import { INDEX_TIP, loadHandTracker, loadPoseTracker } from '../motion/tracker';
 import { ARM, createBodyFrame, createHandPicker, createPlayerLock, reachToScreen, torso, type ActiveHand, type LockStep, type Pose } from '../motion/player';
@@ -25,6 +25,12 @@ export function useMotionSettings(): MotionSettings {
 /** Mounted once at the root. Does nothing (no camera, no download) unless Move mode is on. */
 export function MotionLayer() {
   const { enabled, tracking } = useMotionSettings();
+  const [suspended, setSuspended] = useState(isMotionSuspended);
+  useEffect(() => {
+    const sync = () => setSuspended(isMotionSuspended());
+    window.addEventListener(MOTION_EVENT, sync);
+    return () => window.removeEventListener(MOTION_EVENT, sync);
+  }, []);
   const [visible, setVisible] = useState(() => document.visibilityState === 'visible');
 
   useEffect(() => {
@@ -40,7 +46,7 @@ export function MotionLayer() {
     return () => document.removeEventListener('visibilitychange', onVis);
   }, []);
 
-  return enabled && visible ? <MotionSession key={tracking} mode={tracking} /> : null;
+  return enabled && visible && !suspended ? <MotionSession key={tracking} mode={tracking} /> : null;
 }
 
 type Status = 'starting' | 'tracking' | 'noHand' | 'raise' | 'claiming' | 'blocked' | 'error';
