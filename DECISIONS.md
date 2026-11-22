@@ -2,6 +2,13 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-22 — World map (#24)
+- **Where it lives**: a 🗺️ button on each subject's Level Select opens "Math islands" / "Reading islands" — one island per playable track, in curriculum order along a zig-zag path. Tapping an open island plays that track at the child's current level. Home is unchanged.
+- **The map is encouragement, not a gate**: Level Select and ▶️ Play next still play any track. Locked islands are grey with 🔒; tapping one wobbles it and says (tap-to-hear) "Play Short words and Tricky words a bit more to open this island!" — no failure sound.
+- **Prerequisites** (new `PREREQS` in `engine/worldMap.ts`, none existed before): math — count → add10, sub10, placeValue, time; add10 → missing, add20, money; sub10 → sub20; add10 + sub10 → story sums; placeValue → more or fewer. Reading — letter sounds and tricky words start open; letter sounds → short words → sh/ch, blends, magic e, endings; magic e → ee/ai/oa; short words + tricky words → sentences, stories.
+- **A prerequisite counts once it's halfway through its levels** (level ≥ ceil(max/2), e.g. Counting "up to 10") or mastered — waiting for full mastery would hide most of the map from a child who already adds. A track the child has started (played at its level, or placed above level 1 by the starting point) is never shown locked.
+- **Bloom**: 🌱 open → 🌿 started → 🌷 halfway → 🌸 mastered (gold ring + gentle sway, off with reduced motion). Bloom never shrinks visibly on a quiet level-down below halfway beyond 🌷 → 🌿.
+
 ## 2026-11-21 — Parent dashboard (#23)
 - **Reused the existing parent gate** (hold 3 s + multiplication, from AI1). The dashboard is a "📊 Progress" button at the top of Grown-ups, not a separate gate.
 - **One child at a time**, with a chip row to switch when there are several profiles; opens on the child currently playing.

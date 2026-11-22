@@ -22,6 +22,7 @@ import { VoicePicker } from './screens/VoicePicker';
 import { ParentGate } from './screens/ParentGate';
 import { Settings } from './screens/Settings';
 import { ParentDashboard } from './screens/ParentDashboard';
+import { WorldMap } from './screens/WorldMap';
 import { ProfilePicker, CreateProfile } from './screens/Profiles';
 import { startupProfileId } from './engine/profiles';
 import { pickSticker } from './engine/stickers';
@@ -43,6 +44,7 @@ type Screen =
   | { name: 'pop'; trackId: PopTrack }
   | { name: 'reward'; game: Game; stars: number; leveledUp: boolean; sticker: Sticker; isNew: boolean; pop?: boolean }
   | { name: 'levels'; subject: Subject }
+  | { name: 'map'; subject: Subject }
   | { name: 'tv' }
   | { name: 'vault'; from?: Screen }
   | { name: 'startpoint'; subject: Subject }
@@ -179,9 +181,15 @@ export default function App() {
         onPlayNext={() => launch(subject)}
         onPop={() => startPop(subject)}
         onCheck={() => setScreen({ name: 'startpoint', subject })}
+        onMap={() => setScreen({ name: 'map', subject })}
         onBack={() => setScreen({ name: 'home' })}
       />
     );
+  }
+
+  if (screen.name === 'map') {
+    const subject = screen.subject;
+    return <WorldMap profileId={profile.id} subject={subject} onPlay={(t) => playTrack(t)} onBack={() => toLevels(subject)} />;
   }
 
   if (screen.name === 'voice') {

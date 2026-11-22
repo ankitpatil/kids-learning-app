@@ -814,3 +814,32 @@ body.move-mode .clock-face.small { width: min(12rem, 28vw, 28vh); }
 .dash-track-main { display: flex; flex-direction: column; min-width: 0; }
 .dash-meter { height: 0.625rem; background: #eee; border-radius: 999px; overflow: hidden; }
 .dash-meter > span { display: block; height: 100%; background: var(--primary); }
+
+/* #24 World map: islands along a winding path; bloom grows with mastery */
+.world-map { background: linear-gradient(#bfe9ff, #8fd3fe 60%, #6ec6f5); gap: 0.5rem; }
+.world-map .levels-title { color: #0b5394; }
+.island-path { list-style: none; margin: 0 auto; padding: 0.5rem 0 2rem; width: min(100%, 36rem); display: flex; flex-direction: column; gap: 0.25rem; }
+.island-row { display: flex; position: relative; }
+.island-row.left { justify-content: flex-start; padding-left: 8%; }
+.island-row.right { justify-content: flex-end; padding-right: 8%; }
+.island-row + .island-row::before { content: ''; position: absolute; top: -1.25rem; left: 30%; right: 30%; height: 2.5rem; border-top: 0.3rem dashed #fff9; border-radius: 50%; pointer-events: none; }
+.island { position: relative; min-width: 9.5rem; min-height: 7.5rem; padding: 0.75rem 1rem 1rem; border: none; border-radius: 48% 52% 45% 55% / 55% 50% 50% 45%; background: radial-gradient(ellipse at 50% 35%, #fff3c4 0 45%, #ffe08a 46% 70%, #7bd389 71%); box-shadow: 0 0.5rem 0 #2d7fb8; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.25rem; font: inherit; color: var(--ink); cursor: pointer; }
+.island:active { transform: translateY(0.25rem); box-shadow: 0 0.25rem 0 #2d7fb8; }
+.island.locked { filter: grayscale(0.85) brightness(0.95); opacity: 0.75; }
+.island.mastered { box-shadow: 0 0.5rem 0 #2d7fb8, 0 0 0 0.35rem #ffd54f; }
+.island-icon { font-size: 2.75rem; line-height: 1; }
+.island-icon .icon { width: 2.75rem; height: 2.75rem; }
+.island-name { font-weight: 900; font-size: 1.05rem; }
+.island-bloom { position: absolute; top: -0.5rem; right: -0.25rem; font-size: 1.5rem; transform-origin: bottom center; }
+.island-bloom .icon { width: 1.5rem; height: 1.5rem; }
+.island-bloom.b1 { font-size: 1.85rem; }
+.island-bloom.b1 .icon { width: 1.85rem; height: 1.85rem; }
+.island-bloom.b2 { font-size: 2.2rem; }
+.island-bloom.b2 .icon { width: 2.2rem; height: 2.2rem; }
+.island-bloom.b3 { font-size: 2.6rem; animation: bloom-sway 2.4s ease-in-out infinite; }
+.island-bloom.b3 .icon { width: 2.6rem; height: 2.6rem; }
+.island.wobble { animation: island-wobble 0.5s ease-in-out; }
+@keyframes bloom-sway { 0%, 100% { transform: rotate(-6deg); } 50% { transform: rotate(6deg); } }
+@keyframes island-wobble { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-0.5rem); } 75% { transform: translateX(0.5rem); } }
+@media (prefers-reduced-motion: reduce) { .island-bloom.b3, .island.wobble { animation: none; } }
+body.move-mode .island { min-width: 12rem; min-height: 9.5rem; }

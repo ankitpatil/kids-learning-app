@@ -64,7 +64,7 @@ Reprioritised 2026-11-08 for the actual learner: knows basic words and +/- (≈ 
 - [x] 21. **Fun at the Fair (money)**: coins/notes in ₹ (default) with $ as a setting; pay exact amount, make change within 20 → done 2026-11-20 (US setting = cents: pennies, nickels, dimes; change from a dime / quarter)
 - [x] 22. **Clock**: time to the hour and half hour, then 5 minutes → done 2026-11-21: Tick Tock Clock, 6 levels (o'clock → half past → look-alikes → find the clock for a time → 5 minutes with fives shown → 5 minutes)
 - [x] 23. Parent gate + parent dashboard (time, mastery per track, weak spots, current level per track) → done 2026-11-21: Grown-ups → 📊 Progress (gate already existed from AI1)
-- [ ] 24. World map screen: island per track, locked/unlocked via prereqs, mastery bloom
+- [x] 24. World map screen: island per track, locked/unlocked via prereqs, mastery bloom → done 2026-11-22: 🗺️ on Level Select → Math / Reading islands (encouragement only, Level Select still plays everything)
 - [ ] 25. Spaced review scheduler (1/3/7 days) for missed words/facts
 - [ ] 26. Export/import progress (JSON file) as backup
 - [ ] 27. Avatar pet: spend stars on food/outfits; streak (pauses, never resets)

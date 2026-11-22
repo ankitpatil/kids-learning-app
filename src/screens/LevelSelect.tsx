@@ -15,11 +15,13 @@ interface Props {
   /** 🎈 Pop the Answer on the next skill it can play (M3). */
   onPop?: () => void;
   onCheck: () => void;
+  /** 🗺️ World map of this subject's islands (#24). */
+  onMap?: () => void;
   onBack: () => void;
 }
 
 /** Pick a skill (and optionally a level) to play. Reached from the in-game Back button. */
-export function LevelSelect({ profileId, subject, onPlay, onPlayNext, onPop, onCheck, onBack }: Props) {
+export function LevelSelect({ profileId, subject, onPlay, onPlayNext, onPop, onCheck, onMap, onBack }: Props) {
   const [states, setStates] = useState<Record<string, SkillState> | null>(null);
   useEffect(() => {
     getSkillStates(profileId).then(setStates);
@@ -32,7 +34,11 @@ export function LevelSelect({ profileId, subject, onPlay, onPlayNext, onPop, onC
       <div className="topbar">
         <button className="back-btn" onClick={onBack} aria-label="Back to home"><Emoji text="⬅️" /> Back</button>
         <div className="levels-title">{subject === 'math' ? 'Math' : 'Reading'}</div>
-        <span style={{ width: 64 }} />
+        {onMap ? (
+          <button className="icon-btn" onClick={onMap} aria-label="Island map"><Emoji text="🗺️" /></button>
+        ) : (
+          <span style={{ width: 64 }} />
+        )}
       </div>
       <button className={`btn primary huge play-next ${subject}`} onClick={onPlayNext} aria-label="Play next">
         <Emoji text="▶️" /> <span className="play-next-label">Play next</span>
