@@ -109,6 +109,14 @@ export function logAttempt(a: Attempt, d: AppDB = db): Promise<void> {
   return safe(async () => void (await d.attempts.add(a)), () => undefined);
 }
 
+/** One child's answers since `since` (oldest first) — for the parent dashboard. */
+export function listAttempts(profileId: string, since = 0, d: AppDB = db): Promise<Attempt[]> {
+  return safe(
+    async () => (await d.attempts.where('profileId').equals(profileId).filter((a) => a.at >= since).toArray()).sort((a, b) => a.at - b.at),
+    () => [],
+  );
+}
+
 export function addStars(profileId: string, n: number, d: AppDB = db): Promise<number> {
   return safe(
     () => addStarsDb(profileId, n, d),

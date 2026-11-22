@@ -16,7 +16,7 @@ const MOVE_CHOICES = [
   ['hand', '💻 Close to the laptop', 'Fingertip, one hand. Best within arm’s reach.'],
 ] as const;
 
-export function Settings({ onBack, onVoice }: { onBack: () => void; onVoice: () => void }) {
+export function Settings({ onBack, onVoice, onProgress }: { onBack: () => void; onVoice: () => void; onProgress: () => void }) {
   const [s, setS] = useState<AiSettings>(() => loadAiSettings());
   const [move, setMove] = useState(() => loadMotionSettings());
   const [talk, setTalk] = useState(() => isNarrationOn());
@@ -54,6 +54,13 @@ export function Settings({ onBack, onVoice }: { onBack: () => void; onVoice: () 
         <h2 className="voices-title"><Emoji text="⚙️" /> Grown-ups</h2>
         <span style={{ width: 64 }} />
       </div>
+
+      <section className="settings-card">
+        <button className="voice-pick" onClick={onProgress}>
+          <span className="voice-name"><Emoji text="📊" /> Progress</span>
+          <span className="voice-sub">Time played, level and mastery per track, weak spots — for each child</span>
+        </button>
+      </section>
 
       <section className="settings-card">
         <button className="voice-pick" onClick={onVoice}>

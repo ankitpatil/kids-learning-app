@@ -2,6 +2,14 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-21 — Parent dashboard (#23)
+- **Reused the existing parent gate** (hold 3 s + multiplication, from AI1). The dashboard is a "📊 Progress" button at the top of Grown-ups, not a separate gate.
+- **One child at a time**, with a chip row to switch when there are several profiles; opens on the child currently playing.
+- **Time played = active time**: answers are grouped into sessions; gaps between answers up to 2 minutes count, longer gaps are breaks (the first answer of a session counts its own answer time). Shown per day for the last 7 local days. It slightly undercounts reading/listening before the first answer — better than counting a tablet left open.
+- **Weak spot = a track under 70% right with at least 6 answers in the last 14 days** (the engine aims for ~80%, so 70% is clearly below target; 6 avoids flagging one bad start). **Tricky items** = the same item missed 2+ times in 14 days, merged across games (Pop the Answer / Dinosaur Maze items count with their base game's item: "pop-sight-said" = "said"); top 8 shown with readable labels made from item ids.
+- **Levels and mastery** lists only started, playable tracks (level n of N, level label, age band, mastery bar, recent right/total; 🏆 when the top level is mastered); not-started tracks are one line of names. No "level down" history is shown anywhere — still never shown to the child either.
+- Reads the last 30 days of attempts; all on the device, nothing sent. The "Explain this week" Claude summary stays parked in Needs Ankit.
+
 ## 2026-11-21 — Dinosaur Maze: wording + start + task read aloud (TV1d, Ankit's feedback)
 - **"Dinosaur", not "Dino"** in everything said and shown: the game is now "Dinosaur Maze" and she's "Dinosaur Mom" (code names like `DinoMaze` unchanged; older log entries keep the old name).
 - **Mom waits for the first sentence**: after ▶️ / raising a hand, the maze shows with "Help Dinosaur Mom find her babies!" said and on a banner; she starts walking when it's been said (at least 1.5 s, at most 6 s).

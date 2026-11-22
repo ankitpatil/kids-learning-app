@@ -21,6 +21,7 @@ import { StickerVault } from './screens/StickerVault';
 import { VoicePicker } from './screens/VoicePicker';
 import { ParentGate } from './screens/ParentGate';
 import { Settings } from './screens/Settings';
+import { ParentDashboard } from './screens/ParentDashboard';
 import { ProfilePicker, CreateProfile } from './screens/Profiles';
 import { startupProfileId } from './engine/profiles';
 import { pickSticker } from './engine/stickers';
@@ -50,7 +51,8 @@ type Screen =
   | { name: 'newProfile' }
   | { name: 'voice' }
   | { name: 'gate' }
-  | { name: 'settings' };
+  | { name: 'settings' }
+  | { name: 'dashboard' };
 
 const SUBJECT_OF = (g: Game): Subject => (g === 'count' || g === 'missing' || g === 'placeValue' || g === 'compare2d' || g === 'wordProblems' || g === 'money' || g === 'time' || isHopTrack(g) ? 'math' : 'reading');
 const isWordTrack = (g: string): g is WordTrack => (WORD_TRACKS as readonly string[]).includes(g);
@@ -191,7 +193,11 @@ export default function App() {
   }
 
   if (screen.name === 'settings') {
-    return <Settings onBack={() => setScreen({ name: 'home' })} onVoice={() => setScreen({ name: 'voice' })} />;
+    return <Settings onBack={() => setScreen({ name: 'home' })} onVoice={() => setScreen({ name: 'voice' })} onProgress={() => setScreen({ name: 'dashboard' })} />;
+  }
+
+  if (screen.name === 'dashboard') {
+    return <ParentDashboard currentId={profile?.id} onBack={() => setScreen({ name: 'settings' })} />;
   }
 
   if (screen.name === 'vault') {
