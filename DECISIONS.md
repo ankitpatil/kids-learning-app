@@ -2,6 +2,15 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-22 — Spaced review, word games (#25a)
+- **Split #25**: 25a = scheduler + Sight-Word Catch + Word Detective (the "missed words" half); 25b = math facts and the other games, which each need a way to rebuild an item from its id.
+- **No new table**: the schedule is replayed from the attempts log each time a round starts (last 45 days), so it can't drift from what the child answered and needs no migration. Fine at a few thousand attempts; revisit if it gets slow.
+- **One result per word per local day**: any miss that day → back tomorrow (box 1). A day with only right, hint-free answers on/after the due day → next box (3 days, then 7 days, then it's done). Right answers before the due day (seen in normal play) don't move it. Calendar days, not 24 h, so "tomorrow" means after a night's sleep.
+- **A word is the same word in any mode**: read-ship, build-ship, Pop the Answer's pop-sight-said and Dinosaur Maze items share one key per track. The spaced item comes back in the mode it was last missed in (read vs build).
+- **At most 2 per round, never first or last**: the first item stays the easy warm-up; spaced items take the other review slot first, then a middle current slot. Not shown right after two misses (easing wins). Logged as `mix: 'spaced'` and, like review items, they don't move the level. Extra due words wait for the next round.
+- **Word Detective** asks due words from the track being played and the earlier tracks in the game (a CVC word can come back while playing blends), at the level it was missed at (capped at the current level for the same track).
+- **Lead-in** "Remember this one?" before a spaced item — only heard when talking is on (narration stays off by default). No other visible marker, so it doesn't feel like a test.
+
 ## 2026-11-22 — World map (#24)
 - **Where it lives**: a 🗺️ button on each subject's Level Select opens "Math islands" / "Reading islands" — one island per playable track, in curriculum order along a zig-zag path. Tapping an open island plays that track at the child's current level. Home is unchanged.
 - **The map is encouragement, not a gate**: Level Select and ▶️ Play next still play any track. Locked islands are grey with 🔒; tapping one wobbles it and says (tap-to-hear) "Play Short words and Tricky words a bit more to open this island!" — no failure sound.

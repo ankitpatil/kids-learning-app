@@ -54,7 +54,9 @@ function shuffle<T>(arr: T[], rng: Rng): T[] {
   }
   return a;
 }
-function pickWord(track: PictureTrack, rng: Rng, avoid?: string): PictureWord {
+function pickWord(track: PictureTrack, rng: Rng, avoid?: string, want?: string): PictureWord {
+  const wanted = want ? WORDS[track].find((w) => w.word === want) : undefined;
+  if (wanted) return wanted;
   const list = WORDS[track].filter((w) => w.word !== avoid);
   return list[int(rng, 0, list.length - 1)];
 }
@@ -98,8 +100,8 @@ export interface SentenceItem {
 export type WordItem = ReadItem | BuildItem | SentenceItem;
 
 /** Read it: written word → pick the picture. Near levels use pictures from the same pattern. */
-export function makeReadItem(track: PictureTrack, level: number, rng: Rng = Math.random, ease = false, avoid?: string): ReadItem {
-  const target = pickWord(track, rng, avoid);
+export function makeReadItem(track: PictureTrack, level: number, rng: Rng = Math.random, ease = false, avoid?: string, want?: string): ReadItem {
+  const target = pickWord(track, rng, avoid, want);
   const near = getLevel(track, level).distractors === 'near' && !ease;
   const n = ease ? 2 : near ? 4 : 3;
   const sameTrack = WORDS[track].filter((w) => w.word !== target.word);
@@ -123,8 +125,8 @@ export function makeReadItem(track: PictureTrack, level: number, rng: Rng = Math
 }
 
 /** Build it: picture + spoken word → put grapheme tiles in order. Decoys get closer at near levels. */
-export function makeBuildItem(track: PictureTrack, level: number, rng: Rng = Math.random, ease = false, avoid?: string): BuildItem {
-  const target = pickWord(track, rng, avoid);
+export function makeBuildItem(track: PictureTrack, level: number, rng: Rng = Math.random, ease = false, avoid?: string, want?: string): BuildItem {
+  const target = pickWord(track, rng, avoid, want);
   const slots = splitGraphemes(target.word);
   const near = getLevel(track, level).distractors === 'near';
   const decoys = new Set<string>();
@@ -154,10 +156,12 @@ export function makeBuildItem(track: PictureTrack, level: number, rng: Rng = Mat
  * Magic-e switch: show either the short word (kit) or the magic-e word (kite); the pictures always
  * include both, so the child must notice the e. Easing drops the third picture.
  */
-export function makeMagicItem(rng: Rng = Math.random, ease = false, avoid?: string): ReadItem {
+export function makeMagicItem(rng: Rng = Math.random, ease = false, avoid?: string, want?: string): ReadItem {
+  const wanted = want ? MAGIC_E.find((p) => p.short === want || p.long === want) : undefined;
   const pairs = MAGIC_E.filter((p) => p.short !== avoid && p.long !== avoid);
-  const pair = pairs[int(rng, 0, pairs.length - 1)];
-  const showLong = rng() < 0.5;
+  const pair = wanted ?? pairs[int(rng, 0, pairs.length - 1)];
+  const coin = rng() < 0.5;
+  const showLong = wanted ? wanted.long === want : coin;
   const word = showLong ? pair.long : pair.short;
   const answer = showLong ? pair.longIcon : pair.shortIcon;
   const pics = [
@@ -178,10 +182,12 @@ export function makeMagicItem(rng: Rng = Math.random, ease = false, avoid?: stri
  */
 export const EASY_SENTENCE_PATTERN = PATTERNS.indexOf('blends');
 
-export function makeSentenceItem(level: number, rng: Rng = Math.random, ease = false, avoid?: string): SentenceItem {
+export function makeSentenceItem(level: number, rng: Rng = Math.random, ease = false, avoid?: string, want?: string): SentenceItem {
   // Easing keeps to sentences without magic e or vowel teams (C2).
   const pool = SENTENCES.filter((x) => x.answer !== avoid && (!ease || PATTERNS.indexOf(x.pattern) <= EASY_SENTENCE_PATTERN));
-  const s = pool[int(rng, 0, pool.length - 1)];
+  const wantedPool = want ? SENTENCES.filter((x) => x.answer === want) : [];
+  const from = wantedPool.length ? wantedPool : pool;
+  const s = from[int(rng, 0, from.length - 1)];
   const near = getLevel('sentences', level).distractors === 'near' && !ease;
   const decoys = shuffle(s.near, rng).slice(0, near ? 2 : 1);
   const [before, after] = s.text.split('_');
@@ -196,14 +202,24 @@ export function makeSentenceItem(level: number, rng: Rng = Math.random, ease = f
   };
 }
 
-/** Rounds alternate: read, build, read, build… (magic-e level swaps reads for magic-e switches). */
-export function makeWordItem(track: WordTrack, level: number, index: number, rng: Rng = Math.random, ease = false, avoid?: string): WordItem {
-  if (track === 'sentences') return makeSentenceItem(level, rng, ease, avoid);
+/**
+ * Rounds alternate: read, build, read, build… (magic-e level swaps reads for magic-e switches).
+ * `want` asks for one word (spaced review, #25); a word the track doesn't have falls back to random.
+ */
+export function makeWordItem(track: WordTrack, level: number, index: number, rng: Rng = Math.random, ease = false, avoid?: string, want?: string): WordItem {
+  if (track === 'sentences') return makeSentenceItem(level, rng, ease, avoid, want);
   if (index % 2 === 0) {
-    if (track === 'silentE' && level >= MAGIC_E_LEVEL) return makeMagicItem(rng, ease, avoid);
-    return makeReadItem(track, level, rng, ease, avoid);
+    if (track === 'silentE' && level >= MAGIC_E_LEVEL) return makeMagicItem(rng, ease, avoid, want);
+    return makeReadItem(track, level, rng, ease, avoid, want);
   }
-  return makeBuildItem(track, level, rng, ease, avoid);
+  return makeBuildItem(track, level, rng, ease, avoid, want);
+}
+
+/** For a spaced review item: the mode it was missed in (read → even index, build → odd). */
+export function indexForItemId(itemId: string, fallback: number): number {
+  if (/^(read|magic)-/.test(itemId)) return 0;
+  if (itemId.startsWith('build-')) return 1;
+  return fallback;
 }
 
 /** The full sentence with a word in the blank (for speech and the success display). */

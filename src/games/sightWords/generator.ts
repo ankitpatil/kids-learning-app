@@ -32,9 +32,11 @@ export function wordsFor(level: number, rng: Rng = Math.random): SightWord[] {
  * Far levels: 3 bubbles from other words. Near levels: 4 bubbles led by look-alikes (was / saw).
  * Easing: 2 bubbles, far.
  */
-export function makeSightItem(level: number, rng: Rng = Math.random, ease = false, avoid?: string): SightItem {
+export function makeSightItem(level: number, rng: Rng = Math.random, ease = false, avoid?: string, want?: string): SightItem {
+  // `want`: a word back for spaced review (#25), from any list; unknown words fall back to random.
+  const wanted = want ? SIGHT_WORDS.flat().find((w) => w.word === want) : undefined;
   const pool = wordsFor(level, rng).filter((w) => w.word !== avoid);
-  const target = pool[Math.floor(rng() * pool.length)];
+  const target = wanted ?? pool[Math.floor(rng() * pool.length)];
   const near = getLevel('sightWords', level).distractors === 'near' && !ease;
   const n = ease ? 2 : near ? 4 : 3;
   const decoys: string[] = [];

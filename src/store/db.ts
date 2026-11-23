@@ -3,6 +3,7 @@ import { newSkillState, type SkillState } from '../engine/adaptive';
 import type { Subject } from '../engine/tracks';
 import { resolveNickname, sortProfiles, MAX_PROFILES } from '../engine/profiles';
 import type { Story } from '../content/stories';
+import { dueCards, LOOKBACK_DAYS, type ReviewCard } from '../engine/spacedReview';
 
 export interface Profile {
   id: string;
@@ -29,7 +30,7 @@ export interface Attempt {
   timeMs: number;
   at: number;
   /** Round-mix slot (absent on older attempts = current). */
-  mix?: 'current' | 'review' | 'stretch';
+  mix?: 'current' | 'review' | 'stretch' | 'spaced';
 }
 
 /** A Claude story that passed every check (AI2). Content only: no profile id, nothing about the child. */
@@ -115,6 +116,12 @@ export function listAttempts(profileId: string, since = 0, d: AppDB = db): Promi
     async () => (await d.attempts.where('profileId').equals(profileId).filter((a) => a.at >= since).toArray()).sort((a, b) => a.at - b.at),
     () => [],
   );
+}
+
+/** Missed words/facts due for their 1/3/7-day review in these tracks (#25). Empty when storage fails. */
+export async function dueReviews(profileId: string, tracks: readonly string[], now = Date.now(), d: AppDB = db): Promise<ReviewCard[]> {
+  const since = now - LOOKBACK_DAYS * 24 * 60 * 60 * 1000;
+  return dueCards(await listAttempts(profileId, since, d), now, tracks);
 }
 
 export function addStars(profileId: string, n: number, d: AppDB = db): Promise<number> {

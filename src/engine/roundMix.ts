@@ -3,7 +3,8 @@
 // game can play: lower levels of the current track, or earlier/next tracks in the same game.
 import { TRACKS, maxLevel, MASTERED } from './tracks';
 
-export type SlotKind = 'current' | 'review' | 'stretch';
+/** 'spaced' = a missed word/fact back on its 1/3/7-day review (#25, engine/spacedReview). */
+export type SlotKind = 'current' | 'review' | 'stretch' | 'spaced';
 
 export interface Slot {
   kind: SlotKind;

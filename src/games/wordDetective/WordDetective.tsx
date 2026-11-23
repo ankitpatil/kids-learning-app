@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
-import { makeWordItem, wrongSlots, fillSentence, wordWhyContext, type WordItem, type WordTrack, type BuildItem } from './generator';
+import { makeWordItem, indexForItemId, wrongSlots, fillSentence, wordWhyContext, type WordItem, type WordTrack, type BuildItem } from './generator';
 import { updateSkill, type SkillState } from '../../engine/adaptive';
 import { maxLevel, readsAlone } from '../../engine/tracks';
-import { getSkillState, getSkillStates, saveSkillState, logAttempt } from '../../store/db';
-import { planRound, resolveSlot, type Slot } from '../../engine/roundMix';
+import { getSkillState, getSkillStates, saveSkillState, logAttempt, dueReviews } from '../../store/db';
+import { placeSpaced, takeCard, spacedLead, type ReviewCard } from '../../engine/spacedReview';
+import { planRound, resolveSlot, gameGroup, type Slot } from '../../engine/roundMix';
 import { say, tapSay, setReadingAlone } from '../../audio/speech';
-import { fresh } from '../../engine/recent';
+import { fresh, remember } from '../../engine/recent';
 import { feedback } from '../../components/Feedback';
 import { ai } from '../../ai/app';
 import { createWhyHinter } from '../../ai/whyHint';
@@ -47,10 +48,16 @@ export function WordDetective({ profileId, trackId, onDone, onExit }: Props) {
   const plan = useRef(planRound(ROUND_LENGTH));
   const all = useRef<Awaited<ReturnType<typeof getSkillStates>>>({});
   const slot = useRef<Slot>({ kind: 'current', trackId, level: 0 });
+  const due = useRef<ReviewCard[]>([]); // #25: missed words back after 1/3/7 days
 
   useEffect(() => {
-    Promise.all([getSkillState(profileId, trackId), getSkillStates(profileId)]).then(([s, states]) => {
+    // Spaced words come from tracks this child has reached in this game (this one and earlier ones).
+    const group = gameGroup(trackId);
+    const tracks = group.slice(0, group.indexOf(trackId) + 1);
+    Promise.all([getSkillState(profileId, trackId), getSkillStates(profileId), dueReviews(profileId, tracks)]).then(([s, states, cards]) => {
       all.current = states;
+      due.current = cards;
+      plan.current = placeSpaced(plan.current, cards.length);
       setState(s);
       next(s.level, 0, undefined);
     });
@@ -59,8 +66,14 @@ export function WordDetective({ profileId, trackId, onDone, onExit }: Props) {
 
   function next(level: number, i: number, prevWord: string | undefined) {
     const easy = ease.current;
-    const sl = (slot.current = resolveSlot(plan.current[i], trackId, level, all.current, easy));
-    const it = fresh(sl.trackId, () => makeWordItem(sl.trackId as WordTrack, sl.level, i, Math.random, easy, prevWord), (x) => x.word);
+    const card = plan.current[i] === 'spaced' && !easy ? takeCard(due.current, prevWord) : undefined;
+    const sl = (slot.current = card
+      ? { kind: 'spaced', trackId: card.skillId, level: card.skillId === trackId ? Math.min(card.level, level) : card.level }
+      : resolveSlot(plan.current[i] === 'spaced' ? 'review' : plan.current[i], trackId, level, all.current, easy));
+    const it = card
+      ? makeWordItem(sl.trackId as WordTrack, sl.level, indexForItemId(card.itemId, i), Math.random, easy, prevWord, card.word)
+      : fresh(sl.trackId, () => makeWordItem(sl.trackId as WordTrack, sl.level, i, Math.random, easy, prevWord), (x) => x.word);
+    if (card) remember(sl.trackId, it.word); // so the rest of the round doesn't repeat it
     hinted.current = ease.current;
     ease.current = false;
     misses.current = 0;
@@ -82,7 +95,7 @@ export function WordDetective({ profileId, trackId, onDone, onExit }: Props) {
     started.current = Date.now();
     busy.current = false;
     setReadingAlone(readsAlone(sl.trackId, sl.level)); // reading levels: no narration, the child reads it
-    setTimeout(() => say((sl.kind === 'stretch' ? 'Bonus challenge! || ' : '') + promptFor(it)), 250);
+    setTimeout(() => say(spacedLead(sl.kind) + promptFor(it)), 250);
   }
 
   async function record(correct: boolean) {

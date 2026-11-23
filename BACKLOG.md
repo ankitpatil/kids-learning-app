@@ -65,7 +65,8 @@ Reprioritised 2026-11-08 for the actual learner: knows basic words and +/- (≈ 
 - [x] 22. **Clock**: time to the hour and half hour, then 5 minutes → done 2026-11-21: Tick Tock Clock, 6 levels (o'clock → half past → look-alikes → find the clock for a time → 5 minutes with fives shown → 5 minutes)
 - [x] 23. Parent gate + parent dashboard (time, mastery per track, weak spots, current level per track) → done 2026-11-21: Grown-ups → 📊 Progress (gate already existed from AI1)
 - [x] 24. World map screen: island per track, locked/unlocked via prereqs, mastery bloom → done 2026-11-22: 🗺️ on Level Select → Math / Reading islands (encouragement only, Level Select still plays everything)
-- [ ] 25. Spaced review scheduler (1/3/7 days) for missed words/facts
+- [x] 25a. **Spaced review scheduler + word games** (#25 split 2026-11-22): pure `engine/spacedReview.ts` replays the attempts log into 1 / 3 / 7-day boxes (miss → tomorrow; right on/after the due day → next box; any miss → back to 1 day; done after the 7-day pass); up to 2 due words per round take the non-first review slot, then a middle current slot (`mix: 'spaced'`, level unchanged). Wired into Sight-Word Catch and Word Detective (Pop the Answer / Dinosaur Maze misses count). Tests
+- [ ] 25b. **Spaced review in the other games**: missed facts back after 1/3/7 days in Feed the Monster (count, missing, tens & ones, compare), Number Line Hop, Phonics Pop, Word Builder, Story Sums, Fun at the Fair, Tick Tock Clock — each generator needs a "make this item id again" path (`want`), then the same `placeSpaced` / `takeCard` wiring. Tests per generator that a logged id round-trips
 - [ ] 26. Export/import progress (JSON file) as backup
 - [ ] 27. Avatar pet: spend stars on food/outfits; streak (pauses, never resets)
 - [ ] 28. Early grouping (×) and sharing (÷) with equal groups — CBSE Class 2 "Grouping and Sharing"
