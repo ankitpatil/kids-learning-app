@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
-import { makeHopItem, checkHops, frogAt, maxHops, splitText, hopWhyContext, type HopItem, type HopTrack } from './generator';
+import { makeHopItem, parseHopId, checkHops, frogAt, maxHops, splitText, hopWhyContext, type HopItem, type HopTrack } from './generator';
 import { updateSkill, type SkillState } from '../../engine/adaptive';
 import { maxLevel } from '../../engine/tracks';
-import { getSkillState, getSkillStates, saveSkillState, logAttempt } from '../../store/db';
-import { planRound, resolveSlot, type Slot } from '../../engine/roundMix';
+import { getSkillState, getSkillStates, saveSkillState, logAttempt, dueReviews } from '../../store/db';
+import { planRound, resolveSlot, gameGroup, type Slot } from '../../engine/roundMix';
+import { placeSpaced, takeCard, spacedLead, type ReviewCard } from '../../engine/spacedReview';
 import { say, tapSay } from '../../audio/speech';
-import { fresh } from '../../engine/recent';
+import { fresh, remember } from '../../engine/recent';
 import { feedback } from '../../components/Feedback';
 import { ai } from '../../ai/app';
 import { createWhyHinter } from '../../ai/whyHint';
@@ -74,10 +75,16 @@ export function NumberLineHop({ profileId, trackId, onDone, onExit }: Props) {
   const plan = useRef(planRound(ROUND_LENGTH));
   const all = useRef<Awaited<ReturnType<typeof getSkillStates>>>({});
   const slot = useRef<Slot>({ kind: 'current', trackId, level: 0 });
+  const due = useRef<ReviewCard[]>([]); // #25b: missed facts back after 1/3/7 days
 
   useEffect(() => {
-    Promise.all([getSkillState(profileId, trackId), getSkillStates(profileId)]).then(([s, states]) => {
+    // Spaced facts from tracks reached in this game (this one and earlier ones) that parse as hop facts.
+    const group = gameGroup(trackId);
+    const tracks = group.slice(0, group.indexOf(trackId) + 1);
+    Promise.all([getSkillState(profileId, trackId), getSkillStates(profileId), dueReviews(profileId, tracks)]).then(([s, states, cards]) => {
       all.current = states;
+      due.current = cards.filter((c) => parseHopId(c.itemId)?.trackId === c.skillId);
+      plan.current = placeSpaced(plan.current, due.current.length);
       setState(s);
       next(s.level, undefined);
     });
@@ -86,8 +93,15 @@ export function NumberLineHop({ profileId, trackId, onDone, onExit }: Props) {
 
   function next(level: number, prevId: string | undefined, i = 0) {
     const easy = ease.current;
-    const sl = (slot.current = resolveSlot(plan.current[i], trackId, level, all.current, easy));
-    const it = fresh(sl.trackId, () => makeHopItem(sl.trackId as HopTrack, sl.level, Math.random, easy, prevId), (x) => x.id);
+    const card = plan.current[i] === 'spaced' && !easy ? takeCard(due.current) : undefined;
+    // A spaced fact is asked at the level it was missed at (its numbers and line belong to it).
+    const sl = (slot.current = card
+      ? { kind: 'spaced', trackId: card.skillId, level: card.level }
+      : resolveSlot(plan.current[i] === 'spaced' ? 'review' : plan.current[i], trackId, level, all.current, easy));
+    const it = card
+      ? makeHopItem(sl.trackId as HopTrack, sl.level, Math.random, false, undefined, card.itemId)
+      : fresh(sl.trackId, () => makeHopItem(sl.trackId as HopTrack, sl.level, Math.random, easy, prevId), (x) => x.id);
+    if (card) remember(sl.trackId, it.id); // so the rest of the round doesn't repeat it
     setHintUsed(easy);
     ease.current = false;
     const s = firstStep(it);
@@ -100,7 +114,7 @@ export function NumberLineHop({ profileId, trackId, onDone, onExit }: Props) {
     misses.current = 0;
     started.current = Date.now();
     busy.current = false;
-    setTimeout(() => say((sl.kind === 'stretch' ? 'Bonus challenge! || ' : '') + promptFor(it, s)), 250);
+    setTimeout(() => say(spacedLead(sl.kind) + promptFor(it, s)), 250);
   }
 
   function hop() {

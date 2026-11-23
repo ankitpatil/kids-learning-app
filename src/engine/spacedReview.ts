@@ -42,18 +42,41 @@ const WRAPPERS = ['pop-', 'dino-'];
 /** Item kinds whose id is `<kind>-<word>`: the word is what's remembered, whatever the mode. */
 const WORD_KINDS = ['read', 'build', 'magic', 'sentence', 'sight'];
 
+/**
+ * Pop the Answer / Dinosaur Maze math items are named `<track>-<visual>-<answer>` (quickItems).
+ * Map the ones that name a whole fact onto the home game's id (#25b), so a fact missed in Pop comes
+ * back in Feed the Monster / Number Line Hop and one right answer there counts for both:
+ * `add10-3 + 4 = ?-7` → `add10-3+4`, `sub20-15 − 7 = ?-8` → `sub20-15-7`,
+ * `missing-3 + __ = 8-5` → `missing-3+5`, `count-🍪🍪🍪-3` → `count-3`, `placeValue-…-34` → `pv-34`.
+ * Others (e.g. Pop's compare `⚖️`) stay as they are.
+ */
+export function quickMathId(id: string): string {
+  let m = /^(add10|add20)-[\s\S]*?(\d+) \+ (\d+) = \?-\d+$/.exec(id);
+  if (m) return `${m[1]}-${m[2]}+${m[3]}`;
+  m = /^(sub10|sub20)-[\s\S]*?(\d+) − (\d+) = \?-\d+$/.exec(id);
+  if (m) return `${m[1]}-${m[2]}-${m[3]}`;
+  m = /^missing-[\s\S]*= (\d+)-(\d+)$/.exec(id);
+  if (m && +m[1] > +m[2]) return `missing-${+m[1] - +m[2]}+${m[2]}`;
+  m = /^count-[^-\d][^-]*-(\d+)$/.exec(id);
+  if (m) return `count-${m[1]}`;
+  m = /^placeValue-[\s\S]*-(\d+)$/.exec(id);
+  if (m) return `pv-${m[1]}`;
+  return id;
+}
+
 /** Drop Pop the Answer / Dinosaur Maze wrappers so their answers count for the base item. */
 export function baseItemId(itemId: string): string {
   let id = itemId;
+  let wrapped = false;
   for (let changed = true; changed; ) {
     changed = false;
     for (const w of WRAPPERS)
       if (id.startsWith(w)) {
         id = id.slice(w.length);
-        changed = true;
+        changed = wrapped = true;
       }
   }
-  return id;
+  return wrapped ? quickMathId(id) : id;
 }
 
 /** `read-ship`, `build-ship` → `word:ship`; other ids are their own key. */

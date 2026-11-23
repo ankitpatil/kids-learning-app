@@ -2,7 +2,7 @@
 // Each plate shows a number; the tens & ones picture (boxes of 10 + loose cookies) is the hint.
 import { getLevel } from '../../engine/tracks';
 import { numberWord as w } from '../../engine/numberWords';
-import type { FeedItem, Rng } from './generator';
+import { parseFeedId, type FeedItem, type Rng } from './generator';
 
 export type CompareKind = 'far' | 'swap' | 'sameTens' | 'tensTrap';
 export type CompareAsk = 'more' | 'fewer';
@@ -61,14 +61,30 @@ const NEAR_KINDS: CompareKind[] = ['swap', 'sameTens', 'tensTrap'];
  * picture shown. Level 2: close numbers, numbers only (picture appears after a miss).
  * Easing: a far pair with the picture, asking "more".
  */
-export function makeCompareItem(level: number, rng: Rng = Math.random, ease = false, avoid?: number): CompareItem {
+/** Which kind of pair two numbers are (for a spaced-review pair rebuilt from its id). */
+export function pairKind(small: number, big: number): CompareKind {
+  const [st, so, bt, bo] = [Math.floor(small / 10), small % 10, Math.floor(big / 10), big % 10];
+  if (st === bo && so === bt) return 'swap';
+  if (st === bt) return 'sameTens';
+  if (bt - st === 1 && bo < so) return 'tensTrap';
+  return 'far';
+}
+
+/** `want` (#25b): a logged id (`cmp-29-31-fewer`) to ask again — same pair and question, sides reshuffled. */
+export function makeCompareItem(level: number, rng: Rng = Math.random, ease = false, avoid?: number, want?: string): CompareItem {
   const cfg = getLevel('compare2d', level);
-  const kind: CompareKind = ease || cfg.distractors === 'far' ? 'far' : NEAR_KINDS[int(rng, 0, NEAR_KINDS.length - 1)];
+  let kind: CompareKind = ease || cfg.distractors === 'far' ? 'far' : NEAR_KINDS[int(rng, 0, NEAR_KINDS.length - 1)];
   let [small, big] = comparePair(kind, rng);
-  const ask: CompareAsk = ease ? 'more' : rng() < 0.5 ? 'more' : 'fewer';
+  let ask: CompareAsk = ease ? 'more' : rng() < 0.5 ? 'more' : 'fewer';
   let answer = ask === 'more' ? big : small;
   if (answer === avoid) {
     [small, big] = comparePair(kind, rng);
+    answer = ask === 'more' ? big : small;
+  }
+  const w = want ? parseFeedId(want) : undefined;
+  if (w?.trackId === 'compare2d') {
+    ({ small, big, ask } = w);
+    kind = pairKind(small, big);
     answer = ask === 'more' ? big : small;
   }
   const flip = rng() < 0.5;

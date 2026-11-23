@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
-import { makeFeedItem, makePlaceValueItem, checkFeed, checkPlaceValue, isPlaceValue, type AnyFeedItem, type FeedItem, type PlaceValueItem } from './generator';
+import { makeFeedItem, makePlaceValueItem, parseFeedId, checkFeed, checkPlaceValue, isPlaceValue, type AnyFeedItem, type FeedItem, type PlaceValueItem } from './generator';
 import { numberWord, tensOnesWords } from '../../engine/numberWords';
 import { updateSkill, type SkillState } from '../../engine/adaptive';
 import { maxLevel } from '../../engine/tracks';
-import { getSkillState, getSkillStates, saveSkillState, logAttempt } from '../../store/db';
-import { planRound, resolveSlot, type Slot } from '../../engine/roundMix';
+import { getSkillState, getSkillStates, saveSkillState, logAttempt, dueReviews } from '../../store/db';
+import { planRound, resolveSlot, gameGroup, type Slot } from '../../engine/roundMix';
+import { placeSpaced, takeCard, spacedLead, type ReviewCard } from '../../engine/spacedReview';
 import { say, tapSay } from '../../audio/speech';
-import { fresh } from '../../engine/recent';
+import { fresh, remember } from '../../engine/recent';
 import { feedback } from '../../components/Feedback';
 import { makeCompareItem, comparePrompt, compareHint, comparePraise, type CompareItem } from './compare';
 import { feedWhyContext } from './why';
@@ -28,10 +29,10 @@ export type FeedTrack = 'count' | 'missing' | 'placeValue' | 'compare2d';
 type GameItem = AnyFeedItem | CompareItem;
 const isCompare = (it: GameItem): it is CompareItem => it.trackId === 'compare2d';
 
-function makeItem(trackId: string, level: number, ease: boolean, avoid: number | undefined): GameItem {
-  if (trackId === 'compare2d') return makeCompareItem(level, Math.random, ease, avoid);
-  if (trackId === 'placeValue') return makePlaceValueItem(level, Math.random, ease, avoid);
-  return makeFeedItem(trackId as 'count' | 'missing', level, Math.random, ease, avoid);
+function makeItem(trackId: string, level: number, ease: boolean, avoid: number | undefined, want?: string): GameItem {
+  if (trackId === 'compare2d') return makeCompareItem(level, Math.random, ease, avoid, want);
+  if (trackId === 'placeValue') return makePlaceValueItem(level, Math.random, ease, avoid, want);
+  return makeFeedItem(trackId as 'count' | 'missing', level, Math.random, ease, avoid, want);
 }
 
 function promptFor(it: GameItem) {
@@ -100,10 +101,17 @@ export function FeedMonster({ profileId, trackId, onDone, onExit }: Props) {
   const plan = useRef(planRound(ROUND_LENGTH));
   const all = useRef<Awaited<ReturnType<typeof getSkillStates>>>({});
   const slot = useRef<Slot>({ kind: 'current', trackId, level: 0 });
+  const due = useRef<ReviewCard[]>([]); // #25b: missed facts back after 1/3/7 days
 
   useEffect(() => {
-    Promise.all([getSkillState(profileId, trackId), getSkillStates(profileId)]).then(([s, states]) => {
+    // Spaced facts come from tracks this child has reached in this game (this one and earlier ones),
+    // and only ones this game can ask again (Pop's ⚖️ compare items can't be rebuilt).
+    const group = gameGroup(trackId);
+    const tracks = group.slice(0, group.indexOf(trackId) + 1);
+    Promise.all([getSkillState(profileId, trackId), getSkillStates(profileId), dueReviews(profileId, tracks)]).then(([s, states, cards]) => {
       all.current = states;
+      due.current = cards.filter((c) => parseFeedId(c.itemId)?.trackId === c.skillId);
+      plan.current = placeSpaced(plan.current, due.current.length);
       setState(s);
       next(s.level, undefined);
     });
@@ -112,8 +120,13 @@ export function FeedMonster({ profileId, trackId, onDone, onExit }: Props) {
 
   function next(level: number, prevNeed: number | undefined, i = 0) {
     const easy = ease.current;
-    const sl = (slot.current = resolveSlot(plan.current[i], trackId, level, all.current, easy));
-    const it = fresh(sl.trackId, () => makeItem(sl.trackId, sl.level, easy, prevNeed), (x) => x.id);
+    const card = plan.current[i] === 'spaced' && !easy ? takeCard(due.current) : undefined;
+    // A spaced fact is asked at the level it was missed at: its numbers belong to that level.
+    const sl = (slot.current = card
+      ? { kind: 'spaced', trackId: card.skillId, level: card.level }
+      : resolveSlot(plan.current[i] === 'spaced' ? 'review' : plan.current[i], trackId, level, all.current, easy));
+    const it = card ? makeItem(sl.trackId, sl.level, false, undefined, card.itemId) : fresh(sl.trackId, () => makeItem(sl.trackId, sl.level, easy, prevNeed), (x) => x.id);
+    if (card) remember(sl.trackId, it.id); // so the rest of the round doesn't repeat it
     setHintUsed(ease.current);
     ease.current = false;
     setItem(it);
@@ -124,7 +137,7 @@ export function FeedMonster({ profileId, trackId, onDone, onExit }: Props) {
     misses.current = 0;
     started.current = Date.now();
     busy.current = false;
-    setTimeout(() => say((sl.kind === 'stretch' ? 'Bonus challenge! || ' : '') + promptFor(it)), 250);
+    setTimeout(() => say(spacedLead(sl.kind) + promptFor(it)), 250);
   }
 
   function feed() {

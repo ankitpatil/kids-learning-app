@@ -2,6 +2,14 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-23 — Spaced review, math facts (#25b)
+- **Split #25b** again: 25b = Feed the Monster + Number Line Hop (the +/− and number facts); 25c = Phonics Pop, Word Builder, Story Sums; 25d = Fun at the Fair, Tick Tock Clock. Each game needs its own "rebuild this id" path, and two games per run keeps the run small.
+- **A fact is the same fact in Pop the Answer / Dinosaur Maze**: their math ids (`add10-3 + 4 = ?-7`, `missing-3 + __ = 8-5`, `count-🍪🍪🍪-3`, `placeValue-…-34`) are mapped onto the home game's id (`add10-3+4`, `missing-3+5`, `count-3`, `pv-34`) when the schedule is read, so a fact missed in Pop comes back in Feed the Monster / Number Line Hop, and one right answer there moves it on. Only wrapped ids are rewritten. Pop's compare items (⚖️ "which is bigger?") don't record the pair, so they can't come back — they're left out (their cards are filtered, never served as a random item).
+- **Asked at the level it was missed at** (not capped at today's level like Word Detective): a fact's numbers and number line belong to that level. If a make-10 level gets a fact that doesn't cross ten (missed at the numbers-only level), it's played as plain hops on the 20 line instead of a broken "hop to ten" split. A missing-number fact to 20 asked at a "to 10" level gets choices up to 20.
+- **Same tracks as Word Detective**: the track being played and the earlier tracks in the same game (e.g. a missed `add10` fact can come back while playing Subtract within 10). Same limits: ≤ 2 per round, never first/last, not while easing, `mix: 'spaced'`, level unchanged, "Remember this one?" lead-in only heard when talking is on.
+- **Compare pairs** keep the pair and the more/fewer question; which plate is left/right is reshuffled.
+- Checked headless with a seeded profile: a Pop miss (`pop-add10-6 + 3 = ?-9`) and a Number Line Hop miss from yesterday both came back as spaced items in the next Add within 10 round; a Feed the Monster missing-number miss came back in Missing number. No console errors.
+
 ## 2026-11-22 — Spaced review, word games (#25a)
 - **Split #25**: 25a = scheduler + Sight-Word Catch + Word Detective (the "missed words" half); 25b = math facts and the other games, which each need a way to rebuild an item from its id.
 - **No new table**: the schedule is replayed from the attempts log each time a round starts (last 45 days), so it can't drift from what the child answered and needs no migration. Fine at a few thousand attempts; revisit if it gets slow.

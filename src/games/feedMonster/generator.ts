@@ -10,13 +10,14 @@ export interface CountItem {
 export type Rng = () => number;
 
 /** Generate a counting item for a level. `ease` picks from the lower half of the range. */
-export function makeCountItem(level: number, rng: Rng = Math.random, ease = false, avoid?: number): CountItem {
+export function makeCountItem(level: number, rng: Rng = Math.random, ease = false, avoid?: number, want?: number): CountItem {
   const lvl = Math.max(0, Math.min(level, COUNT_MAX_BY_LEVEL.length - 1));
   const max = COUNT_MAX_BY_LEVEL[lvl];
   const min = lvl === 0 ? 1 : Math.floor(COUNT_MAX_BY_LEVEL[lvl - 1] / 2) + 1;
   const hi = ease ? Math.max(min, Math.ceil((min + max) / 2)) : max;
   let target = min + Math.floor(rng() * (hi - min + 1));
   if (target === avoid && hi > min) target = target === hi ? target - 1 : target + 1;
+  if (want !== undefined) target = want; // #25b spaced review: the number missed before
   const supply = Math.min(target + 2 + Math.floor(rng() * 3), Math.max(target + 2, max + 2));
   return { id: `count-${target}`, target, supply };
 }
@@ -55,17 +56,46 @@ function int(rng: Rng, lo: number, hi: number) {
   return lo + Math.floor(rng() * (hi - lo + 1));
 }
 
-export function makeFeedItem(trackId: 'count' | 'missing', level: number, rng: Rng = Math.random, ease = false, avoid?: number): FeedItem {
+// ---- Spaced review (#25b): read a logged item id back into the item to ask again ----
+export type FeedWant =
+  | { trackId: 'count'; target: number }
+  | { trackId: 'missing'; have: number; need: number }
+  | { trackId: 'placeValue'; n: number }
+  | { trackId: 'compare2d'; small: number; big: number; ask: 'more' | 'fewer' };
+
+/** `count-7`, `missing-3+5`, `pv-34`, `cmp-29-31-more` → the item's numbers; undefined if not valid. */
+export function parseFeedId(itemId: string): FeedWant | undefined {
+  let m = /^count-(\d+)$/.exec(itemId);
+  if (m) return +m[1] >= 1 && +m[1] <= 20 ? { trackId: 'count', target: +m[1] } : undefined;
+  m = /^missing-(\d+)\+(\d+)$/.exec(itemId);
+  if (m) return +m[1] >= 1 && +m[2] >= 1 && +m[1] + +m[2] <= 20 ? { trackId: 'missing', have: +m[1], need: +m[2] } : undefined;
+  m = /^pv-(\d+)$/.exec(itemId);
+  if (m) return +m[1] >= 10 && +m[1] <= 99 ? { trackId: 'placeValue', n: +m[1] } : undefined;
+  m = /^cmp-(\d+)-(\d+)-(more|fewer)$/.exec(itemId);
+  if (m) {
+    const [small, big] = [+m[1], +m[2]];
+    return small >= 10 && big <= 99 && small < big ? { trackId: 'compare2d', small, big, ask: m[3] as 'more' | 'fewer' } : undefined;
+  }
+  return undefined;
+}
+
+export function makeFeedItem(trackId: 'count' | 'missing', level: number, rng: Rng = Math.random, ease = false, avoid?: number, want?: string): FeedItem {
+  const w = want ? parseFeedId(want) : undefined;
   if (trackId === 'count') {
-    const c = makeCountItem(level, rng, ease, avoid);
+    const c = makeCountItem(level, rng, ease, avoid, w?.trackId === 'count' ? w.target : undefined);
     return { id: c.id, trackId, have: 0, total: c.target, need: c.target, supply: c.supply, mode: 'feed', frames: false, choices: [] };
   }
   const cfg = getLevel('missing', level);
-  const r = cfg.range;
   // Within 20: totals 11–20 so the child works across the ten. Within 10: totals 3–10.
-  const total = r === 20 ? int(rng, 11, 20) : int(rng, 3, 10);
+  let total = cfg.range === 20 ? int(rng, 11, 20) : int(rng, 3, 10);
   let need = ease ? int(rng, 1, Math.min(3, total - 1)) : int(rng, 1, total - 1);
   if (need === avoid && total > 2) need = need === total - 1 ? need - 1 : need + 1;
+  if (w?.trackId === 'missing') {
+    total = w.have + w.need;
+    need = w.need;
+  }
+  // A spaced fact past this level's range (missed in Pop at a higher level) still gets fair choices.
+  const r = Math.max(cfg.range, total > 10 ? 20 : 10);
   const have = total - need;
   const mode = cfg.representation === 'abstract' && !ease ? 'choose' : 'feed';
   return {
@@ -109,12 +139,17 @@ export function isPlaceValue(it: AnyFeedItem): it is PlaceValueItem {
  * Easing: tens ≤ 3, feed mode, guide on. Loose cookies never exceed 9, so the only way to make
  * the number is the place-value way (no 2 boxes + 14 cookies).
  */
-export function makePlaceValueItem(level: number, rng: Rng = Math.random, ease = false, avoid?: number): PlaceValueItem {
+export function makePlaceValueItem(level: number, rng: Rng = Math.random, ease = false, avoid?: number, want?: string): PlaceValueItem {
   const cfg = getLevel('placeValue', level);
   const maxTens = ease ? 3 : Math.min(9, Math.floor((cfg.range - 1) / 10));
-  const tens = int(rng, 1, maxTens);
+  let tens = int(rng, 1, maxTens);
   let ones = int(rng, 0, 9);
   if (tens * 10 + ones === avoid) ones = ones === 9 ? 8 : ones + 1;
+  const w = want ? parseFeedId(want) : undefined;
+  if (w?.trackId === 'placeValue') {
+    tens = Math.floor(w.n / 10);
+    ones = w.n % 10;
+  }
   const n = tens * 10 + ones;
   const mode = cfg.representation === 'abstract' && !ease ? 'choose' : 'feed';
   return {

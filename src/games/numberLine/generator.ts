@@ -97,13 +97,41 @@ export function hopMode(trackId: HopTrack, level: number, ease = false): HopMode
   return cfg.range > 10 ? 'make10' : 'hop';
 }
 
-export function makeHopItem(trackId: HopTrack, level: number, rng: Rng = Math.random, ease = false, avoid?: string): HopItem {
+/**
+ * Read a logged hop item id back into its fact (#25b spaced review): `add10-3+4`, `sub20-15-7`.
+ * Undefined when it isn't a valid fact for that track (answer off the 0..20 line, parts < 1).
+ */
+export function parseHopId(itemId: string): { trackId: HopTrack; a: number; b: number } | undefined {
+  const m = /^(add10|sub10|add20|sub20)-(\d+)([+-])(\d+)$/.exec(itemId);
+  if (!m) return undefined;
+  const trackId = m[1] as HopTrack;
+  const a = +m[2];
+  const b = +m[4];
+  if ((m[3] === '-') !== trackId.startsWith('sub')) return undefined;
+  const answer = m[3] === '+' ? a + b : a - b;
+  if (a < 1 || b < 1 || answer < 0 || answer > 20 || a > 20) return undefined;
+  return { trackId, a, b };
+}
+
+/** Does a + b / a − b cross ten (the make-10 strategy needs it)? */
+const crossesTen = (op: '+' | '-', a: number, b: number) => (op === '+' ? a < 10 && a + b > 10 : a > 10 && a - b < 10);
+
+/**
+ * One hop item. `want` (#25b): an item id to ask again (spaced review) — same numbers, this level's
+ * mode; a make-10 level with a fact that doesn't cross ten plays it as plain hops. Ignored if it
+ * doesn't parse or belongs to another track.
+ */
+export function makeHopItem(trackId: HopTrack, level: number, rng: Rng = Math.random, ease = false, avoid?: string, want?: string): HopItem {
   const cfg = getLevel(trackId, level);
-  const mode = hopMode(trackId, level, ease);
+  let mode = hopMode(trackId, level, ease);
   const op = trackId.startsWith('sub') ? '-' : '+';
   let { a, b } = pickNumbers(trackId, cfg.range, mode, rng, ease);
   const key = (x: number, y: number) => `${trackId}-${x}${op}${y}`;
-  for (let i = 0; i < 5 && key(a, b) === avoid; i++) ({ a, b } = pickNumbers(trackId, cfg.range, mode, rng, ease));
+  const wanted = want ? parseHopId(want) : undefined;
+  if (wanted && wanted.trackId === trackId) {
+    ({ a, b } = wanted);
+    if (mode === 'make10' && !crossesTen(op, a, b)) mode = 'hop';
+  } else for (let i = 0; i < 5 && key(a, b) === avoid; i++) ({ a, b } = pickNumbers(trackId, cfg.range, mode, rng, ease));
   const answer = op === '+' ? a + b : a - b;
   const toTen = mode === 'make10' ? Math.abs(10 - a) : 0;
   const near = cfg.distractors === 'near';
