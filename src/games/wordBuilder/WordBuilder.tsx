@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
-import { makeEndingItem, sentenceWith, promptSentence, endingWhyContext, type EndingItem } from './generator';
+import { makeEndingItem, parseEndingId, sentenceWith, promptSentence, endingWhyContext, type EndingItem } from './generator';
 import type { Ending } from '../../content/endings';
 import { updateSkill, type SkillState } from '../../engine/adaptive';
 import { maxLevel, readsAlone } from '../../engine/tracks';
-import { getSkillState, getSkillStates, saveSkillState, logAttempt } from '../../store/db';
+import { getSkillState, getSkillStates, saveSkillState, logAttempt, dueReviews } from '../../store/db';
+import { placeSpaced, takeCard, spacedLead, type ReviewCard } from '../../engine/spacedReview';
 import { planRound, resolveSlot, type Slot } from '../../engine/roundMix';
 import { say, tapSay, setReadingAlone } from '../../audio/speech';
-import { fresh } from '../../engine/recent';
+import { fresh, remember } from '../../engine/recent';
 import { feedback } from '../../components/Feedback';
 import { ai } from '../../ai/app';
 import { createWhyHinter } from '../../ai/whyHint';
@@ -44,10 +45,13 @@ export function WordBuilder({ profileId, onDone, onExit }: Props) {
   const plan = useRef(planRound(ROUND_LENGTH));
   const all = useRef<Awaited<ReturnType<typeof getSkillStates>>>({});
   const slot = useRef<Slot>({ kind: 'current', trackId: TRACK, level: 0 });
+  const due = useRef<ReviewCard[]>([]); // #25c: missed items back after 1/3/7 days
 
   useEffect(() => {
-    Promise.all([getSkillState(profileId, TRACK), getSkillStates(profileId)]).then(([s, states]) => {
+    Promise.all([getSkillState(profileId, TRACK), getSkillStates(profileId), dueReviews(profileId, [TRACK])]).then(([s, states, cards]) => {
       all.current = states;
+      due.current = cards.filter((c) => parseEndingId(c.itemId) !== undefined);
+      plan.current = placeSpaced(plan.current, due.current.length);
       setState(s);
       next(s.level, undefined);
     });
@@ -57,8 +61,15 @@ export function WordBuilder({ profileId, onDone, onExit }: Props) {
   function next(level: number, prevWord: string | undefined, i = 0) {
     const easy = ease.current;
     // Round mix: review = level below, stretch = level above (one track, so nothing else to mix in).
-    const sl = (slot.current = resolveSlot(plan.current[i], TRACK, level, all.current, easy));
-    const it = fresh(TRACK, () => makeEndingItem(sl.level, Math.random, easy, prevWord), (x) => x.word);
+    // #25c: a spaced word + sentence is asked at the level it was missed at (its ending is in play there).
+    const card = plan.current[i] === 'spaced' && !easy ? takeCard(due.current) : undefined;
+    const sl = (slot.current = card
+      ? { kind: 'spaced', trackId: TRACK, level: card.level }
+      : resolveSlot(plan.current[i] === 'spaced' ? 'review' : plan.current[i], TRACK, level, all.current, easy));
+    const it = card
+      ? makeEndingItem(sl.level, Math.random, false, undefined, card.itemId)
+      : fresh(TRACK, () => makeEndingItem(sl.level, Math.random, easy, prevWord), (x) => x.word);
+    if (card) remember(TRACK, it.word); // so the rest of the round doesn't repeat it
     hinted.current = ease.current;
     ease.current = false;
     setItem(it);
@@ -69,7 +80,7 @@ export function WordBuilder({ profileId, onDone, onExit }: Props) {
     started.current = Date.now();
     busy.current = false;
     setReadingAlone(readsAlone(sl.trackId, sl.level)); // reading levels: no narration, the child reads it
-    setTimeout(() => say((sl.kind === 'stretch' ? 'Bonus challenge! || ' : '') + prompt(it)), 250);
+    setTimeout(() => say(spacedLead(sl.kind) + prompt(it)), 250);
   }
 
   async function record(correct: boolean) {

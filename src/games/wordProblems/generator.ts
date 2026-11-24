@@ -174,19 +174,41 @@ export function equationChoices(it: Pick<WordProblem, 'a' | 'b' | 'op'>, count: 
   return shuffle(out, rng);
 }
 
-export function makeWordProblem(level: number, rng: Rng = Math.random, ease = false, avoid?: string): WordProblem {
+/**
+ * Read a logged id (`wp-takeFrom-mango-7-3`) back into its story numbers (#25c spaced review).
+ * Undefined unless the kind and thing are known and the counts make a valid story (all ≥ 1, the
+ * answer ≥ 1 and ≤ 20; birds that come by themselves aren't put-together stories).
+ */
+export function parseWordProblemId(itemId: string): { kind: Kind; thing: Thing; a: number; b: number } | undefined {
+  const m = /^wp-(addTo|takeFrom|putTogether)-(.+)-(\d+)-(\d+)$/.exec(itemId);
+  if (!m) return undefined;
+  const kind = m[1] as Kind;
+  const thing = THINGS.find((t) => t.one === m[2]);
+  const a = +m[3], b = +m[4];
+  if (!thing || (kind === 'putTogether' && thing.comes)) return undefined;
+  const answer = solve({ a, op: opOf(kind), b });
+  if (a < 1 || b < 1 || answer < 1 || answer > 20) return undefined;
+  return { kind, thing, a, b };
+}
+
+/**
+ * One story. `want` (#25c): an item id to ask again — same kind, thing and numbers (the names,
+ * wording and scene are picked afresh), this level's mode; ignored if it doesn't parse.
+ */
+export function makeWordProblem(level: number, rng: Rng = Math.random, ease = false, avoid?: string, want?: string): WordProblem {
   const cfg = getLevel('wordProblems', level);
   const range = ease ? Math.min(10, cfg.range) : cfg.range;
   const mode: Mode = ease ? 'answer' : modeAt(level);
   const kinds = ease ? (['addTo', 'takeFrom'] as Kind[]) : kindsAt(level);
+  const wanted = want ? parseWordProblemId(want) : undefined;
   let it: WordProblem;
   let guard = 0;
   do {
-    const kind = pick(kinds, rng);
-    const thing = pick(kind === 'putTogether' ? THINGS.filter((t) => !t.comes) : THINGS, rng);
+    const kind = wanted ? wanted.kind : pick(kinds, rng);
+    const thing = wanted ? wanted.thing : pick(kind === 'putTogether' ? THINGS.filter((t) => !t.comes) : THINGS, rng);
     const person = pick(PEOPLE, rng);
     const other = pick(PEOPLE.filter((x) => x.name !== person.name), rng);
-    const { a, b } = numbersFor(kind, range, rng);
+    const { a, b } = wanted ?? numbersFor(kind, range, rng);
     const op = opOf(kind);
     const answer = solve({ a, op, b });
     const variant = int(rng, 0, 999);
@@ -205,11 +227,11 @@ export function makeWordProblem(level: number, rng: Rng = Math.random, ease = fa
       spokenLines: spoken.lines.map(cap),
       spokenQuestion: spoken.question,
       mode,
-      choices: mode === 'equation' ? [] : answerChoices(answer, wrongOpResult(base), near, ease ? 2 : mode === 'build' ? 4 : 3, range, rng),
+      choices: mode === 'equation' ? [] : answerChoices(answer, wrongOpResult(base), near, ease ? 2 : mode === 'build' ? 4 : 3, Math.max(range, answer), rng),
       equations: mode === 'equation' ? equationChoices(base, ease ? 2 : 3, rng) : [],
       showPictures: cfg.representation !== 'abstract' || ease,
     };
-  } while (it.id === avoid && guard++ < 20);
+  } while (!wanted && it.id === avoid && guard++ < 20);
   return it;
 }
 

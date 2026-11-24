@@ -38,16 +38,43 @@ export function endingsAt(level: number): Ending[] {
   return getLevel('endings', level).range < 3 ? ['s', 'ing'] : ['s', 'ed', 'ing'];
 }
 
-export function makeEndingItem(level: number, rng: Rng = Math.random, ease = false, avoid?: string): EndingItem {
+/**
+ * Read a logged id (`ending-jumped-Yesterday, I {}.`) back into its word and sentence (#25c spaced
+ * review). The frame says which ending and whether -s is a plural; the base must be a known word
+ * of that kind. Undefined for anything else.
+ */
+export function parseEndingId(itemId: string): { base: string; ending: Ending; plural: boolean; frame: string } | undefined {
+  const m = /^ending-([a-z]+)-(.*\{\}.*)$/.exec(itemId);
+  if (!m) return undefined;
+  const [, word, frame] = m;
+  const kind = (Object.keys(ENDING_FRAMES) as (keyof typeof ENDING_FRAMES)[]).find((k) => ENDING_FRAMES[k].includes(frame));
+  if (!kind) return undefined;
+  const ending: Ending = kind === 'plural' || kind === 'verbS' ? 's' : kind;
+  if (!word.endsWith(ending)) return undefined;
+  const base = word.slice(0, -ending.length);
+  const plural = kind === 'plural';
+  if (!(plural ? ENDING_NOUNS : ENDING_VERBS).some((w) => w.base === base)) return undefined;
+  return { base, ending, plural, frame };
+}
+
+/**
+ * One item. `want` (#25c): an item id to ask again — same word and sentence, this level's tiles and
+ * read-aloud; ignored if it doesn't parse or its ending isn't in play at this level.
+ */
+export function makeEndingItem(level: number, rng: Rng = Math.random, ease = false, avoid?: string, want?: string): EndingItem {
   const cfg = getLevel('endings', level);
   const endings = endingsAt(level);
+  const parsed = want ? parseEndingId(want) : undefined;
+  const wanted = parsed && endings.includes(parsed.ending) ? parsed : undefined;
   let item: EndingItem;
   do {
-    const ending = pick(endings, rng);
+    const ending = wanted ? wanted.ending : pick(endings, rng);
     // -s is a plural noun half the time, otherwise a verb ("Sam jumps").
-    const plural = ending === 's' && rng() < 0.5;
-    const src = plural ? pick(ENDING_NOUNS, rng) : pick(ENDING_VERBS, rng);
-    const frame = pick(ENDING_FRAMES[plural ? 'plural' : ending === 's' ? 'verbS' : ending], rng);
+    const plural = wanted ? wanted.plural : ending === 's' && rng() < 0.5;
+    const src = wanted
+      ? (plural ? ENDING_NOUNS : ENDING_VERBS).find((w) => w.base === wanted.base)!
+      : plural ? pick(ENDING_NOUNS, rng) : pick(ENDING_VERBS, rng);
+    const frame = wanted ? wanted.frame : pick(ENDING_FRAMES[plural ? 'plural' : ending === 's' ? 'verbS' : ending], rng);
     const [before, after] = frame.split('{}');
     const word = src.base + ending;
     // Easing: only the right ending and one other.
@@ -64,7 +91,7 @@ export function makeEndingItem(level: number, rng: Rng = Math.random, ease = fal
       choices,
       readAloud: cfg.scaffold || ease,
     };
-  } while (item.word === avoid);
+  } while (!wanted && item.word === avoid);
   return item;
 }
 

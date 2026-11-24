@@ -2,6 +2,13 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-23 — Spaced review in Phonics Pop, Word Builder, Story Sums (#25c)
+- **What comes back is the same item, re-dressed**: Phonics Pop → the same letter (new balloon letters, possibly another picture variant); Word Builder → the same word in the same sentence (`ending-jumped-Yesterday, I {}.`), tiles reshuffled; Story Sums → the same story kind, thing and numbers (`wp-addTo-mango-3-4`) with **new names, wording and scene**, so it feels like a fresh story but practises the same fact.
+- **Pop the Answer letter misses count for Phonics Pop**: `pop-phonics-b` already unwraps to `phonics-b`, so no mapping was needed. Pop has no endings or story items.
+- **Asked at the level it was missed at** (as in #25b): the letter is in that level's pool, the ending is in play there, the story's numbers fit its range. Story Sums' mode (pictures / pick the equation / build it) follows that level. If an id can't be rebuilt at its level (e.g. an `-ed` word at a level without -ed, or a letter not taught yet), the card is ignored and a normal item is shown.
+- **Same limits as before**: ≤ 2 spaced items per round, never first/last, not right after two misses (easing wins — so a struggling round can skip a due item; it stays due for the next round), `mix: 'spaced'`, level unchanged, "Remember this one?" only heard with talking on. Spaced items skip the "not the same as last time" check, since they are picked on purpose.
+- Checked headless with a seeded profile (misses from yesterday): `pop-phonics-t` came back in Letter sounds, `ending-jumps-Every day, Sam {}.` in -s -ed -ing, and `wp-addTo-mango-3-4` in Story sums (as "Diya has 3 mangoes… gives her 4 more"). No console errors.
+
 ## 2026-11-23 — Spaced review, math facts (#25b)
 - **Split #25b** again: 25b = Feed the Monster + Number Line Hop (the +/− and number facts); 25c = Phonics Pop, Word Builder, Story Sums; 25d = Fun at the Fair, Tick Tock Clock. Each game needs its own "rebuild this id" path, and two games per run keeps the run small.
 - **A fact is the same fact in Pop the Answer / Dinosaur Maze**: their math ids (`add10-3 + 4 = ?-7`, `missing-3 + __ = 8-5`, `count-🍪🍪🍪-3`, `placeValue-…-34`) are mapped onto the home game's id (`add10-3+4`, `missing-3+5`, `count-3`, `pv-34`) when the schedule is read, so a fact missed in Pop comes back in Feed the Monster / Number Line Hop, and one right answer there moves it on. Only wrapped ids are rewritten. Pop's compare items (⚖️ "which is bigger?") don't record the pair, so they can't come back — they're left out (their cards are filtered, never served as a random item).

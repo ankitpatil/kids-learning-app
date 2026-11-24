@@ -1,14 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
-import { makeWordProblem, eqText, eqSpoken, hintFor, signHint, spokenStory, solve, sumWhyContext, type WordProblem, type Equation, type Op, type SumStep } from './generator';
+import { makeWordProblem, parseWordProblemId, eqText, eqSpoken, hintFor, signHint, spokenStory, solve, sumWhyContext, type WordProblem, type Equation, type Op, type SumStep } from './generator';
 import { ai } from '../../ai/app';
 import { createWhyHinter } from '../../ai/whyHint';
 import { updateSkill, type SkillState } from '../../engine/adaptive';
 import { maxLevel, readsAlone } from '../../engine/tracks';
 import { numberWord } from '../../engine/numberWords';
-import { getSkillState, getSkillStates, saveSkillState, logAttempt } from '../../store/db';
+import { getSkillState, getSkillStates, saveSkillState, logAttempt, dueReviews } from '../../store/db';
+import { placeSpaced, takeCard, spacedLead, type ReviewCard } from '../../engine/spacedReview';
 import { planRound, resolveSlot, type Slot } from '../../engine/roundMix';
 import { say, tapSay, setReadingAlone } from '../../audio/speech';
-import { fresh } from '../../engine/recent';
+import { fresh, remember } from '../../engine/recent';
 import { feedback } from '../../components/Feedback';
 import { Emoji, Icon } from '../../components/Icon';
 
@@ -73,10 +74,13 @@ export function StorySums({ profileId, onDone, onExit }: Props) {
   const plan = useRef(planRound(ROUND_LENGTH));
   const all = useRef<Awaited<ReturnType<typeof getSkillStates>>>({});
   const slot = useRef<Slot>({ kind: 'current', trackId: TRACK, level: 0 });
+  const due = useRef<ReviewCard[]>([]); // #25c: missed items back after 1/3/7 days
 
   useEffect(() => {
-    Promise.all([getSkillState(profileId, TRACK), getSkillStates(profileId)]).then(([s, states]) => {
+    Promise.all([getSkillState(profileId, TRACK), getSkillStates(profileId), dueReviews(profileId, [TRACK])]).then(([s, states, cards]) => {
       all.current = states;
+      due.current = cards.filter((c) => parseWordProblemId(c.itemId) !== undefined);
+      plan.current = placeSpaced(plan.current, due.current.length);
       setState(s);
       next(s.level, undefined);
     });
@@ -86,8 +90,15 @@ export function StorySums({ profileId, onDone, onExit }: Props) {
   function next(level: number, prevId: string | undefined, i = 0) {
     const easy = ease.current;
     // Single track: review = level below, stretch = level above.
-    const sl = (slot.current = resolveSlot(plan.current[i], TRACK, level, all.current, easy));
-    const it = fresh(TRACK, () => makeWordProblem(sl.level, Math.random, easy, prevId), (x) => x.id);
+    // #25c: a spaced story (same kind, thing and numbers; new names) is asked at the level it was missed at.
+    const card = plan.current[i] === 'spaced' && !easy ? takeCard(due.current) : undefined;
+    const sl = (slot.current = card
+      ? { kind: 'spaced', trackId: TRACK, level: card.level }
+      : resolveSlot(plan.current[i] === 'spaced' ? 'review' : plan.current[i], TRACK, level, all.current, easy));
+    const it = card
+      ? makeWordProblem(sl.level, Math.random, false, undefined, card.itemId)
+      : fresh(TRACK, () => makeWordProblem(sl.level, Math.random, easy, prevId), (x) => x.id);
+    if (card) remember(TRACK, it.id); // so the rest of the round doesn't repeat it
     hinted.current = ease.current;
     ease.current = false;
     setItem(it);
@@ -99,7 +110,7 @@ export function StorySums({ profileId, onDone, onExit }: Props) {
     started.current = Date.now();
     busy.current = false;
     setReadingAlone(readsAlone(sl.trackId, sl.level)); // reading levels: no narration, the child reads it
-    setTimeout(() => say((sl.kind === 'stretch' ? 'Bonus challenge! || ' : '') + ask(it)), 250);
+    setTimeout(() => say(spacedLead(sl.kind) + ask(it)), 250);
   }
 
   async function record(correct: boolean) {

@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
-import { makePhonicsItem, phonicsWhyContext, PHONICS_MAX_LEVEL, type PhonicsItem } from './generator';
+import { makePhonicsItem, parsePhonicsId, phonicsWhyContext, PHONICS_MAX_LEVEL, type PhonicsItem } from './generator';
 import { LETTERS } from './letters';
 import { updateSkill, type SkillState } from '../../engine/adaptive';
-import { getSkillState, getSkillStates, saveSkillState, logAttempt } from '../../store/db';
+import { getSkillState, getSkillStates, saveSkillState, logAttempt, dueReviews } from '../../store/db';
+import { placeSpaced, takeCard, spacedLead, type ReviewCard } from '../../engine/spacedReview';
 import { planRound, resolveSlot, type Slot } from '../../engine/roundMix';
 import { say, tapSay } from '../../audio/speech';
-import { fresh } from '../../engine/recent';
+import { fresh, remember } from '../../engine/recent';
 import { feedback } from '../../components/Feedback';
 import { ai } from '../../ai/app';
 import { createWhyHinter } from '../../ai/whyHint';
@@ -42,10 +43,13 @@ export function PhonicsPop({ profileId, onDone, onExit }: Props) {
   const plan = useRef(planRound(ROUND_LENGTH));
   const all = useRef<Awaited<ReturnType<typeof getSkillStates>>>({});
   const slot = useRef<Slot>({ kind: 'current', trackId: SKILL, level: 0 });
+  const due = useRef<ReviewCard[]>([]); // #25c: missed items back after 1/3/7 days
 
   useEffect(() => {
-    Promise.all([getSkillState(profileId, SKILL), getSkillStates(profileId)]).then(([s, states]) => {
+    Promise.all([getSkillState(profileId, SKILL), getSkillStates(profileId), dueReviews(profileId, [SKILL])]).then(([s, states, cards]) => {
       all.current = states;
+      due.current = cards.filter((c) => parsePhonicsId(c.itemId) !== undefined);
+      plan.current = placeSpaced(plan.current, due.current.length);
       setState(s);
       next(s.level, undefined);
     });
@@ -55,8 +59,15 @@ export function PhonicsPop({ profileId, onDone, onExit }: Props) {
   function next(level: number, prevTarget: string | undefined, i = 0) {
     const easy = ease.current;
     // Round mix: review = level below, stretch = level above (one track, so nothing else to mix in).
-    const sl = (slot.current = resolveSlot(plan.current[i], SKILL, level, all.current, easy));
-    const it = fresh(SKILL, () => makePhonicsItem(sl.level, Math.random, easy, prevTarget), (x) => x.target);
+    // #25c: a spaced letter is asked at the level it was missed at (so its letter is in the balloons' pool).
+    const card = plan.current[i] === 'spaced' && !easy ? takeCard(due.current) : undefined;
+    const sl = (slot.current = card
+      ? { kind: 'spaced', trackId: SKILL, level: card.level }
+      : resolveSlot(plan.current[i] === 'spaced' ? 'review' : plan.current[i], SKILL, level, all.current, easy));
+    const it = card
+      ? makePhonicsItem(sl.level, Math.random, false, undefined, card.itemId)
+      : fresh(SKILL, () => makePhonicsItem(sl.level, Math.random, easy, prevTarget), (x) => x.target);
+    if (card) remember(SKILL, it.target); // so the rest of the round doesn't repeat it
     ease.current = false;
     setItem(it);
     setTried([]);
@@ -65,7 +76,7 @@ export function PhonicsPop({ profileId, onDone, onExit }: Props) {
     setWiggle(null);
     started.current = Date.now();
     busy.current = false;
-    setTimeout(() => say((sl.kind === 'stretch' ? 'Bonus challenge! || ' : '') + prompt(it)), 250);
+    setTimeout(() => say(spacedLead(sl.kind) + prompt(it)), 250);
   }
 
   async function choose(letter: string) {

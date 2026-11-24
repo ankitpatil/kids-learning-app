@@ -35,14 +35,22 @@ function shuffle<T>(arr: T[], rng: Rng): T[] {
   return a;
 }
 
+/** Read a logged id (`phonics-b`, or Pop the Answer's `pop-phonics-b` unwrapped) back into its letter (#25c). */
+export function parsePhonicsId(itemId: string): string | undefined {
+  const m = /^phonics-([a-z])$/.exec(itemId);
+  return m && LETTERS[m[1]] ? m[1] : undefined;
+}
+
 /**
  * Make an item. Targets favour the newest letters of the level (~60%) so new sounds get practice,
- * while older letters stay in rotation as review.
+ * while older letters stay in rotation as review. `want` (#25c spaced review): an item id to ask
+ * again — that letter, with this level's balloons; ignored if the letter isn't taught by this level.
  */
-export function makePhonicsItem(level: number, rng: Rng = Math.random, ease = false, avoid?: string): PhonicsItem {
+export function makePhonicsItem(level: number, rng: Rng = Math.random, ease = false, avoid?: string, want?: string): PhonicsItem {
   const lvl = Math.max(0, Math.min(level, PHONICS_MAX_LEVEL));
   const pool = lettersUpTo(lvl);
   const newest = PHONICS_LEVEL_NEW[lvl].length ? PHONICS_LEVEL_NEW[lvl] : pool;
+  const wanted = want ? parsePhonicsId(want) : undefined;
 
   let candidates = rng() < 0.6 ? newest : pool;
   if (avoid && candidates.length > 1) candidates = candidates.filter((l) => l !== avoid);
@@ -51,7 +59,7 @@ export function makePhonicsItem(level: number, rng: Rng = Math.random, ease = fa
     const conf = pool.filter((l) => CONFUSABLES[l] && pool.includes(CONFUSABLES[l]) && l !== avoid);
     if (conf.length && rng() < 0.6) candidates = conf;
   }
-  const target = pick(candidates, rng);
+  const target = wanted && pool.includes(wanted) ? wanted : pick(candidates, rng);
 
   const n = Math.min(choiceCount(lvl, ease), pool.length);
   const choices = new Set<string>([target]);
