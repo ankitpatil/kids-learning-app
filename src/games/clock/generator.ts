@@ -115,14 +115,33 @@ export function clockDistractors(t: Time, minutes: number[], near: boolean, coun
   return out;
 }
 
-export function makeClockItem(level: number, rng: Rng = Math.random, ease = false, avoid?: string): ClockItem {
+/**
+ * Read a logged id (`time-read-3:30`, `time-find-11:05`) back into its time (#25d spaced review),
+ * checked against the level it's asked at: that level's mode, and a minute the level uses.
+ * Undefined otherwise (e.g. an eased o'clock item logged at a "find" level).
+ */
+export function parseClockId(itemId: string, level: number): Time | undefined {
+  const m = /^time-(read|find)-(\d{1,2}):(\d\d)$/.exec(itemId);
+  if (!m) return undefined;
+  const h = +m[2], min = +m[3];
+  if (m[1] !== clockMode(level) || h < 1 || h > 12) return undefined;
+  if (!minutesFor(getLevel(CLOCK_TRACK, level).range).includes(min)) return undefined;
+  return { h, m: min };
+}
+
+/**
+ * One item. `want` (#25d): an item id to ask again — the same time with fresh look-alike choices;
+ * ignored unless it fits this level (see `parseClockId`).
+ */
+export function makeClockItem(level: number, rng: Rng = Math.random, ease = false, avoid?: string, want?: string): ClockItem {
   const cfg = getLevel(CLOCK_TRACK, level);
   const mode = clockMode(level, ease);
   const minutes = ease ? [0] : minutesFor(cfg.range);
   const near = !ease && cfg.distractors === 'near';
+  const wanted = want && !ease ? parseClockId(want, level) : undefined;
   const pick = (): Time => ({ h: int(rng, 1, 12), m: minutes[int(rng, 0, minutes.length - 1)] });
-  let time = pick();
-  for (let i = 0; i < 8 && `time-${mode}-${timeKey(time)}` === avoid; i++) time = pick();
+  let time = wanted ?? pick();
+  for (let i = 0; !wanted && i < 8 && `time-${mode}-${timeKey(time)}` === avoid; i++) time = pick();
   // Read: 3 big choices up to half past, 4 for 5 minutes. Find: 3 clocks (they're big).
   const count = mode === 'find' || minutes.length <= 2 ? 2 : 3;
   const choices = shuffle([time, ...clockDistractors(time, minutes, near, count, rng)], rng);

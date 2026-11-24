@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
-import { makeFairItem, checkPay, trayTotal, canAdd, countUp, fairPrompt, fairHint, fairWhyContext, FAIR_TRACK, type FairItem } from './generator';
+import { makeFairItem, parseFairId, checkPay, trayTotal, canAdd, countUp, fairPrompt, fairHint, fairWhyContext, FAIR_TRACK, type FairItem } from './generator';
 import { denomFor, loadCurrency, moneyText, moneyWords, type CurrencyId } from '../../content/money';
 import { updateSkill, type SkillState } from '../../engine/adaptive';
 import { maxLevel } from '../../engine/tracks';
-import { getSkillState, getSkillStates, saveSkillState, logAttempt } from '../../store/db';
+import { getSkillState, getSkillStates, saveSkillState, logAttempt, dueReviews } from '../../store/db';
+import { placeSpaced, takeCard, spacedLead, type ReviewCard } from '../../engine/spacedReview';
 import { planRound, resolveSlot, type Slot } from '../../engine/roundMix';
 import { say, tapSay } from '../../audio/speech';
-import { fresh } from '../../engine/recent';
+import { fresh, remember } from '../../engine/recent';
 import { feedback } from '../../components/Feedback';
 import { ai } from '../../ai/app';
 import { createWhyHinter } from '../../ai/whyHint';
@@ -49,11 +50,14 @@ export function FunFair({ profileId, onDone, onExit }: Props) {
   const plan = useRef(planRound(ROUND_LENGTH));
   const all = useRef<Awaited<ReturnType<typeof getSkillStates>>>({});
   const slot = useRef<Slot>({ kind: 'current', trackId: FAIR_TRACK, level: 0 });
+  const due = useRef<ReviewCard[]>([]); // #25d: missed items back after 1/3/7 days
   const currency = useRef<CurrencyId>(loadCurrency());
 
   useEffect(() => {
-    Promise.all([getSkillState(profileId, FAIR_TRACK), getSkillStates(profileId)]).then(([s, states]) => {
+    Promise.all([getSkillState(profileId, FAIR_TRACK), getSkillStates(profileId), dueReviews(profileId, [FAIR_TRACK])]).then(([s, states, cards]) => {
       all.current = states;
+      due.current = cards.filter((c) => parseFairId(c.itemId, c.level, currency.current) !== undefined);
+      plan.current = placeSpaced(plan.current, due.current.length);
       setState(s);
       next(s.level, undefined);
     });
@@ -63,8 +67,15 @@ export function FunFair({ profileId, onDone, onExit }: Props) {
   function next(level: number, prevId: string | undefined, i = 0) {
     const easy = ease.current;
     // Single track: review = level below, stretch = level above.
-    const sl = (slot.current = resolveSlot(plan.current[i], FAIR_TRACK, level, all.current, easy));
-    const it = fresh(FAIR_TRACK, () => makeFairItem(sl.level, currency.current, Math.random, easy, prevId), (x) => x.id);
+    // #25d: a spaced item is asked at the level it was missed at (its mode and numbers belong there).
+    const card = plan.current[i] === 'spaced' && !easy ? takeCard(due.current) : undefined;
+    const sl = (slot.current = card
+      ? { kind: 'spaced', trackId: FAIR_TRACK, level: card.level }
+      : resolveSlot(plan.current[i] === 'spaced' ? 'review' : plan.current[i], FAIR_TRACK, level, all.current, easy));
+    const it = card
+      ? makeFairItem(sl.level, currency.current, Math.random, false, undefined, card.itemId)
+      : fresh(FAIR_TRACK, () => makeFairItem(sl.level, currency.current, Math.random, easy, prevId), (x) => x.id);
+    if (card) remember(FAIR_TRACK, it.id); // so the rest of the round doesn't repeat it
     hinted.current = easy;
     ease.current = false;
     setItem(it);
@@ -75,7 +86,7 @@ export function FunFair({ profileId, onDone, onExit }: Props) {
     misses.current = 0;
     started.current = Date.now();
     busy.current = false;
-    setTimeout(() => say((sl.kind === 'stretch' ? 'Bonus challenge! || ' : '') + fairPrompt(it)), 250);
+    setTimeout(() => say(spacedLead(sl.kind) + fairPrompt(it)), 250);
   }
 
   async function record(correct: boolean) {

@@ -98,8 +98,42 @@ export function changeChoices(answer: number, max: number, near: boolean, rng: R
   return shuffle([...set], rng);
 }
 
-export function makeFairItem(level: number, currency: CurrencyId, rng: Rng = Math.random, ease = false, avoid?: string): FairItem {
+/** What the change question pays with at a level (₹10 / ₹20, 10¢ / 25¢). */
+export const payWithAt = (currency: CurrencyId, level: number) => CURRENCIES[currency].payWith[getLevel(FAIR_TRACK, level).range <= 10 ? 0 : 1];
+
+/**
+ * Read a logged id (`money-pay-7`, `money-change-10-3`) back into its price (#25d spaced review),
+ * checked against the level it's asked at: the mode must be that level's mode, a price to pay must be
+ * in the level's price range, and a change question must pay with what this currency uses there
+ * (so a ₹20 miss isn't replayed after switching to cents). Undefined otherwise.
+ */
+export function parseFairId(itemId: string, level: number, currency: CurrencyId): { mode: FairMode; price: number; paid: number } | undefined {
   const cfg = getLevel(FAIR_TRACK, level);
+  const mode = fairMode(level);
+  let m = /^money-pay-(\d+)$/.exec(itemId);
+  if (m) {
+    const price = +m[1];
+    const lo = cfg.range <= 10 ? 2 : 6;
+    if (mode !== 'pay' || price < lo || price > cfg.range) return undefined;
+    return { mode, price, paid: 0 };
+  }
+  m = /^money-change-(\d+)-(\d+)$/.exec(itemId);
+  if (m) {
+    const paid = +m[1], price = +m[2];
+    if (mode !== 'change' || paid !== payWithAt(currency, level)) return undefined;
+    if (price < Math.max(1, paid - 20) || price > paid - 1) return undefined;
+    return { mode, price, paid };
+  }
+  return undefined;
+}
+
+/**
+ * One item. `want` (#25d): an item id to ask again — the same price (and what's paid), with a new
+ * fair thing and fresh choices; ignored unless it fits this level and currency (see `parseFairId`).
+ */
+export function makeFairItem(level: number, currency: CurrencyId, rng: Rng = Math.random, ease = false, avoid?: string, want?: string): FairItem {
+  const cfg = getLevel(FAIR_TRACK, level);
+  const wanted = want && !ease ? parseFairId(want, level, currency) : undefined;
   const mode = fairMode(level, ease);
   const thing = FAIR_THINGS[int(rng, 0, FAIR_THINGS.length - 1)];
   const near = cfg.distractors === 'near';
@@ -114,17 +148,17 @@ export function makeFairItem(level: number, currency: CurrencyId, rng: Rng = Mat
 
   if (mode === 'pay') {
     const wallet = ease ? walletFor(currency, 5).filter((v) => v <= 2) : walletFor(currency, cfg.range);
-    let price = pickPay(wallet);
-    for (let i = 0; i < 5 && `money-pay-${price}` === avoid; i++) price = pickPay(wallet);
+    let price = wanted ? wanted.price : pickPay(wallet);
+    for (let i = 0; !wanted && i < 5 && `money-pay-${price}` === avoid; i++) price = pickPay(wallet);
     return { id: `money-pay-${price}`, mode, currency, thing, price, wallet, scaffold: ease || cfg.scaffold, paid: 0, answer: price, choices: [] };
   }
 
-  const paid = CURRENCIES[currency].payWith[cfg.range <= 10 ? 0 : 1];
+  const paid = payWithAt(currency, level);
   // Change is 1..paid−1 within 10; within 20 the change is 1..20 (US: 25¢ − 5¢..24¢).
   const lo = Math.max(1, paid - 20);
   const pickPrice = () => int(rng, lo, paid - 1);
-  let price = pickPrice();
-  for (let i = 0; i < 5 && `money-change-${paid}-${price}` === avoid; i++) price = pickPrice();
+  let price = wanted ? wanted.price : pickPrice();
+  for (let i = 0; !wanted && i < 5 && `money-change-${paid}-${price}` === avoid; i++) price = pickPrice();
   const answer = paid - price;
   return {
     id: `money-change-${paid}-${price}`,

@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
-import { makeClockItem, clockPrompt, clockHint, timeText, timeWords, timeKey, sameTime, fivesTo, CLOCK_TRACK, type ClockItem, type Time } from './generator';
+import { makeClockItem, parseClockId, clockPrompt, clockHint, timeText, timeWords, timeKey, sameTime, fivesTo, CLOCK_TRACK, type ClockItem, type Time } from './generator';
 import { ClockFace } from './ClockFace';
 import { updateSkill, type SkillState } from '../../engine/adaptive';
 import { maxLevel } from '../../engine/tracks';
-import { getSkillState, getSkillStates, saveSkillState, logAttempt } from '../../store/db';
+import { getSkillState, getSkillStates, saveSkillState, logAttempt, dueReviews } from '../../store/db';
+import { placeSpaced, takeCard, spacedLead, type ReviewCard } from '../../engine/spacedReview';
 import { planRound, resolveSlot, type Slot } from '../../engine/roundMix';
 import { say, tapSay } from '../../audio/speech';
-import { fresh } from '../../engine/recent';
+import { fresh, remember } from '../../engine/recent';
 import { feedback } from '../../components/Feedback';
 import { Emoji } from '../../components/Icon';
 
@@ -36,10 +37,13 @@ export function ClockGame({ profileId, onDone, onExit }: Props) {
   const plan = useRef(planRound(ROUND_LENGTH));
   const all = useRef<Awaited<ReturnType<typeof getSkillStates>>>({});
   const slot = useRef<Slot>({ kind: 'current', trackId: CLOCK_TRACK, level: 0 });
+  const due = useRef<ReviewCard[]>([]); // #25d: missed items back after 1/3/7 days
 
   useEffect(() => {
-    Promise.all([getSkillState(profileId, CLOCK_TRACK), getSkillStates(profileId)]).then(([s, states]) => {
+    Promise.all([getSkillState(profileId, CLOCK_TRACK), getSkillStates(profileId), dueReviews(profileId, [CLOCK_TRACK])]).then(([s, states, cards]) => {
       all.current = states;
+      due.current = cards.filter((c) => parseClockId(c.itemId, c.level) !== undefined);
+      plan.current = placeSpaced(plan.current, due.current.length);
       setState(s);
       next(s.level, undefined);
     });
@@ -49,8 +53,15 @@ export function ClockGame({ profileId, onDone, onExit }: Props) {
   function next(level: number, prevId: string | undefined, i = 0) {
     const easy = ease.current;
     // Single track: review = level below, stretch = level above.
-    const sl = (slot.current = resolveSlot(plan.current[i], CLOCK_TRACK, level, all.current, easy));
-    const it = fresh(CLOCK_TRACK, () => makeClockItem(sl.level, Math.random, easy, prevId), (x) => x.id);
+    // #25d: a spaced item is asked at the level it was missed at (its mode and numbers belong there).
+    const card = plan.current[i] === 'spaced' && !easy ? takeCard(due.current) : undefined;
+    const sl = (slot.current = card
+      ? { kind: 'spaced', trackId: CLOCK_TRACK, level: card.level }
+      : resolveSlot(plan.current[i] === 'spaced' ? 'review' : plan.current[i], CLOCK_TRACK, level, all.current, easy));
+    const it = card
+      ? makeClockItem(sl.level, Math.random, false, undefined, card.itemId)
+      : fresh(CLOCK_TRACK, () => makeClockItem(sl.level, Math.random, easy, prevId), (x) => x.id);
+    if (card) remember(CLOCK_TRACK, it.id); // so the rest of the round doesn't repeat it
     hinted.current = easy;
     ease.current = false;
     setItem(it);
@@ -60,7 +71,7 @@ export function ClockGame({ profileId, onDone, onExit }: Props) {
     setMood('idle');
     started.current = Date.now();
     busy.current = false;
-    setTimeout(() => say((sl.kind === 'stretch' ? 'Bonus challenge! || ' : '') + clockPrompt(it)), 250);
+    setTimeout(() => say(spacedLead(sl.kind) + clockPrompt(it)), 250);
   }
 
   async function record(correct: boolean) {

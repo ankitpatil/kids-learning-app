@@ -2,6 +2,13 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-24 — Spaced review in Fun at the Fair and Tick Tock Clock (#25d)
+- **What comes back**: Fair → the same price (and, for change, the same note/coin paid) with a new fair thing and fresh choices; Clock → the same time with fresh look-alike choices. Same limits as #25a–c: ≤ 2 per round, never first/last, not while easing, asked at the level it was missed at, `mix: 'spaced'`, level unchanged, "Remember this one?" only heard with talking on.
+- **Ids are checked against their level** (`parseFairId(id, level, currency)`, `parseClockId(id, level)`): the mode must be that level's mode, the price/minute must be one the level uses. So an eased item (e.g. an o'clock "read" item logged at a "find the clock" level, or an easy ₹2–5 pay item logged at a change level) is not replayed — those were eased on purpose. Such cards are dropped before the round, not served as a random item.
+- **Currency switch**: Fair ids don't name the currency (price numbers mean ₹ or ¢). A pay price works in both. A change id names what was paid (`money-change-20-7`); if the Grown-ups currency setting changed since (₹20 → 25¢), it no longer fits and is dropped rather than asking a 20¢ change question that the US setting never uses.
+- No Pop the Answer / Dinosaur Maze mapping needed: they don't ask money or clock items.
+- Checked headless with a seeded profile (two clock misses from yesterday at level 1): both (`time-read-4:30`, `time-read-9:00`) came back as spaced items in the next Clock round. No console errors.
+
 ## 2026-11-23 — Spaced review in Phonics Pop, Word Builder, Story Sums (#25c)
 - **What comes back is the same item, re-dressed**: Phonics Pop → the same letter (new balloon letters, possibly another picture variant); Word Builder → the same word in the same sentence (`ending-jumped-Yesterday, I {}.`), tiles reshuffled; Story Sums → the same story kind, thing and numbers (`wp-addTo-mango-3-4`) with **new names, wording and scene**, so it feels like a fresh story but practises the same fact.
 - **Pop the Answer letter misses count for Phonics Pop**: `pop-phonics-b` already unwraps to `phonics-b`, so no mapping was needed. Pop has no endings or story items.
