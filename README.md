@@ -33,7 +33,7 @@ To play on a tablet on the same Wi-Fi: `npm run dev -- --host`, then open the pr
 - **Avatar (top left)**: switch or create child profiles. Each child has their own levels, stars and stickers.
 - **📺 TV Games tile**: whole-body games for a laptop connected to the TV. First game: **🦕 Dinosaur Maze** — Dinosaur Mom walks a new maze each time (8-bit music) to her babies; each of 8 obstacles opens a full-screen mirror puzzle (one mixed math/reading question at the child's level) answered with a move — smash rocks or ice, karate-chop vines or webs, grab a key or lift a log with both hands, jump onto a stone over a river or lava, bonk a bat or a coconut — hitting the chosen answer 3–4 times. Raise a hand to claim the turn; no camera → tap the answers.
 - **📒 Sticker book**: one sticker per round, with rare ones for level-ups and perfect rounds.
-- **⚙️ Grown-ups** (hold 3 s, then answer a multiplication): reading voice and the optional **✨ Claude helpers** (off by default). Helpers need the family proxy in `proxy/` — see [proxy/README.md](proxy/README.md).
+- **⚙️ Grown-ups** (hold 3 s, then answer a multiplication): reading voice and the optional **✨ Claude helpers** (off by default). Helpers need the family proxy in `proxy/` — see [proxy/README.md](proxy/README.md). **💾 Save / restore progress** downloads a backup file of every child's progress (no settings or passcode) and restores it on this or another device.
 
 Games: Feed the Monster (counting, missing number, tens & ones, compare), Number Line Hop, Story sums, Phonics Pop, Word Detective, Sight-Word Catch, Word Builder and Story Choose; Fun at the Fair, Tick Tock Clock, Pop the Answer, and 🦕 Dinosaur Maze (TV Games).
 

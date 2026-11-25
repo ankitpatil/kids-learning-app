@@ -6,6 +6,7 @@ import { ai } from '../ai/app';
 import { loadMotionSettings, saveMotionSettings } from '../motion/settings';
 import { isMuted, setMuted, isNarrationOn, setNarration } from '../audio/speech';
 import { Emoji } from '../components/Icon';
+import { BackupCard } from './BackupCard';
 import { CURRENCIES, loadCurrency, saveCurrency, type CurrencyId } from '../content/money';
 
 type Test = { state: 'idle' } | { state: 'testing' } | { state: 'ok' } | { state: 'fail'; why: string };
@@ -199,6 +200,8 @@ export function Settings({ onBack, onVoice, onProgress }: { onBack: () => void; 
           Only learning details are sent (level, phonics patterns, topic, the current question) — never a name, profile or voice recording. No API key is stored here; it lives in your proxy. See <code>proxy/README.md</code> to set one up.
         </p>
       </section>
+
+      <BackupCard />
 
       <section className="settings-card about-credits">
         <span className="voice-name">About &amp; credits</span>

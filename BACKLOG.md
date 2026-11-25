@@ -69,7 +69,7 @@ Reprioritised 2026-11-08 for the actual learner: knows basic words and +/- (≈ 
 - [x] 25b. **Spaced review for math facts in Feed the Monster + Number Line Hop** (#25b split 2026-11-23): `parseFeedId` / `parseHopId` + a `want` id on the Feed (count, missing, tens & ones, compare) and Hop generators; Pop the Answer / Dinosaur Maze math ids map onto the home game's id (`quickMathId`) so a fact missed there comes back here too. Tests: every logged id round-trips (own and Pop ids, every track and level)
 - [x] 25c. **Spaced review in Phonics Pop, Word Builder, Story Sums**: same `want` path + `placeSpaced` / `takeCard` wiring as 25b. Tests that a logged id round-trips → done 2026-11-23: `parsePhonicsId` / `parseEndingId` / `parseWordProblemId` + `want` in each generator; Pop the Answer letter misses count for Phonics Pop
 - [x] 25d. **Spaced review in Fun at the Fair and Tick Tock Clock**: same. Tests that a logged id round-trips → done 2026-11-24: `parseFairId` / `parseClockId` (checked against the level, and the currency for change) + `want` in both generators
-- [ ] 26. Export/import progress (JSON file) as backup
+- [x] 26. Export/import progress (JSON file) as backup → done 2026-11-24: Grown-ups → 💾 Save / restore progress (profiles, answers, track levels; no settings or passcode); restore replaces the children in the file, keeps the others, all or nothing
 - [ ] 27. Avatar pet: spend stars on food/outfits; streak (pauses, never resets)
 - [ ] 28. Early grouping (×) and sharing (÷) with equal groups — CBSE Class 2 "Grouping and Sharing"
 - [ ] 29. Screen-time cap setting enforced with a friendly "bedtime" screen

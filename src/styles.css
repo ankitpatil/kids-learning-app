@@ -843,3 +843,7 @@ body.move-mode .clock-face.small { width: min(12rem, 28vw, 28vh); }
 @keyframes island-wobble { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-0.5rem); } 75% { transform: translateX(0.5rem); } }
 @media (prefers-reduced-motion: reduce) { .island-bloom.b3, .island.wobble { animation: none; } }
 body.move-mode .island { min-width: 12rem; min-height: 9.5rem; }
+.backup-card .test-row { flex-wrap: wrap; }
+.backup-card .link-btn { min-height: 2.75rem; }
+.backup-confirm { display: flex; flex-direction: column; gap: 0.5rem; border-top: 1px solid #0001; padding-top: 0.5rem; }
+.backup-list { margin: 0; padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.25rem; }

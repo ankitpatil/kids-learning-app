@@ -2,6 +2,15 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-24 — Export / import progress (#26)
+- **Where**: Grown-ups → 💾 Save / restore progress (already behind the parent gate). "Save backup file" downloads `little-learners-backup-YYYY-MM-DD.json`; "Restore from file" shows who is in the file (avatar, nickname, stars, answers, whether it replaces a child already here) and needs a second tap on Restore. Nothing goes over the network.
+- **What's in the file**: profiles (nickname, avatar, stars, stickers, placed flags), the attempts log (row ids dropped) and per-track skill states. **Not** included: per-device settings (narration/silent, voice, Move mode, currency) and the Claude proxy URL/passcode — a backup file may be emailed or copied around, and the passcode is a secret; cached Claude stories are not progress.
+- **Restore = replace per child, keep others**: each child in the file replaces that same child (same profile id) on this device — answers and levels are deleted and rewritten, not merged — so restoring twice doesn't double the answers log, which would skew the dashboard and spaced review. Children on the device but not in the file are untouched. The first child on every device has id `default`, so restoring one device's file onto another replaces that device's first child — that's what "restore" should mean; said on the confirm screen ("replaces this child's progress here").
+- **All or nothing**: one Dexie transaction; refused (nothing changed) if it would make more than 6 children. There is no "remove a child" yet, so the message just says it can't be restored here.
+- **Validation**: file must say `app: little-learners`, `kind: progress-backup`, version ≤ 1 (newer → "update the app"); rows with wrong types are dropped, numbers clamped (mastery 0–1, levels ≥ 0), unknown fields dropped, answers/levels for children not in the file dropped. Files > 20 MB refused before reading.
+- After restoring, "Done" reloads the app so the home screen picks up the restored child.
+- Checked headless (preview build): saved a file, restored it, and a wrong JSON file gave "This is not a Little Learners backup file." No console errors.
+
 ## 2026-11-24 — Spaced review in Fun at the Fair and Tick Tock Clock (#25d)
 - **What comes back**: Fair → the same price (and, for change, the same note/coin paid) with a new fair thing and fresh choices; Clock → the same time with fresh look-alike choices. Same limits as #25a–c: ≤ 2 per round, never first/last, not while easing, asked at the level it was missed at, `mix: 'spaced'`, level unchanged, "Remember this one?" only heard with talking on.
 - **Ids are checked against their level** (`parseFairId(id, level, currency)`, `parseClockId(id, level)`): the mode must be that level's mode, the price/minute must be one the level uses. So an eased item (e.g. an o'clock "read" item logged at a "find the clock" level, or an easy ₹2–5 pay item logged at a change level) is not replayed — those were eased on purpose. Such cards are dropped before the round, not served as a random item.
