@@ -4,6 +4,7 @@ import type { Subject } from '../engine/tracks';
 import { resolveNickname, sortProfiles, MAX_PROFILES } from '../engine/profiles';
 import type { Story } from '../content/stories';
 import { dueCards, LOOKBACK_DAYS, type ReviewCard } from '../engine/spacedReview';
+import type { PetState, ShopResult } from '../engine/pet';
 
 export interface Profile {
   id: string;
@@ -17,6 +18,8 @@ export interface Profile {
   stickers?: Record<string, number>;
   /** Last time this child was picked / played (orders the profile picker). */
   lastPlayedAt?: number;
+  /** Avatar pet (#27a): adopted once, fed and dressed with stars (`stars` stays the total earned). */
+  pet?: PetState;
 }
 
 export interface Attempt {
@@ -204,6 +207,33 @@ export function addSticker(profileId: string, stickerId: string, d: AppDB = db):
       const next = apply(memProfile(profileId));
       mem.profiles.set(next.id, next);
       return next;
+    },
+  );
+}
+
+/**
+ * Change a child's pet with a pure step (adopt / feed / buy / wear, engine/pet.ts) that sees the stored
+ * profile. Saved only when the step succeeds; returns the step's result and the profile as it now is.
+ */
+export function updatePet(profileId: string, step: (p: Profile) => ShopResult, d: AppDB = db): Promise<{ result: ShopResult; profile: Profile }> {
+  const run = (p: Profile) => {
+    const result = step(p);
+    return { result, profile: result.ok ? { ...p, pet: result.pet } : p };
+  };
+  return safe(
+    async () => {
+      let out!: { result: ShopResult; profile: Profile };
+      await d.transaction('rw', d.profiles, async () => {
+        const p = (await d.profiles.get(profileId)) ?? (await ensureProfileDb(d));
+        out = run(p);
+        if (out.result.ok) await d.profiles.put(out.profile);
+      });
+      return out;
+    },
+    () => {
+      const out = run(memProfile(profileId));
+      if (out.result.ok) mem.profiles.set(out.profile.id, out.profile);
+      return out;
     },
   );
 }

@@ -2,6 +2,16 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-25 — Avatar pet (#27a)
+- **Split #27**: 27a = the pet (spend stars on food/outfits), 27b = the soft streak. Two separate features; one per run.
+- **Stars earned are never taken away**: `Profile.stars` stays the total earned (backups, dashboard), the pet keeps `spent`, and the wallet is `stars − spent`. Home, the profile picker and the pet screen show the wallet, so the number goes down when the child spends — that's what "spend" means to a kid.
+- **Gentle pet**: 5 hearts; a new pet starts at 3. One heart goes every 8 hours of real time (fed to full in the evening → a bit hungry the next evening). At 0 it is only "hungry" (tilted face + apple bubble, "Can I have a snack?") — it never gets sick, sad, runs away or loses outfits. A full pet won't eat, so stars are never spent for nothing.
+- **Prices**: rounds earn 1–4 stars, so snacks cost 2–6 (≈ one round) and outfits 8–30 (a few rounds). Outfits are bought once, kept forever, and worn per slot (head / eyes / neck, one each); wearing/taking off is free.
+- **Pets**: puppy, kitty, bunny, panda, hamster, dragon (Fluent face icons so outfits sit on the face). Picked once; no pet name to type (no text entry for the child). Can't switch pet yet — if wanted, a grown-up option later.
+- **Where**: the star pill on home is now a 🐾 button (shows the pet's face once adopted), plus 🐾 on the reward screen right after earning. Tap any item or the pet to hear it (`tapSay`); can't afford → "You need N more stars. Play a game to get more!".
+- Backups include the pet (validated: unknown pets/outfits dropped, worn outfit must be owned and in its slot).
+- Checked headless (preview build, phone size): adopt panda → mango → apple refused while full → cap, glasses, tie bought and worn; wallet 40 → 5. No console errors.
+
 ## 2026-11-24 — Export / import progress (#26)
 - **Where**: Grown-ups → 💾 Save / restore progress (already behind the parent gate). "Save backup file" downloads `little-learners-backup-YYYY-MM-DD.json`; "Restore from file" shows who is in the file (avatar, nickname, stars, answers, whether it replaces a child already here) and needs a second tap on Restore. Nothing goes over the network.
 - **What's in the file**: profiles (nickname, avatar, stars, stickers, placed flags), the attempts log (row ids dropped) and per-track skill states. **Not** included: per-device settings (narration/silent, voice, Move mode, currency) and the Claude proxy URL/passcode — a backup file may be emailed or copied around, and the passcode is a secret; cached Claude stories are not progress.

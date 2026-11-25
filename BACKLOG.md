@@ -70,7 +70,8 @@ Reprioritised 2026-11-08 for the actual learner: knows basic words and +/- (≈ 
 - [x] 25c. **Spaced review in Phonics Pop, Word Builder, Story Sums**: same `want` path + `placeSpaced` / `takeCard` wiring as 25b. Tests that a logged id round-trips → done 2026-11-23: `parsePhonicsId` / `parseEndingId` / `parseWordProblemId` + `want` in each generator; Pop the Answer letter misses count for Phonics Pop
 - [x] 25d. **Spaced review in Fun at the Fair and Tick Tock Clock**: same. Tests that a logged id round-trips → done 2026-11-24: `parseFairId` / `parseClockId` (checked against the level, and the currency for change) + `want` in both generators
 - [x] 26. Export/import progress (JSON file) as backup → done 2026-11-24: Grown-ups → 💾 Save / restore progress (profiles, answers, track levels; no settings or passcode); restore replaces the children in the file, keeps the others, all or nothing
-- [ ] 27. Avatar pet: spend stars on food/outfits; streak (pauses, never resets)
+- [x] 27a. **Avatar pet** (#27 split 2026-11-25): spend stars on food/outfits → done 2026-11-25: 🐾 on home (pet face + ⭐ wallet) and on the reward screen → adopt one of 6 pets, feed it (8 snacks, 2–6 ⭐, fill hearts; one heart goes every 8 h, only ever "hungry") and dress it up (10 outfits, 8–30 ⭐, head/eyes/neck, bought once, wear/take off free)
+- [ ] 27b. **Soft streak**: days-played streak that pauses on missed days and never resets (e.g. "🔥 5 play days"), shown on home and the pet screen; tests for the day counting (local dates, timezone/DST safe)
 - [ ] 28. Early grouping (×) and sharing (÷) with equal groups — CBSE Class 2 "Grouping and Sharing"
 - [ ] 29. Screen-time cap setting enforced with a friendly "bedtime" screen
 - [ ] 30. Accessibility pass: reduced motion, contrast, focus states; Lighthouse PWA ≥ 90

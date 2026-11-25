@@ -11,6 +11,7 @@ import { LETTERS } from '../games/phonicsPop/letters';
 import { TOPIC_ICONS } from '../games/stories/aiStory';
 import { variantIconNames } from '../content/pictureVariants';
 import { FAIR_THINGS } from '../content/money';
+import { PET_FOODS, PET_KINDS, PET_OUTFITS } from '../content/pet';
 
 /** Icon names used by each content source (for clear test failures). */
 export function contentIconSources(): Record<string, string[]> {
@@ -27,6 +28,7 @@ export function contentIconSources(): Record<string, string[]> {
     storyTopics: Object.values(TOPIC_ICONS),
     pictureVariants: variantIconNames(),
     fairThings: FAIR_THINGS.map((t) => t.icon),
+    pet: [...PET_KINDS, ...PET_FOODS, ...PET_OUTFITS].map((x) => x.icon),
   };
 }
 

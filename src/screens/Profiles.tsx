@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { AVATARS, MAX_NICKNAME, MAX_PROFILES, avatarName, suggestAvatar } from '../engine/profiles';
 import type { Profile } from '../store/db';
+import { starBalance } from '../engine/pet';
 import { say, tapSay } from '../audio/speech';
 import { Emoji } from '../components/Icon';
 
@@ -34,11 +35,11 @@ export function ProfilePicker({ profiles, currentId, onPick, onNew, onBack }: Pi
               say(`Hi ${p.nickname}!`);
               onPick(p);
             }}
-            aria-label={`${p.nickname}, ${p.stars} stars`}
+            aria-label={`${p.nickname}, ${starBalance(p)} stars`}
           >
             <span className="profile-avatar"><Emoji text={p.avatar} /></span>
             <span className="profile-name">{p.nickname}</span>
-            <span className="profile-stars"><Emoji text="⭐" /> {p.stars}</span>
+            <span className="profile-stars"><Emoji text="⭐" /> {starBalance(p)}</span>
           </button>
         ))}
         {canAdd && (

@@ -3,6 +3,7 @@
 // voice, Move mode) or cached Claude stories.
 import type { SkillState } from '../engine/adaptive';
 import { MAX_PROFILES } from '../engine/profiles';
+import { cleanPet } from '../engine/pet';
 import { db, type AppDB, type Attempt, type Profile } from './db';
 
 export const BACKUP_APP = 'little-learners';
@@ -63,6 +64,8 @@ function cleanProfile(v: unknown): Profile | null {
     p.stickers = st;
   }
   if (isNum(v.lastPlayedAt)) p.lastPlayedAt = v.lastPlayedAt;
+  const pet = cleanPet(v.pet);
+  if (pet) p.pet = pet;
   return p;
 }
 

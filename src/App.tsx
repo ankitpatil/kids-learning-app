@@ -18,6 +18,9 @@ import { WORD_TRACKS, type WordTrack } from './games/wordDetective/generator';
 import { listProfiles, createProfile, touchProfile, addStars, addSticker, requestPersistence, setTrackLevels, setPlaced, getSkillStates, getSkillState, type Profile } from './store/db';
 import { LevelSelect } from './screens/LevelSelect';
 import { StickerVault } from './screens/StickerVault';
+import { PetHome } from './screens/PetHome';
+import { starBalance } from './engine/pet';
+import { PET_KIND_BY_ID } from './content/pet';
 import { VoicePicker } from './screens/VoicePicker';
 import { ParentGate } from './screens/ParentGate';
 import { Settings } from './screens/Settings';
@@ -47,6 +50,7 @@ type Screen =
   | { name: 'map'; subject: Subject }
   | { name: 'tv' }
   | { name: 'vault'; from?: Screen }
+  | { name: 'pet'; from?: Screen }
   | { name: 'startpoint'; subject: Subject }
   | { name: 'placement'; subject: Subject }
   | { name: 'profiles' }
@@ -213,6 +217,11 @@ export default function App() {
     return <StickerVault owned={profile.stickers ?? {}} onBack={() => setScreen(from ?? { name: 'home' })} />;
   }
 
+  if (screen.name === 'pet') {
+    const from = screen.from;
+    return <PetHome profile={profile} onChange={setProfile} onBack={() => setScreen(from ?? { name: 'home' })} />;
+  }
+
   if (screen.name === 'startpoint') {
     const subject = screen.subject;
     return (
@@ -300,6 +309,7 @@ export default function App() {
           <button className="btn secondary" onClick={() => (screen.game === 'dino' ? setScreen({ name: 'tv' }) : toLevels(SUBJECT_OF(screen.game)))} aria-label={screen.game === 'dino' ? 'TV games' : 'Pick a level'}><Emoji text="⬅️" /></button>
           <button className="btn primary huge" onClick={() => (screen.game === 'dino' ? setScreen({ name: 'dino' }) : screen.pop ? startPop(SUBJECT_OF(screen.game)) : launch(SUBJECT_OF(screen.game)))} aria-label="Play again"><Emoji text="▶️" /></button>
           <button className="btn secondary" onClick={() => setScreen({ name: 'vault', from: screen })} aria-label="Sticker book"><Emoji text="📒" /></button>
+          <button className="btn secondary" onClick={() => setScreen({ name: 'pet', from: screen })} aria-label="My pet"><Emoji text="🐾" /></button>
         </div>
       </div>
     );
@@ -312,7 +322,9 @@ export default function App() {
           <span className="avatar"><Emoji text={profile.avatar} /></span>
           <span className="avatar-name">{profile.nickname}</span>
         </button>
-        <div className="stars" aria-label={`${profile.stars} stars`}><Emoji text="⭐" /> {profile.stars}</div>
+        <button className="stars pet-btn" onClick={() => setScreen({ name: 'pet' })} aria-label={`My pet. ${starBalance(profile)} stars to spend`}>
+          {profile.pet && PET_KIND_BY_ID.has(profile.pet.kind) ? <Icon name={PET_KIND_BY_ID.get(profile.pet.kind)!.icon} /> : <Emoji text="🐾" />} <Emoji text="⭐" /> {starBalance(profile)}
+        </button>
         <button className="icon-btn" onClick={() => setScreen({ name: 'vault' })} aria-label="Sticker book"><Emoji text="📒" /></button>
         <MoveModeToggle />
         <button
