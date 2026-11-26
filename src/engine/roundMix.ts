@@ -40,6 +40,7 @@ const GAME_OF: Record<string, string> = {
   wordProblems: 'storySums',
   money: 'fair',
   time: 'clock',
+  grouping: 'groups',
 };
 
 /** Playable tracks played by the same game as `trackId`, in curriculum order. */

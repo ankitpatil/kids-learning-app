@@ -9,6 +9,7 @@ import { StoryChoose } from './games/stories/StoryChoose';
 import { StorySums } from './games/wordProblems/StorySums';
 import { FunFair } from './games/fair/FunFair';
 import { ClockGame } from './games/clock/ClockGame';
+import { SnackParty } from './games/groups/SnackParty';
 import { PopTheAnswer } from './games/popAnswer/PopTheAnswer';
 import { DinoMaze } from './games/dinoMaze/DinoMaze';
 import { TvGames } from './screens/TvGames';
@@ -41,7 +42,7 @@ import { say, isNarrationOn, setNarration, stopSpeech, tapSay } from './audio/sp
 import { MoveModeToggle } from './components/MotionLayer';
 import { Emoji, Icon } from './components/Icon';
 
-type Game = 'count' | 'missing' | 'placeValue' | 'compare2d' | HopTrack | 'phonics' | WordTrack | 'sightWords' | 'endings' | 'stories' | 'wordProblems' | 'money' | 'time' | 'dino';
+type Game = 'count' | 'missing' | 'placeValue' | 'compare2d' | HopTrack | 'phonics' | WordTrack | 'sightWords' | 'endings' | 'stories' | 'wordProblems' | 'money' | 'time' | 'grouping' | 'dino';
 type Screen =
   | { name: 'home' }
   | { name: Game }
@@ -61,7 +62,7 @@ type Screen =
   | { name: 'settings' }
   | { name: 'dashboard' };
 
-const SUBJECT_OF = (g: Game): Subject => (g === 'count' || g === 'missing' || g === 'placeValue' || g === 'compare2d' || g === 'wordProblems' || g === 'money' || g === 'time' || isHopTrack(g) ? 'math' : 'reading');
+const SUBJECT_OF = (g: Game): Subject => (g === 'count' || g === 'missing' || g === 'placeValue' || g === 'compare2d' || g === 'wordProblems' || g === 'money' || g === 'time' || g === 'grouping' || isHopTrack(g) ? 'math' : 'reading');
 const isWordTrack = (g: string): g is WordTrack => (WORD_TRACKS as readonly string[]).includes(g);
 
 export default function App() {
@@ -137,7 +138,7 @@ export default function App() {
 
   async function launch(subject: Subject) {
     const game = pickTrack(subject, await getSkillStates(profile!.id)) as Game;
-    say(game === 'phonics' ? 'Phonics pop!' : game === 'sightWords' ? 'Sight word catch!' : game === 'endings' ? 'Word builder!' : game === 'stories' ? 'Story time!' : game === 'wordProblems' ? 'Story sums!' : game === 'money' ? 'Fun at the fair!' : game === 'time' ? 'Tick tock clock!' : isWordTrack(game) ? 'Word detective!' : isHopTrack(game) ? 'Number line hop!' : 'Feed the monster!');
+    say(game === 'phonics' ? 'Phonics pop!' : game === 'sightWords' ? 'Sight word catch!' : game === 'endings' ? 'Word builder!' : game === 'stories' ? 'Story time!' : game === 'wordProblems' ? 'Story sums!' : game === 'money' ? 'Fun at the fair!' : game === 'time' ? 'Tick tock clock!' : game === 'grouping' ? 'Snack party!' : isWordTrack(game) ? 'Word detective!' : isHopTrack(game) ? 'Number line hop!' : 'Feed the monster!');
     setScreen({ name: game });
   }
 
@@ -274,6 +275,10 @@ export default function App() {
 
   if (screen.name === 'wordProblems') {
     return <StorySums profileId={profile.id} onDone={(r) => finishRound('wordProblems', r)} onExit={() => toLevels('math')} />;
+  }
+
+  if (screen.name === 'grouping') {
+    return <SnackParty profileId={profile.id} onDone={(r) => finishRound('grouping', r)} onExit={() => toLevels('math')} />;
   }
 
   if (screen.name === 'time') {

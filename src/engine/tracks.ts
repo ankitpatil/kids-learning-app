@@ -96,7 +96,17 @@ export const TRACKS: TrackDef[] = [
       L('5 minutes', 12, 'pictorial', 'near', false),
     ],
   },
-  { id: 'grouping', subject: 'math', name: 'Groups', icon: 'basket', playable: false, levels: [L('equal groups', 20, 'concrete', 'far', true)] },
+  {
+    // #28 Snack Party. range = biggest total. Levels match GROUP_RULES in games/groups/generator.
+    id: 'grouping', subject: 'math', name: 'Groups', icon: 'basket', playable: true,
+    levels: [
+      L('equal groups, count them', 12, 'concrete', 'far', true),
+      L('share equally', 12, 'concrete', 'far', true),
+      L('groups of 2, 5, 10', 20, 'pictorial', 'near', false),
+      L('share, or how many plates, to 20', 20, 'pictorial', 'near', false),
+      L('groups of, numbers only', 20, 'abstract', 'near', false),
+    ],
+  },
 
   // ---------- Reading ----------
   {
@@ -152,7 +162,7 @@ export const LEVEL_AGES: Record<string, AgeBand[]> = {
   wordProblems: ['a45', 'a56', 'a56'],
   money: ['a56', 'a56', 'a56', 'a56', 'a56'], // money is CBSE Class 1–2 / US Grade 1–2
   time: ['a56', 'a56', 'a56', 'a56', 'a56', 'a56'], // hour / half hour = CBSE Class 1–2, US Grade 1; 5 minutes = Grade 2
-  grouping: ['a56'],
+  grouping: ['a56', 'a56', 'a56', 'a56', 'a56'], // CBSE Class 2 "Grouping and Sharing", US Grade 2 (2.OA.3–4)
   phonics: ['a34', 'a34', 'a45', 'a45', 'a45', 'a56', 'a56'], // s a t p, + i n | … | rare letters, look-alikes
   cvc: ['a45', 'a56'],
   digraphs: ['a56', 'a56'],

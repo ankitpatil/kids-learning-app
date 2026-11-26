@@ -72,7 +72,7 @@ Reprioritised 2026-11-08 for the actual learner: knows basic words and +/- (≈ 
 - [x] 26. Export/import progress (JSON file) as backup → done 2026-11-24: Grown-ups → 💾 Save / restore progress (profiles, answers, track levels; no settings or passcode); restore replaces the children in the file, keeps the others, all or nothing
 - [x] 27a. **Avatar pet** (#27 split 2026-11-25): spend stars on food/outfits → done 2026-11-25: 🐾 on home (pet face + ⭐ wallet) and on the reward screen → adopt one of 6 pets, feed it (8 snacks, 2–6 ⭐, fill hearts; one heart goes every 8 h, only ever "hungry") and dress it up (10 outfits, 8–30 ⭐, head/eyes/neck, bought once, wear/take off free)
 - [x] 27b. **Soft streak**: days-played streak that pauses on missed days and never resets (e.g. "🔥 5 play days"), shown on home and the pet screen; tests for the day counting (local dates, timezone/DST safe) → done 2026-11-25: 🔥 badge under the title on home and top-right on the pet screen, counted from the answers log (distinct local days)
-- [ ] 28. Early grouping (×) and sharing (÷) with equal groups — CBSE Class 2 "Grouping and Sharing"
+- [x] 28. Early grouping (×) and sharing (÷) with equal groups — CBSE Class 2 "Grouping and Sharing" → done 2026-11-26: 🧺 Snack Party (Groups track, 5 levels: equal groups → share equally → groups of 2, 5, 10 → share / how many plates to 20 → "4 groups of 3" as 3 + 3 + 3 + 3)
 - [ ] 29. Screen-time cap setting enforced with a friendly "bedtime" screen
 - [ ] 30. Accessibility pass: reduced motion, contrast, focus states; Lighthouse PWA ≥ 90
 - [ ] 31. Audio: write up options for recorded phonics/word audio vs TTS (do not buy anything) → move decision to "Needs Ankit"

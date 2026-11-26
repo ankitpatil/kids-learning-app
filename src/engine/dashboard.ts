@@ -131,7 +131,7 @@ const WRAPPERS = ['dino-', 'pop-'];
 /** Item kinds whose id is `<kind>-<what was asked>`. */
 const KINDS: Record<string, string> = {
   read: 'read', build: 'spell', magic: 'read', sentence: 'sentence', phonics: 'sound', sight: 'word',
-  count: 'count', missing: 'missing', pv: 'number', cmp: 'compare', time: 'clock', money: 'money',
+  count: 'count', missing: 'missing', pv: 'number', cmp: 'compare', time: 'clock', money: 'money', group: 'groups',
   ending: 'ending', wp: 'story sum', story: 'story question',
 };
 
@@ -159,6 +159,15 @@ export function itemLabel(itemId: string): string {
     if (c) return `${c[1]} vs ${c[2]}`;
   }
   if (kind === 'pv' || kind === 'count') return rest;
+  if (kind === 'group') {
+    const g = /^(all|each|plates|sum)-(\d+)x(\d+)$/.exec(rest);
+    if (g) {
+      const [groups, size] = [Number(g[2]), Number(g[3])];
+      if (g[1] === 'each') return `share ${groups * size} by ${groups}`;
+      if (g[1] === 'plates') return `${groups * size} in ${size}s`;
+      return `${groups} groups of ${size}`;
+    }
+  }
   if (kind === 'money') return rest.replace(/^pay-/, 'pay ').replace(/^change-(\d+)-(\d+)$/, 'change: $2 from $1');
   if (kind === 'story') return rest.replace(/-q(\d+)$/, ' (question $1)').replace(/-/g, ' ');
   if (kind in KINDS) return rest.replace(/-/g, ' ');

@@ -2,6 +2,16 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-26 — Snack Party: grouping and sharing (#28)
+- **One game, both operations**: 🧺 Snack Party plays the existing `grouping` track (now playable). Four kinds of item: *all* (3 plates, 4 on each → how many in all?), *each* (share 12 with 3 friends → how many each?), *plates* (12, 3 on each plate → how many plates?) and *sum* ("4 groups of 3", 3 + 3 + 3 + 3 = ?). No × or ÷ signs: CBSE Class 2 and US Grade 2 (2.OA.3–4) teach this as equal groups and repeated addition; the signs come in Class 3 / Grade 3.
+- **5 levels, × and ÷ interleaved** (all Ages 5–6): equal groups to 12 with "3 on each" badges (concrete) → share equally to 12, pile laid out in rows of one-each (concrete) → groups of 2, 5, 10 to 20 (skip counting, look-alike choices) → share or how many plates to 20 → numbers only (repeated addition). Sharing restarts at small numbers in concrete form, so it sits at level 2 rather than after the bigger groups (keeps the "math levels never get easier" check true).
+- **Look-alike choices are the real slips**: one group more/less, adding instead (3 plates of 4 → 7), off by one, and for sharing the other number (12 with 3 friends → 3, not 4).
+- **Help after a miss never shows the answer**: running counts under the plates ("4, 8, ?"), the pile dealt onto the friends' plates (child counts one plate), the pile put into plates of the size (child counts plates); spoken hint names the strategy ("Count by fours…", "Give one to each friend…"). The size isn't said when it equals the answer (9 in 3s). After a right answer the full worked picture shows.
+- **After two misses** (engine ease): two small plates of the same kind (sums become plates).
+- Spaced review wired the same way as the other games (`parseGroupId` checks the kind and numbers fit the level); dashboard labels "3 groups of 4", "share 12 by 3", "12 in 4s". No Claude "Why?" helper here yet (canned hints only) and not in Pop the Answer / Dinosaur Maze — could be added later.
+- Snacks (cookie, apple, mango, momo…) and friends' faces use already-bundled Fluent icons; plates are drawn in CSS (no plate icon).
+- Checked headless (preview build, tablet + phone sizes): levels 1–4 render; a miss fades the choice and shows "3, ?" counts / dealt plates. No console errors.
+
 ## 2026-11-25 — Soft streak (#27b)
 - **"Streak" = number of days played, ever**: a missed day adds nothing and takes nothing away, so the count only goes up ("🔥 5 play days"). No "days in a row", no flame that goes out, no "you missed a day" — a pause is never shown or said as a loss. Tap it: "You played on 5 days! You played today. Yay!" or "… Play a game to add today!" (`tapSay`).
 - **Counted from the answers log, not stored**: `playStreak` = distinct local calendar days with at least one answer for that child. No new table or field, so it's right for old progress, survives backups/restores automatically, and can't drift out of sync. Answers from any game count (incl. Pop the Answer / Dinosaur Maze); opening the app or the pet shop without answering doesn't.

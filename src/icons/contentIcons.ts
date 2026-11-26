@@ -12,6 +12,7 @@ import { TOPIC_ICONS } from '../games/stories/aiStory';
 import { variantIconNames } from '../content/pictureVariants';
 import { FAIR_THINGS } from '../content/money';
 import { PET_FOODS, PET_KINDS, PET_OUTFITS } from '../content/pet';
+import { GROUP_SNACKS, GROUP_FRIENDS } from '../content/groups';
 
 /** Icon names used by each content source (for clear test failures). */
 export function contentIconSources(): Record<string, string[]> {
@@ -29,6 +30,7 @@ export function contentIconSources(): Record<string, string[]> {
     pictureVariants: variantIconNames(),
     fairThings: FAIR_THINGS.map((t) => t.icon),
     pet: [...PET_KINDS, ...PET_FOODS, ...PET_OUTFITS].map((x) => x.icon),
+    groups: [...GROUP_SNACKS.map((s) => s.icon), ...GROUP_FRIENDS],
   };
 }
 

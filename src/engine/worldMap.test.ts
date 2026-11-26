@@ -43,7 +43,6 @@ describe('world map prerequisites', () => {
   it('only playable tracks get islands, in curriculum order', () => {
     const ids = worldMap('math', {}).map((i) => i.trackId);
     expect(ids).toEqual(tracksFor('math').filter((t) => t.playable).map((t) => t.id));
-    expect(ids).not.toContain('grouping');
   });
 });
 

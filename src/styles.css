@@ -600,6 +600,30 @@ body.move-mode .money-btn { min-width: 6rem; min-height: 6rem; }
 body.move-mode .clock-choices { gap: 2rem; }
 body.move-mode .clock-face.small { width: min(12rem, 28vw, 28vh); }
 
+/* #28 Snack Party (grouping) */
+.groups-game { gap: 0.875rem; }
+.group-caption { border: none; background: #fff; border-radius: 1.5rem; padding: 0.5rem 1.25rem; font-size: clamp(1.5rem, 5vw, 2.25rem); font-weight: 900; color: var(--ink); box-shadow: 0 0.375rem 0 #0002; cursor: pointer; }
+.group-caption.oops, .group-scene.oops { animation: wobble .4s; }
+.group-scene { display: flex; flex-direction: column; align-items: center; gap: 1rem; width: min(56rem, 96vw); }
+.g-plates { display: flex; flex-wrap: wrap; gap: 0.875rem; justify-content: center; }
+.g-plate-wrap { display: flex; flex-direction: column; align-items: center; gap: 0.25rem; }
+.g-friend { font-size: 2.75rem; line-height: 1; }
+.g-plate { position: relative; width: 8.5rem; min-height: 8.5rem; padding: 0.75rem; box-sizing: border-box; border-radius: 50%; background: #fff; border: 0.375rem solid #dfe6e9; box-shadow: 0 0.25rem 0 #0001; display: flex; flex-wrap: wrap; align-content: center; justify-content: center; gap: 0.125rem; }
+.g-plate.ten { width: 10rem; min-height: 10rem; }
+.g-plate.ten .g-snack { font-size: 1.5rem; }
+.g-snack { font-size: 2.5rem; line-height: 1; }
+.g-plate.five .g-snack { font-size: 1.875rem; }
+.g-badge { position: absolute; top: -0.5rem; right: -0.5rem; min-width: 2.25rem; height: 2.25rem; border-radius: 1.125rem; background: var(--primary); color: #fff; font-weight: 900; font-size: 1.25rem; display: grid; place-items: center; }
+.g-count { min-width: 2.75rem; height: 2.75rem; border-radius: 0.75rem; background: var(--soft); display: grid; place-items: center; font-weight: 900; font-size: 1.375rem; color: var(--ink); }
+.g-pile { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.25rem; max-width: min(36rem, 92vw); padding: 0.75rem 1rem; background: #fff8; border-radius: 1.5rem; }
+.g-pile.rows { display: grid; gap: 0.25rem 1rem; }
+.g-pile .g-snack { font-size: 2.25rem; }
+.g-sum { display: flex; flex-direction: column; align-items: center; gap: 0.875rem; }
+.g-equation { background: #fff; border-radius: 1.5rem; padding: 0.75rem 1.5rem; font-size: clamp(2.25rem, 8vw, 3.75rem); font-weight: 900; color: var(--primary); box-shadow: 0 0.375rem 0 #0002; font-variant-numeric: tabular-nums; }
+.groups-choices { grid-template-columns: repeat(3, minmax(6rem, 10rem)); justify-content: center; }
+@media (max-width: 30rem) { .g-plate { width: 6.5rem; min-height: 6.5rem; padding: 0.375rem; } .g-plate.ten { width: 8rem; min-height: 8rem; }   .g-snack, .g-plate.five .g-snack { font-size: 1.5rem; } .g-plate.ten .g-snack { font-size: 1.125rem; } }
+body.move-mode .groups-choices { gap: 2.5rem; }
+
 /* ---------- TV games ---------- */
 .subject.tv { background: #6c5ce7; }
 .tv-games { gap: 1rem; }
