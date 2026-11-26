@@ -2,6 +2,13 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-25 — Soft streak (#27b)
+- **"Streak" = number of days played, ever**: a missed day adds nothing and takes nothing away, so the count only goes up ("🔥 5 play days"). No "days in a row", no flame that goes out, no "you missed a day" — a pause is never shown or said as a loss. Tap it: "You played on 5 days! You played today. Yay!" or "… Play a game to add today!" (`tapSay`).
+- **Counted from the answers log, not stored**: `playStreak` = distinct local calendar days with at least one answer for that child. No new table or field, so it's right for old progress, survives backups/restores automatically, and can't drift out of sync. Answers from any game count (incl. Pop the Answer / Dinosaur Maze); opening the app or the pet shop without answering doesn't.
+- **Local days**: reuses `localDay` from spaced review (UTC day number of the local Y/M/D), so 11:59 pm and 12:01 am are two days and the 23 h / 25 h DST days are one day each; tested in America/Los_Angeles (both US DST switches) and Asia/Kolkata. Times in the future (clock set wrong) are ignored. Travelling across time zones can at most merge/split one day — acceptable.
+- **Where**: home, a pill under the title (full "🔥 N play days"; hidden until the first play day so a brand-new child doesn't see "0"); pet screen, compact "🔥 N" in the top-right spot that was an empty spacer. Lighter orange when played today. Not put in the home top bar: it already overflows on a 390 px phone (the talk toggle is cut off at the right edge — pre-existing, worth fixing in the accessibility pass #30).
+- Checked headless (preview build, phone size): seeded answers on 4 different days (two on one day) → "4 play days" on home, "4" on the pet screen. No console errors.
+
 ## 2026-11-25 — Avatar pet (#27a)
 - **Split #27**: 27a = the pet (spend stars on food/outfits), 27b = the soft streak. Two separate features; one per run.
 - **Stars earned are never taken away**: `Profile.stars` stays the total earned (backups, dashboard), the pet keeps `spent`, and the wallet is `stars − spent`. Home, the profile picker and the pet screen show the wallet, so the number goes down when the child spends — that's what "spend" means to a kid.

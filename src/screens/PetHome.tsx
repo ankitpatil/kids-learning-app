@@ -5,6 +5,7 @@ import { updatePet, type Profile } from '../store/db';
 import { say, tapSay } from '../audio/speech';
 import { playSparkle } from '../audio/sfx';
 import { Emoji, Icon } from '../components/Icon';
+import { StreakBadge } from '../components/StreakBadge';
 
 interface Props {
   profile: Profile;
@@ -96,7 +97,7 @@ export function PetHome({ profile, onChange, onBack }: Props) {
         <button className="stars" onClick={() => tapSay(`You have ${wallet} ${wallet === 1 ? 'star' : 'stars'} to spend!`)} aria-label={`${wallet} stars to spend`}>
           <Emoji text="⭐" /> {wallet}
         </button>
-        <span style={{ width: 64 }} />
+        <StreakBadge profileId={profile.id} compact />
       </div>
 
       {!pet || !kind ? (

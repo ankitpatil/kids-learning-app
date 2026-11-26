@@ -19,6 +19,7 @@ import { listProfiles, createProfile, touchProfile, addStars, addSticker, reques
 import { LevelSelect } from './screens/LevelSelect';
 import { StickerVault } from './screens/StickerVault';
 import { PetHome } from './screens/PetHome';
+import { StreakBadge } from './components/StreakBadge';
 import { starBalance } from './engine/pet';
 import { PET_KIND_BY_ID } from './content/pet';
 import { VoicePicker } from './screens/VoicePicker';
@@ -341,6 +342,7 @@ export default function App() {
         </button>
       </div>
       <h1 className="title" onClick={() => tapSay('Pick a game!')}>Little Learners</h1>
+      <StreakBadge profileId={profile.id} refreshKey={profile.stars} />
       <div className="subjects">
         <button
           className="subject math"

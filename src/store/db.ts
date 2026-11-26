@@ -5,6 +5,7 @@ import { resolveNickname, sortProfiles, MAX_PROFILES } from '../engine/profiles'
 import type { Story } from '../content/stories';
 import { dueCards, LOOKBACK_DAYS, type ReviewCard } from '../engine/spacedReview';
 import type { PetState, ShopResult } from '../engine/pet';
+import { streakFrom, type Streak } from '../engine/streak';
 
 export interface Profile {
   id: string;
@@ -118,6 +119,18 @@ export function listAttempts(profileId: string, since = 0, d: AppDB = db): Promi
   return safe(
     async () => (await d.attempts.where('profileId').equals(profileId).filter((a) => a.at >= since).toArray()).sort((a, b) => a.at - b.at),
     () => [],
+  );
+}
+
+/** Soft streak (#27b): one child's distinct local play days, from the answers log. Empty when storage fails. */
+export function playStreak(profileId: string, now = Date.now(), d: AppDB = db): Promise<Streak> {
+  return safe(
+    async () => {
+      const times: number[] = [];
+      await d.attempts.where('profileId').equals(profileId).each((a) => void times.push(a.at));
+      return streakFrom(times, now);
+    },
+    () => streakFrom([], now),
   );
 }
 
