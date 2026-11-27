@@ -1,6 +1,6 @@
 import 'fake-indexeddb/auto';
 import { describe, it, expect } from 'vitest';
-import { AppDB, ensureProfile, getSkillState, saveSkillState, logAttempt, addStars } from './db';
+import { AppDB, ensureProfile, getSkillState, saveSkillState, logAttempt, addStars, minutesPlayedToday } from './db';
 
 describe('db', () => {
   it('creates a default profile once', async () => {
@@ -98,5 +98,17 @@ describe('multiple profiles', () => {
     for (let i = 0; i < MAX_PROFILES; i++) await createProfile(`Kid ${i}`, '🦊', d);
     await expect(createProfile('One more', '🦊', d)).rejects.toThrow();
     expect(await d.profiles.count()).toBe(MAX_PROFILES);
+  });
+
+  it('counts one child\'s play minutes today only (#29)', async () => {
+    const d = new AppDB('t-screen-time');
+    const now = new Date(2026, 10, 26, 18, 0).getTime();
+    const a = (profileId: string, at: number) => logAttempt({ profileId, skillId: 'count', itemId: 'count-3', level: 0, correct: true, hintUsed: false, timeMs: 6000, at }, d);
+    await a('kid', now - 24 * 60 * 60 * 1000); // yesterday
+    for (let i = 0; i < 4; i++) await a('kid', now - 10 * 60_000 + i * 60_000); // 6 s + 3 × 1 min
+    await a('other', now - 5 * 60_000);
+    expect(await minutesPlayedToday('kid', now, d)).toBeCloseTo(3.1, 5);
+    expect(await minutesPlayedToday('other', now, d)).toBeCloseTo(0.1, 5);
+    expect(await minutesPlayedToday('nobody', now, d)).toBe(0);
   });
 });

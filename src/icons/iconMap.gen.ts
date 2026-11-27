@@ -2,6 +2,7 @@
 // Emoji (without U+FE0F) -> Fluent Emoji Flat icon name; the SVG is public/icons/<name>.svg.
 export const EMOJI_ICON: Record<string, string> = {
   "↩": "right-arrow-curving-left",
+  "⏰": "alarm-clock",
   "⏱": "stopwatch",
   "▶": "play-button",
   "⚖": "balance-scale",
@@ -24,6 +25,7 @@ export const EMOJI_ICON: Record<string, string> = {
   "⭐": "star",
   "🌊": "water-wave",
   "🌋": "volcano",
+  "🌙": "crescent-moon",
   "🌟": "glowing-star",
   "🌱": "seedling",
   "🌴": "palm-tree",
@@ -89,6 +91,7 @@ export const EMOJI_ICON: Record<string, string> = {
   "😋": "face-savoring-food",
   "😌": "relieved-face",
   "😮": "face-with-open-mouth",
+  "😴": "sleeping-face",
   "🙋": "person-raising-hand",
   "🙌": "raising-hands",
   "🚪": "door",

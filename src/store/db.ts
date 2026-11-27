@@ -6,6 +6,8 @@ import type { Story } from '../content/stories';
 import { dueCards, LOOKBACK_DAYS, type ReviewCard } from '../engine/spacedReview';
 import type { PetState, ShopResult } from '../engine/pet';
 import { streakFrom, type Streak } from '../engine/streak';
+import { minutesToday } from '../engine/screenTime';
+import { dayStart } from '../engine/dashboard';
 
 export interface Profile {
   id: string;
@@ -132,6 +134,11 @@ export function playStreak(profileId: string, now = Date.now(), d: AppDB = db): 
     },
     () => streakFrom([], now),
   );
+}
+
+/** Screen-time cap (#29): one child's active play minutes today (local day). 0 when storage fails. */
+export async function minutesPlayedToday(profileId: string, now = Date.now(), d: AppDB = db): Promise<number> {
+  return minutesToday(await listAttempts(profileId, dayStart(now), d), now);
 }
 
 /** Missed words/facts due for their 1/3/7-day review in these tracks (#25). Empty when storage fails. */

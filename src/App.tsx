@@ -16,7 +16,7 @@ import { TvGames } from './screens/TvGames';
 import { pickPopTrack, type PopTrack } from './games/popAnswer/generator';
 import { isHopTrack, type HopTrack } from './games/numberLine/generator';
 import { WORD_TRACKS, type WordTrack } from './games/wordDetective/generator';
-import { listProfiles, createProfile, touchProfile, addStars, addSticker, requestPersistence, setTrackLevels, setPlaced, getSkillStates, getSkillState, type Profile } from './store/db';
+import { minutesPlayedToday, listProfiles, createProfile, touchProfile, addStars, addSticker, requestPersistence, setTrackLevels, setPlaced, getSkillStates, getSkillState, type Profile } from './store/db';
 import { LevelSelect } from './screens/LevelSelect';
 import { StickerVault } from './screens/StickerVault';
 import { PetHome } from './screens/PetHome';
@@ -41,6 +41,8 @@ import type { Subject } from './engine/tracks';
 import { say, isNarrationOn, setNarration, stopSpeech, tapSay } from './audio/speech';
 import { MoveModeToggle } from './components/MotionLayer';
 import { Emoji, Icon } from './components/Icon';
+import { Bedtime } from './screens/Bedtime';
+import { loadScreenTime, timeState, SCREEN_TIME_EVENT, type TimeState } from './engine/screenTime';
 
 type Game = 'count' | 'missing' | 'placeValue' | 'compare2d' | HopTrack | 'phonics' | WordTrack | 'sightWords' | 'endings' | 'stories' | 'wordProblems' | 'money' | 'time' | 'grouping' | 'dino';
 type Screen =
@@ -63,6 +65,10 @@ type Screen =
   | { name: 'dashboard' };
 
 const SUBJECT_OF = (g: Game): Subject => (g === 'count' || g === 'missing' || g === 'placeValue' || g === 'compare2d' || g === 'wordProblems' || g === 'money' || g === 'time' || g === 'grouping' || isHopTrack(g) ? 'math' : 'reading');
+/** Screens a grown-up or another child still needs when time is up; everything else shows the bedtime screen. */
+const OPEN_WHEN_UP = new Set<Screen['name']>(['profiles', 'newProfile', 'gate', 'settings', 'voice', 'dashboard', 'reward']);
+/** Screens where the time check runs. Games are not on it, so a round in progress is never cut off. */
+const CHECK_ON = new Set<Screen['name']>(['home', 'levels', 'map', 'tv', 'reward', 'vault', 'pet', 'startpoint', 'profiles', 'settings']);
 const isWordTrack = (g: string): g is WordTrack => (WORD_TRACKS as readonly string[]).includes(g);
 
 export default function App() {
@@ -75,6 +81,28 @@ export default function App() {
     if (screen.name !== 'reward') window.clearTimeout(praiseTimer.current);
   }, [screen.name]);
   const [narrating, setNarrating] = useState(isNarrationOn());
+  const [time, setTime] = useState<TimeState>({ state: 'off' });
+
+  // Screen-time cap (#29): re-check on every non-game screen, each minute there, and when a grown-up changes it.
+  const checking = CHECK_ON.has(screen.name);
+  const profileId = profile?.id;
+  useEffect(() => {
+    if (!checking || !profileId) return;
+    let live = true;
+    const check = async () => {
+      const s = loadScreenTime();
+      const played = s.dailyMinutes ? await minutesPlayedToday(profileId) : 0;
+      if (live) setTime(timeState(s, played, Date.now()));
+    };
+    check();
+    const id = window.setInterval(check, 60_000);
+    window.addEventListener(SCREEN_TIME_EVENT, check);
+    return () => {
+      live = false;
+      window.clearInterval(id);
+      window.removeEventListener(SCREEN_TIME_EVENT, check);
+    };
+  }, [checking, profileId, screen]);
 
   useEffect(() => {
     listProfiles().then((list) => {
@@ -88,6 +116,7 @@ export default function App() {
 
   function choose(p: Profile) {
     stopSpeech();
+    if (p.id !== profile?.id) setTime({ state: 'off' }); // re-checked for this child on the home screen
     setProfile(p);
     touchProfile(p.id);
     setScreen({ name: 'home' });
@@ -120,6 +149,15 @@ export default function App() {
   }
 
   if (!profile) return <div className="screen center">…</div>;
+
+  if (time.state === 'up' && !OPEN_WHEN_UP.has(screen.name)) {
+    return <Bedtime profile={profile} reason={time.reason} onProfiles={openProfiles} onGrownUps={() => setScreen({ name: 'gate' })} />;
+  }
+  const almost = time.state === 'soon' ? (
+    <button className="time-left" onClick={() => tapSay(`Almost time to rest. | ${time.minutesLeft === 1 ? 'One more minute' : `${time.minutesLeft} more minutes`}!`)} aria-label={`${time.minutesLeft} minutes left today`}>
+      <Emoji text="🌙" /> {time.minutesLeft} min
+    </button>
+  ) : null;
 
   async function finishRound(game: Game, r: { correct: number; total: number; leveledUp: boolean }, pop = false) {
     const stars = Math.max(1, Math.round((r.correct / r.total) * 3)) + (r.leveledUp ? 1 : 0);
@@ -207,7 +245,7 @@ export default function App() {
   }
 
   if (screen.name === 'settings') {
-    return <Settings onBack={() => setScreen({ name: 'home' })} onVoice={() => setScreen({ name: 'voice' })} onProgress={() => setScreen({ name: 'dashboard' })} />;
+    return <Settings onBack={() => setScreen({ name: 'home' })} onVoice={() => setScreen({ name: 'voice' })} onProgress={() => setScreen({ name: 'dashboard' })} child={profile} />;
   }
 
   if (screen.name === 'dashboard') {
@@ -305,6 +343,7 @@ export default function App() {
     return (
       <div className="screen center reward">
         <Confetti />
+        {almost}
         <div className="burst"><Emoji text={'⭐'.repeat(screen.stars)} /></div>
         {screen.leveledUp && <div className="unlock"><Emoji text="🔓" /></div>}
         <button className={`sticker-reveal ${screen.sticker.rarity}`} onClick={() => setScreen({ name: 'vault', from: screen })} aria-label={`New sticker: ${screen.sticker.name}. Open sticker book`}>
@@ -348,6 +387,7 @@ export default function App() {
       </div>
       <h1 className="title" onClick={() => tapSay('Pick a game!')}>Little Learners</h1>
       <StreakBadge profileId={profile.id} refreshKey={profile.stars} />
+      {almost}
       <div className="subjects">
         <button
           className="subject math"

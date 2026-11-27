@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { clearAiStories, listAiStories } from '../store/db';
+import { clearAiStories, listAiStories, type Profile } from '../store/db';
 import { loadAiSettings, normalizeProxyUrl, saveAiSettings, type AiSettings } from '../ai/settings';
 import { createProxyProvider } from '../ai/client';
 import { ai } from '../ai/app';
@@ -7,6 +7,7 @@ import { loadMotionSettings, saveMotionSettings } from '../motion/settings';
 import { isMuted, setMuted, isNarrationOn, setNarration } from '../audio/speech';
 import { Emoji } from '../components/Icon';
 import { BackupCard } from './BackupCard';
+import { ScreenTimeCard } from './ScreenTimeCard';
 import { CURRENCIES, loadCurrency, saveCurrency, type CurrencyId } from '../content/money';
 
 type Test = { state: 'idle' } | { state: 'testing' } | { state: 'ok' } | { state: 'fail'; why: string };
@@ -17,7 +18,7 @@ const MOVE_CHOICES = [
   ['hand', '💻 Close to the laptop', 'Fingertip, one hand. Best within arm’s reach.'],
 ] as const;
 
-export function Settings({ onBack, onVoice, onProgress }: { onBack: () => void; onVoice: () => void; onProgress: () => void }) {
+export function Settings({ onBack, onVoice, onProgress, child }: { onBack: () => void; onVoice: () => void; onProgress: () => void; child?: Profile | null }) {
   const [s, setS] = useState<AiSettings>(() => loadAiSettings());
   const [move, setMove] = useState(() => loadMotionSettings());
   const [talk, setTalk] = useState(() => isNarrationOn());
@@ -62,6 +63,8 @@ export function Settings({ onBack, onVoice, onProgress }: { onBack: () => void; 
           <span className="voice-sub">Time played, level and mastery per track, weak spots — for each child</span>
         </button>
       </section>
+
+      <ScreenTimeCard child={child} />
 
       <section className="settings-card">
         <button className="voice-pick" onClick={onVoice}>
