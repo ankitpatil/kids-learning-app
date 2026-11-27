@@ -2,6 +2,17 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-27 — Accessibility pass: contrast, focus, reduced motion (#30a)
+- **Split #30**: 30a contrast + focus + reduced motion (done), 30b Lighthouse audit (the Lighthouse download/run was not permitted in this run's sandbox).
+- **Target WCAG AA, with the large-text bar (3:1) for the big kid labels** (≥ 24px, or ≥ 18.7px bold — almost all child-facing text) and 4.5:1 for normal text (grown-up links, small captions).
+- **Darkened the two subject colours** rather than switching labels to dark text, to keep the bright white-on-colour look: math green #00b894 → #00967a (white 2.5 → 3.7), reading pink #fd79a8 → #e84393 (2.5 → 3.7). Both also pass 3:1 as text on the cream page (green equations / totals).
+- Other fixes: 10-rupee note now light brown with dark text (white was 2.2); NEW sticker tag #ff7675 → #d63031; TV-games card and live camera badge use darker green/blue (their small subtitle text needs 4.5); grown-up link buttons and voice subtitles use solid #575d60 instead of ink at 60% opacity (≈3.4 → 6+).
+- Not changed: faded "tried" choices (35% opacity) — they are deliberately inactive, which WCAG exempts; the in-game Dino Maze / camera overlays (TV, big text over video).
+- **Focus ring**: a global `:focus-visible` 4px primary outline with a 3px gap, so it reads on coloured buttons too and never shows on taps; pale yellow on the dark Bedtime and Dino Maze screens. Existing custom outlines (current profile, Move-mode hover) are untouched.
+- **Reduced motion**: the existing global `prefers-reduced-motion` rule already stops every CSS animation and transition (games stay playable: Phonics Pop balloons sit still); JS motion is limited to the camera tracker and the parent-gate hold timer. Added tests that guard the rule and ban smooth scrolling. No in-app "less motion" switch yet — it follows the device setting.
+- **Regression test** (`src/a11y/contrast.test.ts`) scans styles.css for every rule that sets both a text colour and an opaque background (variables resolved, every gradient stop checked, font size/weight for the bar) and fails on any unreadable pair; checked it fails with the old green.
+- Checked headless (preview build): Tab shows the purple ring on the avatar picker; with reduced motion the home screen runs 0 animations.
+
 ## 2026-11-26 — Screen-time cap and bedtime screen (#29)
 - **Two optional limits, both off by default** (Grown-ups → ⏰ Screen time, per device like the other device settings, not in backups): play minutes per day (15, 20, 30, 45, 60, 90) and a bedtime (7:00–9:00 pm, every half hour) that lasts until 6 am.
 - **Minutes are counted per child** from the answers log with the same active-time rule as the Progress dashboard (gaps over 2 min are breaks), for the local calendar day. So the setting is one number, but each sibling gets their own minutes; the bedtime screen keeps the player button so another child with time left can pick themselves. Reading a story or browsing the pet shop without answering doesn't count — same undercount as the dashboard.
