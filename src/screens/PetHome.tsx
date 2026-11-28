@@ -122,7 +122,7 @@ export function PetHome({ profile, onChange, onBack }: Props) {
             {mood === 'hungry' && !eating && <span className="pet-bubble"><Icon name="red-apple" /></span>}
             {eating && <span className="pet-eat"><Icon name={eating} /></span>}
           </button>
-          <div className="pet-hearts" aria-label={`${hearts} of ${MAX_HEARTS} hearts`}>
+          <div className="pet-hearts" role="img" aria-label={`${hearts} of ${MAX_HEARTS} hearts`}>
             {Array.from({ length: MAX_HEARTS }, (_, i) => (
               <span key={i} className={i < hearts ? 'on' : 'off'}><Emoji text={i < hearts ? '❤️' : '🤍'} /></span>
             ))}

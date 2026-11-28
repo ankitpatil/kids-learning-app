@@ -180,7 +180,7 @@ export function FunFair({ profileId, onDone, onExit }: Props) {
     <div className="screen game fair-game">
       <div className="topbar">
         <button className="back-btn" onClick={onExit} aria-label="Back to levels"><Emoji text="⬅️" /> Levels</button>
-        <div className="progress" aria-label={`Question ${index + 1} of ${ROUND_LENGTH}`}>
+        <div className="progress" role="img" aria-label={`Question ${index + 1} of ${ROUND_LENGTH}`}>
           {Array.from({ length: ROUND_LENGTH }, (_, i) => (
             <span key={i} className={i < index ? 'dot done' : i === index ? `dot now${slot.current.kind === 'stretch' ? ' bonus' : ''}` : 'dot'} />
           ))}
@@ -195,7 +195,7 @@ export function FunFair({ profileId, onDone, onExit }: Props) {
 
       {item.mode === 'pay' ? (
         <>
-          <div className={`fair-tray ${mood}`} aria-label={`You are paying ${moneyWords(c, total)}`}>
+          <div className={`fair-tray ${mood}`} role="group" aria-label={`You are paying ${moneyWords(c, total)}`}>
             {tray.length === 0 && <span className="tray-empty">{moneyText(c, 0).replace('0', '?')}</span>}
             {tray.map((v, i) => (
               <button key={i} className="money-btn in-tray" onClick={() => takeBack(i)} aria-label={`Take back ${moneyWords(c, v)}`}>
@@ -217,7 +217,7 @@ export function FunFair({ profileId, onDone, onExit }: Props) {
         </>
       ) : (
         <>
-          <div className="fair-paid" aria-label={`You pay ${moneyWords(c, item.paid)}`}>
+          <div className="fair-paid" role="group" aria-label={`You pay ${moneyWords(c, item.paid)}`}>
             <MoneyPiece currency={c} value={item.paid} />
             <span className="change-q">→ <span className={`blank ${mood === 'yay' ? 'filled' : ''}`}>{mood === 'yay' ? moneyText(c, item.answer) : '?'}</span></span>
           </div>
@@ -231,7 +231,7 @@ export function FunFair({ profileId, onDone, onExit }: Props) {
           )}
           <div className="quick-choices number-pick">
             {item.choices.map((n) => (
-              <button key={n} className={`quick-choice ${tried.includes(n) ? 'tried' : ''}`} onClick={() => pick(n)} aria-label={moneyWords(c, n)}>
+              <button key={n} className={`quick-choice ${tried.includes(n) ? 'tried' : ''}`} aria-disabled={tried.includes(n) || undefined} onClick={() => pick(n)} aria-label={moneyWords(c, n)}>
                 {moneyText(c, n)}
               </button>
             ))}

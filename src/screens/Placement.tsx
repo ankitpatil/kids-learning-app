@@ -97,7 +97,7 @@ export function Placement({ subject, onDone, onExit }: Props) {
         >
           <Emoji text="⬅️" /> Back
         </button>
-        <div className="progress" aria-label="Quick check">
+        <div className="progress" role="img" aria-label="Quick check">
           {Array.from({ length: 8 }, (_, i) => (
             <span key={i} className={i < Math.min(state.asked, 8) ? 'dot done' : 'dot'} />
           ))}

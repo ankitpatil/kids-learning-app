@@ -301,7 +301,7 @@ export function StoryChoose({ profileId, onDone, onExit }: Props) {
     <div className="screen game stories">
       <div className="topbar">
         <button className="back-btn" onClick={onExit} aria-label="Back to levels"><Emoji text="⬅️" /> Levels</button>
-        <div className="progress" aria-label={`Question ${Math.min(answered + 1, TOTAL)} of ${TOTAL}`}>
+        <div className="progress" role="img" aria-label={`Question ${Math.min(answered + 1, TOTAL)} of ${TOTAL}`}>
           {Array.from({ length: TOTAL }, (_, i) => (
             <span key={i} className={i < answered ? 'dot done' : i === answered && phase === 'question' ? 'dot now' : 'dot'} />
           ))}
@@ -371,7 +371,7 @@ export function StoryChoose({ profileId, onDone, onExit }: Props) {
               {question.choices.map((c) => (
                 <button
                   key={c.text}
-                  className={`story-choice ${tried.includes(c.text) ? 'tried' : ''} ${mood === 'yay' && c.text === question.answer.text ? 'right' : ''}`}
+                  className={`story-choice ${tried.includes(c.text) ? 'tried' : ''} ${mood === 'yay' && c.text === question.answer.text ? 'right' : ''}`} aria-disabled={tried.includes(c.text) || undefined}
                   onClick={() => choose(c)}
                   aria-label={c.text}
                 >

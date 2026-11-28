@@ -235,7 +235,7 @@ export function WordDetective({ profileId, trackId, onDone, onExit }: Props) {
     <div className="screen game words">
       <div className="topbar">
         <button className="back-btn" onClick={onExit} aria-label="Back to levels"><Emoji text="⬅️" /> Levels</button>
-        <div className="progress" aria-label={`Question ${index + 1} of ${ROUND_LENGTH}`}>
+        <div className="progress" role="img" aria-label={`Question ${index + 1} of ${ROUND_LENGTH}`}>
           {Array.from({ length: ROUND_LENGTH }, (_, i) => (
             <span key={i} className={i < index ? 'dot done' : i === index ? `dot now${slot.current.kind === 'stretch' ? ' bonus' : ''}` : 'dot'} />
           ))}
@@ -258,7 +258,7 @@ export function WordDetective({ profileId, trackId, onDone, onExit }: Props) {
             {item.choices.map((w) => (
               <button
                 key={w}
-                className={`word-choice ${tried.includes(w) ? 'tried' : ''} ${mood === 'yay' && w === item.word ? 'right' : ''}`}
+                className={`word-choice ${tried.includes(w) ? 'tried' : ''} ${mood === 'yay' && w === item.word ? 'right' : ''}`} aria-disabled={tried.includes(w) || undefined}
                 onClick={() => pickWord(w)}
                 aria-label={`Word ${w}`}
               >
@@ -279,7 +279,7 @@ export function WordDetective({ profileId, trackId, onDone, onExit }: Props) {
             {item.pictures.map((p) => (
               <button
                 key={p.icon}
-                className={`picture-choice ${tried.includes(p.icon) ? 'tried' : ''} ${mood === 'yay' && p.icon === item.answer ? 'right' : ''}`}
+                className={`picture-choice ${tried.includes(p.icon) ? 'tried' : ''} ${mood === 'yay' && p.icon === item.answer ? 'right' : ''}`} aria-disabled={tried.includes(p.icon) || undefined}
                 onClick={() => pickPicture(p.icon, p.word)}
                 aria-label={`Picture ${tried.length ? p.word : ''}`}
               >

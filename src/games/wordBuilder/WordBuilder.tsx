@@ -143,7 +143,7 @@ export function WordBuilder({ profileId, onDone, onExit }: Props) {
     <div className="screen game builder">
       <div className="topbar">
         <button className="back-btn" onClick={onExit} aria-label="Back to levels"><Emoji text="⬅️" /> Levels</button>
-        <div className="progress" aria-label={`Question ${index + 1} of ${ROUND_LENGTH}`}>
+        <div className="progress" role="img" aria-label={`Question ${index + 1} of ${ROUND_LENGTH}`}>
           {Array.from({ length: ROUND_LENGTH }, (_, i) => (
             <span key={i} className={i < index ? 'dot done' : i === index ? `dot now${slot.current.kind === 'stretch' ? ' bonus' : ''}` : 'dot'} />
           ))}
@@ -165,7 +165,7 @@ export function WordBuilder({ profileId, onDone, onExit }: Props) {
         {item.choices.map((e) => (
           <button
             key={e}
-            className={`word-choice ending ${tried.includes(e) ? 'tried' : ''} ${mood === 'yay' && e === item.ending ? 'right' : ''}`}
+            className={`word-choice ending ${tried.includes(e) ? 'tried' : ''} ${mood === 'yay' && e === item.ending ? 'right' : ''}`} aria-disabled={tried.includes(e) || undefined}
             onClick={() => pick(e)}
             aria-label={`Ending ${e}`}
           >

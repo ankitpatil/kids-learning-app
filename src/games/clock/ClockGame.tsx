@@ -133,7 +133,7 @@ export function ClockGame({ profileId, onDone, onExit }: Props) {
     <div className="screen game clock-game">
       <div className="topbar">
         <button className="back-btn" onClick={onExit} aria-label="Back to levels"><Emoji text="⬅️" /> Levels</button>
-        <div className="progress" aria-label={`Question ${index + 1} of ${ROUND_LENGTH}`}>
+        <div className="progress" role="img" aria-label={`Question ${index + 1} of ${ROUND_LENGTH}`}>
           {Array.from({ length: ROUND_LENGTH }, (_, i) => (
             <span key={i} className={i < index ? 'dot done' : i === index ? `dot now${slot.current.kind === 'stretch' ? ' bonus' : ''}` : 'dot'} />
           ))}
@@ -158,7 +158,7 @@ export function ClockGame({ profileId, onDone, onExit }: Props) {
             {item.choices.map((t) => (
               <button
                 key={timeKey(t)}
-                className={`quick-choice ${tried.includes(timeKey(t)) ? 'tried' : ''} ${mood === 'yay' && sameTime(t, item.time) ? 'picked' : ''}`}
+                className={`quick-choice ${tried.includes(timeKey(t)) ? 'tried' : ''} ${mood === 'yay' && sameTime(t, item.time) ? 'picked' : ''}`} aria-disabled={tried.includes(timeKey(t)) || undefined}
                 onClick={() => pick(t)}
                 aria-label={timeWords(t)}
               >
@@ -177,7 +177,7 @@ export function ClockGame({ profileId, onDone, onExit }: Props) {
             {item.choices.map((t, i) => (
               <button
                 key={timeKey(t)}
-                className={`clock-choice ${tried.includes(timeKey(t)) ? 'tried' : ''} ${mood === 'yay' && sameTime(t, item.time) ? 'picked' : ''}`}
+                className={`clock-choice ${tried.includes(timeKey(t)) ? 'tried' : ''} ${mood === 'yay' && sameTime(t, item.time) ? 'picked' : ''}`} aria-disabled={tried.includes(timeKey(t)) || undefined}
                 onClick={() => pick(t)}
                 aria-label={`Clock ${i + 1}`}
               >

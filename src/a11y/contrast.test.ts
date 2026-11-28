@@ -38,6 +38,14 @@ const INHERITED_SIZE: Record<string, { px: number; bold: boolean }> = {
   '.cu-step': { px: 22, bold: true }, // .count-up span: 1.375rem, 900
 }
 
+/** Background-only rules whose text colour / size comes from a class they are always used with. */
+const USED_WITH: Record<string, Record<string, string>> = {
+  '.btn.pop-btn': { color: '#fff', 'font-size': '2.25rem', 'font-weight': '900' }, // "btn primary pop-btn", .play-next-label
+  '.money.usd-1': { 'font-size': '1.05rem', 'font-weight': '900' }, // smallest coin (.money.small.coin)
+}
+/** In-game Dinosaur Maze targets over the camera view: labels set their own colour + shadow (see DECISIONS #30a). */
+const SKIP = /^\.dino-/
+
 type Rule = { selector: string; decls: Record<string, string> }
 function rules(src: string): Rule[] {
   const body = src.replace(/\/\*[\s\S]*?\*\//g, '')
@@ -100,7 +108,15 @@ describe('app palette (styles.css)', () => {
 
   it('every rule that sets both a text colour and an opaque background is readable', () => {
     const bad: string[] = []
-    for (const { selector, decls } of rules(css)) {
+    const all = rules(css)
+    const bySelector = new Map(all.map((r) => [r.selector, r.decls]))
+    for (const rule of all) {
+      const { selector } = rule
+      if (SKIP.test(selector)) continue
+      // A modifier that only changes the background (".word-choice.right", ".hk.hour") keeps the text colour and
+      // size of its base class; a few are only ever used together with another class (#30b).
+      const base = !rule.decls.color && /^(\.[\w-]+){2,}$/.test(selector) ? bySelector.get(selector.match(/^\.[\w-]+/)![0]) : undefined
+      const decls = { ...(base?.color ? base : {}), ...(USED_WITH[selector] ?? {}), ...rule.decls }
       const fg = decls.color && colours(decls.color)
       const bgValue = decls.background ?? decls['background-color']
       const bg = bgValue && colours(bgValue)

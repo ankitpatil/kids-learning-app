@@ -33,7 +33,7 @@ export function VoicePicker({ onBack }: { onBack: () => void }) {
     <div className="screen voices">
       <div className="topbar">
         <button className="back-btn" onClick={onBack} aria-label="Back to home"><Emoji text="⬅️" /> Back</button>
-        <h2 className="voices-title"><Emoji text="🗣️" /> Reading voice</h2>
+        <h1 className="voices-title"><Emoji text="🗣️" /> Reading voice</h1>
         <span style={{ width: 64 }} />
       </div>
 

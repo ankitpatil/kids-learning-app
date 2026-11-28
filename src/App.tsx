@@ -43,6 +43,7 @@ import { MoveModeToggle } from './components/MotionLayer';
 import { Emoji, Icon } from './components/Icon';
 import { Bedtime } from './screens/Bedtime';
 import { loadScreenTime, timeState, SCREEN_TIME_EVENT, type TimeState } from './engine/screenTime';
+import { screenHeading, setScreenHeading } from './a11y/screenHeading';
 
 type Game = 'count' | 'missing' | 'placeValue' | 'compare2d' | HopTrack | 'phonics' | WordTrack | 'sightWords' | 'endings' | 'stories' | 'wordProblems' | 'money' | 'time' | 'grouping' | 'dino';
 type Screen =
@@ -103,6 +104,12 @@ export default function App() {
       window.removeEventListener(SCREEN_TIME_EVENT, check);
     };
   }, [checking, profileId, screen]);
+
+  // Hidden <h1> naming the screen for screen readers (#30b).
+  useEffect(() => {
+    const bedtime = time.state === 'up' && !OPEN_WHEN_UP.has(screen.name); // the Bedtime screen has its own <h1>
+    setScreenHeading(bedtime ? null : screenHeading(screen));
+  }, [screen, time]);
 
   useEffect(() => {
     listProfiles().then((list) => {

@@ -127,7 +127,7 @@ export function SnackParty({ profileId, onDone, onExit }: Props) {
     <div className="screen game groups-game">
       <div className="topbar">
         <button className="back-btn" onClick={onExit} aria-label="Back to levels"><Emoji text="⬅️" /> Levels</button>
-        <div className="progress" aria-label={`Question ${index + 1} of ${ROUND_LENGTH}`}>
+        <div className="progress" role="img" aria-label={`Question ${index + 1} of ${ROUND_LENGTH}`}>
           {Array.from({ length: ROUND_LENGTH }, (_, i) => (
             <span key={i} className={i < index ? 'dot done' : i === index ? `dot now${slot.current.kind === 'stretch' ? ' bonus' : ''}` : 'dot'} />
           ))}
@@ -147,7 +147,7 @@ export function SnackParty({ profileId, onDone, onExit }: Props) {
         {item.choices.map((c) => (
           <button
             key={c}
-            className={`quick-choice ${tried.includes(c) ? 'tried' : ''} ${mood === 'yay' && c === item.answer ? 'picked' : ''}`}
+            className={`quick-choice ${tried.includes(c) ? 'tried' : ''} ${mood === 'yay' && c === item.answer ? 'picked' : ''}`} aria-disabled={tried.includes(c) || undefined}
             onClick={() => pick(c)}
             aria-label={String(c)}
           >

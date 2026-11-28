@@ -2,6 +2,17 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-28 — Lighthouse audit (#30b)
+- **How it was checked**: Lighthouse 12.8 ran this time (installed in the run's scratch folder, not added to the repo) on the preview build, mobile and desktop. Lighthouse only sees the first screen of a one-page app, so every other screen was checked with axe-core (the engine behind Lighthouse's accessibility score; WCAG 2.0–2.2 A/AA + best-practice rules, incl. 24px tap targets) by driving the app with Playwright: each game before and after one tap, level select, island maps, Pop the Answer, sticker book, pet, TV games, profiles, quick check, parent gate, Grown-ups, Progress, reading voice. Result: accessibility 93 → 100, best practices 100, performance 94; all screens axe-clean (the Dinosaur Maze camera game was not driven).
+- **Pinch zoom is allowed again** (removed `user-scalable=no`, the one Lighthouse failure; WCAG 1.4.4). Double-tap zoom on fast taps is still blocked with `touch-action: manipulation` on the page. If accidental pinches turn out to be a problem on the kids' tablet, this can be revisited.
+- **One `<main>` landmark** wraps every screen (feedback and camera layers stay outside as overlays).
+- **Hidden `<h1>` per screen** (`a11y/screenHeading.ts`): games and menus have no visible title, so a visually hidden heading names the screen ("Snack Party", "Reading games"…) for screen readers. Screens with their own visible `<h1>` (home, profiles, TV games, Bedtime, Grown-ups screens — their titles were promoted from `<h2>`) get none, so there is only ever one.
+- **Faded "tried" answers are `aria-disabled`** (and the other plate after a right answer in More or fewer): screen readers hear they're used up, and they're exempt from the contrast rule as inactive controls. They still respond to a tap as before; Move mode already skipped `aria-disabled` buttons, so a hand can't re-pick a wrong answer (it never helped).
+- **`role="img"`/`"group"`** on labelled plain divs (progress dots, hop count, locked stickers, hearts, sticker count, fair tray, number sentence, dashboard week), since `aria-label` is ignored on a role-less div.
+- **Contrast fixes the #30a stylesheet scan missed** (background-only modifier rules): Pop! button used the old pink → `--reading`; right-answer green #2ecc71 → #1e9e57; clock key pills made bold 20px (keeps the hand colours); "more/fewer" on the lilac monster now ink; empty tray "₹?" solid grey; ten marks on the number line darker green; US penny edge lighter. The scan now also follows a modifier's base class (`.word-choice.right` → `.word-choice`), and fails on the old colours.
+- **Not indexed by search engines**: `robots.txt` Disallow all + `noindex` meta, plus a meta description. It's a private family app on a public `*.vercel.app` address; this drops Lighthouse's SEO score on purpose (SEO was not a goal).
+- Not done: Lighthouse performance (94) not tuned — first paint ~2 s on the simulated slow phone is from the fonts/JS bundle; fine for an installed PWA.
+
 ## 2026-11-27 — Accessibility pass: contrast, focus, reduced motion (#30a)
 - **Split #30**: 30a contrast + focus + reduced motion (done), 30b Lighthouse audit (the Lighthouse download/run was not permitted in this run's sandbox).
 - **Target WCAG AA, with the large-text bar (3:1) for the big kid labels** (≥ 24px, or ≥ 18.7px bold — almost all child-facing text) and 4.5:1 for normal text (grown-up links, small captions).

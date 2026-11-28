@@ -441,7 +441,7 @@ export function DinoMaze({ profileId, onDone, onExit }: Props) {
       <div className="dino-top">
         <button className="back-btn" onClick={onExit} aria-label="Back to TV games"><Emoji text="⬅️" /></button>
         <div className="dino-title"><Emoji text="🦕" /> Dinosaur Maze</div>
-        <div className="dino-hearts" aria-label={`${cleared} of ${level.obstacles.length} obstacles cleared`}>
+        <div className="dino-hearts" role="img" aria-label={`${cleared} of ${level.obstacles.length} obstacles cleared`}>
           {level.obstacles.map((o, k) => (
             <span key={k} className={k < cleared ? 'done' : k === obstacle ? 'now' : ''}><Emoji text={k < cleared ? '✨' : OBSTACLES[o.kind].icon} /></span>
           ))}

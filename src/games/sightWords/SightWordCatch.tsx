@@ -133,7 +133,7 @@ export function SightWordCatch({ profileId, onDone, onExit }: Props) {
     <div className="screen game sight">
       <div className="topbar">
         <button className="back-btn" onClick={onExit} aria-label="Back to levels"><Emoji text="⬅️" /> Levels</button>
-        <div className="progress" aria-label={`Question ${index + 1} of ${ROUND_LENGTH}`}>
+        <div className="progress" role="img" aria-label={`Question ${index + 1} of ${ROUND_LENGTH}`}>
           {Array.from({ length: ROUND_LENGTH }, (_, i) => (
             <span key={i} className={i < index ? 'dot done' : i === index ? `dot now${slot.current.kind === 'stretch' ? ' bonus' : ''}` : 'dot'} />
           ))}
@@ -149,7 +149,7 @@ export function SightWordCatch({ profileId, onDone, onExit }: Props) {
         {item.choices.map((w, i) => (
           <button
             key={w}
-            className={`bubble b${i} ${tried.includes(w) ? 'tried' : ''} ${mood === 'yay' && w === item.word ? 'caught' : ''}`}
+            className={`bubble b${i} ${tried.includes(w) ? 'tried' : ''} ${mood === 'yay' && w === item.word ? 'caught' : ''}`} aria-disabled={tried.includes(w) || undefined}
             onClick={() => catchWord(w)}
             aria-label={`Bubble ${w}`}
           >

@@ -200,7 +200,7 @@ export function StorySums({ profileId, onDone, onExit }: Props) {
     <div className="screen game sums">
       <div className="topbar">
         <button className="back-btn" onClick={onExit} aria-label="Back to levels"><Emoji text="⬅️" /> Levels</button>
-        <div className="progress" aria-label={`Question ${index + 1} of ${ROUND_LENGTH}`}>
+        <div className="progress" role="img" aria-label={`Question ${index + 1} of ${ROUND_LENGTH}`}>
           {Array.from({ length: ROUND_LENGTH }, (_, i) => (
             <span key={i} className={i < index ? 'dot done' : i === index ? `dot now${slot.current.kind === 'stretch' ? ' bonus' : ''}` : 'dot'} />
           ))}
@@ -218,7 +218,7 @@ export function StorySums({ profileId, onDone, onExit }: Props) {
       {pics && <Pictures it={item} />}
 
       {item.mode === 'build' && right && (
-        <div className={`sum-equation ${mood}`} aria-label="Number sentence">
+        <div className={`sum-equation ${mood}`} role="group" aria-label="Number sentence">
           <span>{item.a}</span>
           <span className={`sum-slot ${sign ? 'filled' : ''}`}>{sign ? (sign === '+' ? '+' : '−') : '?'}</span>
           <span>{item.b}</span>
@@ -230,7 +230,7 @@ export function StorySums({ profileId, onDone, onExit }: Props) {
       <div className="word-choices">
         {item.mode === 'build' && !sign &&
           (['+', '-'] as Op[]).map((op) => (
-            <button key={op} className={`word-choice sign ${tried.includes(`s${op}`) ? 'tried' : ''}`} onClick={() => pickSign(op)} aria-label={op === '+' ? 'Plus' : 'Minus'}>
+            <button key={op} className={`word-choice sign ${tried.includes(`s${op}`) ? 'tried' : ''}`} aria-disabled={tried.includes(`s${op}`) || undefined} onClick={() => pickSign(op)} aria-label={op === '+' ? 'Plus' : 'Minus'}>
               {op === '+' ? '+' : '−'}
             </button>
           ))}
@@ -238,7 +238,7 @@ export function StorySums({ profileId, onDone, onExit }: Props) {
           item.choices.map((n) => (
             <button
               key={n}
-              className={`word-choice ${tried.includes(`n${n}`) ? 'tried' : ''} ${mood === 'yay' && n === item.answer ? 'right' : ''}`}
+              className={`word-choice ${tried.includes(`n${n}`) ? 'tried' : ''} ${mood === 'yay' && n === item.answer ? 'right' : ''}`} aria-disabled={tried.includes(`n${n}`) || undefined}
               onClick={() => pickNumber(n)}
               aria-label={numberWord(n)}
             >
@@ -251,7 +251,7 @@ export function StorySums({ profileId, onDone, onExit }: Props) {
             return (
               <button
                 key={eqText(e)}
-                className={`word-choice equation ${tried.includes(eqText(e)) ? 'tried' : ''} ${mood === 'yay' && ok ? 'right' : ''}`}
+                className={`word-choice equation ${tried.includes(eqText(e)) ? 'tried' : ''} ${mood === 'yay' && ok ? 'right' : ''}`} aria-disabled={tried.includes(eqText(e)) || undefined}
                 onClick={() => pickEquation(e)}
                 aria-label={eqSpoken(e)}
               >

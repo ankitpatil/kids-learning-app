@@ -22,7 +22,7 @@ export function StickerVault({ owned, onBack }: Props) {
     <div className="screen vault">
       <div className="topbar">
         <button className="back-btn" onClick={onBack} aria-label="Back to home"><Emoji text="⬅️" /> Back</button>
-        <div className="vault-count" aria-label={`${got} of ${STICKERS.length} stickers`}><Emoji text="📒" /> {got} / {STICKERS.length}</div>
+        <div className="vault-count" role="img" aria-label={`${got} of ${STICKERS.length} stickers`}><Emoji text="📒" /> {got} / {STICKERS.length}</div>
         <span style={{ width: 64 }} />
       </div>
       {STICKER_PAGES.map(({ page, title }) => {
@@ -41,7 +41,7 @@ export function StickerVault({ owned, onBack }: Props) {
                     {owned[s.id] > 1 && <span className="dup">×{owned[s.id]}</span>}
                   </button>
                 ) : (
-                  <div key={s.id} className={`vault-sticker locked ${s.rarity}`} aria-label="Not collected yet">
+                  <div key={s.id} className={`vault-sticker locked ${s.rarity}`} role="img" aria-label="Not collected yet">
                     <span><Icon name={s.icon} /></span>
                   </div>
                 ),

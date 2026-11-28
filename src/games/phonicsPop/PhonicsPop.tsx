@@ -133,7 +133,7 @@ export function PhonicsPop({ profileId, onDone, onExit }: Props) {
     <div className="screen game phonics">
       <div className="topbar">
         <button className="back-btn" onClick={onExit} aria-label="Back to levels"><Emoji text="⬅️" /> Levels</button>
-        <div className="progress" aria-label={`Question ${index + 1} of ${ROUND_LENGTH}`}>
+        <div className="progress" role="img" aria-label={`Question ${index + 1} of ${ROUND_LENGTH}`}>
           {Array.from({ length: ROUND_LENGTH }, (_, i) => (
             <span key={i} className={i < index ? 'dot done' : i === index ? `dot now${slot.current.kind === 'stretch' ? ' bonus' : ''}` : 'dot'} />
           ))}
@@ -154,6 +154,7 @@ export function PhonicsPop({ profileId, onDone, onExit }: Props) {
             <button
               key={`${item.id}-${l}`}
               className={cls}
+              aria-disabled={tried.includes(l) || undefined}
               style={{ ['--c' as string]: BALLOON_COLORS[i % BALLOON_COLORS.length], animationDelay: `${i * 0.3}s` }}
               onClick={() => choose(l)}
               aria-label={`Letter ${l}`}

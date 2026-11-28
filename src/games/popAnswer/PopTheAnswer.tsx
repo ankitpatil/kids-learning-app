@@ -126,7 +126,7 @@ export function PopTheAnswer({ profileId, trackId, onDone, onExit }: Props) {
     <div className="screen game pop-answer">
       <div className="topbar">
         <button className="back-btn" onClick={onExit} aria-label="Back to levels"><Emoji text="⬅️" /> Levels</button>
-        <div className="progress" aria-label={`Question ${index + 1} of ${ROUND_LENGTH}`}>
+        <div className="progress" role="img" aria-label={`Question ${index + 1} of ${ROUND_LENGTH}`}>
           {Array.from({ length: ROUND_LENGTH }, (_, i) => (
             <span key={i} className={i < index ? 'dot done' : i === index ? `dot now${slot.current.kind === 'stretch' ? ' bonus' : ''}` : 'dot'} />
           ))}
@@ -152,6 +152,7 @@ export function PopTheAnswer({ profileId, trackId, onDone, onExit }: Props) {
             >
               <button
                 className={cls}
+                aria-disabled={tried || undefined}
                 style={{ ['--c' as string]: b.color }}
                 data-motion-hold={TOUCH_HOLD_MS}
                 onPointerDown={(e) => {

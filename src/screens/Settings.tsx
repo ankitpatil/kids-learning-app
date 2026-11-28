@@ -53,7 +53,7 @@ export function Settings({ onBack, onVoice, onProgress, child }: { onBack: () =>
     <div className="screen settings">
       <div className="topbar">
         <button className="back-btn" onClick={onBack} aria-label="Back to home"><Emoji text="⬅️" /> Back</button>
-        <h2 className="voices-title"><Emoji text="⚙️" /> Grown-ups</h2>
+        <h1 className="voices-title"><Emoji text="⚙️" /> Grown-ups</h1>
         <span style={{ width: 64 }} />
       </div>
 

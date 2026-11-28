@@ -69,7 +69,7 @@ export function ParentDashboard({ onBack, currentId }: { onBack: () => void; cur
     <div className="screen settings dashboard" data-no-motion>
       <div className="topbar">
         <button className="back-btn" onClick={onBack} aria-label="Back to grown-ups"><Emoji text="⬅️" /> Back</button>
-        <h2 className="voices-title"><Emoji text="📊" /> Progress</h2>
+        <h1 className="voices-title"><Emoji text="📊" /> Progress</h1>
         <span style={{ width: 64 }} />
       </div>
 
@@ -92,7 +92,7 @@ export function ParentDashboard({ onBack, currentId }: { onBack: () => void; cur
             <span className="voice-sub">
               {sum.weekMinutes} min played · {sum.weekAnswers} answers · {pct(sum.weekRate)} right · {pct(sum.weekHintRate)} with a hint · {when(sum.lastPlayedAt, now)}
             </span>
-            <div className="dash-week" aria-label="Minutes played per day">
+            <div className="dash-week" role="group" aria-label="Minutes played per day">
               {sum.week.map((d) => (
                 <div key={d.day} className="dash-day" title={`${d.minutes} min, ${d.answers} answers`}>
                   <span className="dash-day-min">{d.minutes || ''}</span>

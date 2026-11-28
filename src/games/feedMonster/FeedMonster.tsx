@@ -241,7 +241,7 @@ export function FeedMonster({ profileId, trackId, onDone, onExit }: Props) {
       <div className="screen game">
         <div className="topbar">
           <button className="back-btn" onClick={onExit} aria-label="Back to levels"><Emoji text="⬅️" /> Levels</button>
-          <div className="progress" aria-label={`Question ${index + 1} of ${ROUND_LENGTH}`}>
+          <div className="progress" role="img" aria-label={`Question ${index + 1} of ${ROUND_LENGTH}`}>
             {Array.from({ length: ROUND_LENGTH }, (_, i) => (
               <span key={i} className={i < index ? 'dot done' : i === index ? `dot now${slot.current.kind === 'stretch' ? ' bonus' : ''}` : 'dot'} />
             ))}
@@ -257,7 +257,7 @@ export function FeedMonster({ profileId, trackId, onDone, onExit }: Props) {
             const t = Math.floor(n / 10), o = n % 10;
             const cls = done ? (n === item.need ? 'right' : 'other') : wrongPick === n ? 'tried' : '';
             return (
-              <button key={n} className={`cmp-plate ${cls}`} onClick={() => submit(n)} aria-label={String(n)}>
+              <button key={n} className={`cmp-plate ${cls}`} aria-disabled={cls === 'tried' || cls === 'other' || undefined} onClick={() => submit(n)} aria-label={String(n)}>
                 <span className="cmp-number">{n}</span>
                 {picture && (
                   <span className="cmp-pic">
@@ -285,7 +285,7 @@ export function FeedMonster({ profileId, trackId, onDone, onExit }: Props) {
       <div className="screen game">
       <div className="topbar">
         <button className="back-btn" onClick={onExit} aria-label="Back to levels"><Emoji text="⬅️" /> Levels</button>
-        <div className="progress" aria-label={`Question ${index + 1} of ${ROUND_LENGTH}`}>
+        <div className="progress" role="img" aria-label={`Question ${index + 1} of ${ROUND_LENGTH}`}>
           {Array.from({ length: ROUND_LENGTH }, (_, i) => (
             <span key={i} className={i < index ? 'dot done' : i === index ? `dot now${slot.current.kind === 'stretch' ? ' bonus' : ''}` : 'dot'} />
           ))}
@@ -350,7 +350,7 @@ export function FeedMonster({ profileId, trackId, onDone, onExit }: Props) {
         ) : (
           <div className="quick-choices number-pick">
             {item.choices.map((c) => (
-              <button key={c} className={`quick-choice ${wrongPick === c ? 'tried' : ''}`} onClick={() => submit(c)} aria-label={String(c)}>
+              <button key={c} className={`quick-choice ${wrongPick === c ? 'tried' : ''}`} aria-disabled={wrongPick === c || undefined} onClick={() => submit(c)} aria-label={String(c)}>
                 {c}
               </button>
             ))}
@@ -368,7 +368,7 @@ export function FeedMonster({ profileId, trackId, onDone, onExit }: Props) {
     <div className="screen game">
       <div className="topbar">
         <button className="back-btn" onClick={onExit} aria-label="Back to levels"><Emoji text="⬅️" /> Levels</button>
-        <div className="progress" aria-label={`Question ${index + 1} of ${ROUND_LENGTH}`}>
+        <div className="progress" role="img" aria-label={`Question ${index + 1} of ${ROUND_LENGTH}`}>
           {Array.from({ length: ROUND_LENGTH }, (_, i) => (
             <span key={i} className={i < index ? 'dot done' : i === index ? `dot now${slot.current.kind === 'stretch' ? ' bonus' : ''}` : 'dot'} />
           ))}
@@ -415,7 +415,7 @@ export function FeedMonster({ profileId, trackId, onDone, onExit }: Props) {
       ) : (
         <div className="quick-choices number-pick">
           {item.choices.map((c) => (
-            <button key={c} className={`quick-choice ${wrongPick === c ? 'tried' : ''}`} onClick={() => submit(c)} aria-label={String(c)}>
+            <button key={c} className={`quick-choice ${wrongPick === c ? 'tried' : ''}`} aria-disabled={wrongPick === c || undefined} onClick={() => submit(c)} aria-label={String(c)}>
               {c}
             </button>
           ))}

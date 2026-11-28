@@ -227,7 +227,7 @@ export function NumberLineHop({ profileId, trackId, onDone, onExit }: Props) {
     <div className="screen game hop-game">
       <div className="topbar">
         <button className="back-btn" onClick={onExit} aria-label="Back to levels"><Emoji text="⬅️" /> Levels</button>
-        <div className="progress" aria-label={`Question ${index + 1} of ${ROUND_LENGTH}`}>
+        <div className="progress" role="img" aria-label={`Question ${index + 1} of ${ROUND_LENGTH}`}>
           {Array.from({ length: ROUND_LENGTH }, (_, i) => (
             <span key={i} className={i < index ? 'dot done' : i === index ? `dot now${slot.current.kind === 'stretch' ? ' bonus' : ''}` : 'dot'} />
           ))}
@@ -243,7 +243,7 @@ export function NumberLineHop({ profileId, trackId, onDone, onExit }: Props) {
           {step === 'split' ? <Emoji text={`${item.a} ${item.op === '+' ? '➡️' : '⬅️'} 10 = ? 🐾`} /> : `= ${splitText(item)}`}
         </div>
       )}
-      {step === 'hop' && <div className="hop-count" aria-label={`${hops} hops`}><Emoji text={'🐾'.repeat(hops) || ' '} /></div>}
+      {step === 'hop' && <div className="hop-count" role="img" aria-label={`${hops} hops`}><Emoji text={'🐾'.repeat(hops) || ' '} /></div>}
 
       <div className={`line-wrap ${mood}`}>
         {showLine && <Line max={item.lineMax} frog={frog} from={item.a} mark10={item.mode === 'make10'} />}
@@ -258,7 +258,7 @@ export function NumberLineHop({ profileId, trackId, onDone, onExit }: Props) {
       ) : (
         <div className="quick-choices number-pick">
           {choices.map((c) => (
-            <button key={c} className={`quick-choice ${tried.includes(c) ? 'tried' : ''}`} onClick={() => pick(c)} aria-label={String(c)}>
+            <button key={c} className={`quick-choice ${tried.includes(c) ? 'tried' : ''}`} aria-disabled={tried.includes(c) || undefined} onClick={() => pick(c)} aria-label={String(c)}>
               {c}
             </button>
           ))}
