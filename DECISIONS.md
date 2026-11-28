@@ -2,6 +2,12 @@
 
 Judgment calls made during autonomous runs. Newest first. Ankit reviews and can overrule.
 
+## 2026-11-28 — Audio options write-up (#31)
+- Write-up only (`docs/audio-options.md`), no code, nothing bought or signed up for; decision moved to "Needs Ankit".
+- **Recommended hybrid**: Kokoro-82M (Apache-2.0) run once at build time for fixed reading content (≈ 250 words/sentences/stories, ≈ 3–5 MB of clips), family-recorded phonemes (~40 clips, the one thing TTS can't do), Web Speech kept for generated text (word problems, clock, money) and as the fallback.
+- Ruled out for now: in-browser neural TTS (16–300 MB download per device, slow on iPad WASM, breaks the 2 s rule), cloud TTS (needs a billing account → Ankit only), commercial phonics packs (cost/licence), open IPA recordings (adult/clinical, mixed licences).
+- Size figures for browser models are vendor/blog-reported and unverified; would be measured in a build item.
+
 ## 2026-11-28 — Lighthouse audit (#30b)
 - **How it was checked**: Lighthouse 12.8 ran this time (installed in the run's scratch folder, not added to the repo) on the preview build, mobile and desktop. Lighthouse only sees the first screen of a one-page app, so every other screen was checked with axe-core (the engine behind Lighthouse's accessibility score; WCAG 2.0–2.2 A/AA + best-practice rules, incl. 24px tap targets) by driving the app with Playwright: each game before and after one tap, level select, island maps, Pop the Answer, sticker book, pet, TV games, profiles, quick check, parent gate, Grown-ups, Progress, reading voice. Result: accessibility 93 → 100, best practices 100, performance 94; all screens axe-clean (the Dinosaur Maze camera game was not driven).
 - **Pinch zoom is allowed again** (removed `user-scalable=no`, the one Lighthouse failure; WCAG 1.4.4). Double-tap zoom on fast taps is still blocked with `touch-action: manipulation` on the page. If accidental pinches turn out to be a problem on the kids' tablet, this can be revisited.
